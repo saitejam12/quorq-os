@@ -15,6 +15,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
+import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
 import { Route as AppAdminRequestsRouteImport } from './routes/_app/admin/requests'
 
 const SignupRoute = SignupRouteImport.update({
@@ -46,6 +47,11 @@ const AppHomeRoute = AppHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminRequestsRoute = AppAdminRequestsRouteImport.update({
   id: '/admin/requests',
   path: '/admin/requests',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/home': typeof AppHomeRoute
   '/admin/requests': typeof AppAdminRequestsRoute
+  '/admin/users': typeof AppAdminUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/home': typeof AppHomeRoute
   '/admin/requests': typeof AppAdminRequestsRoute
+  '/admin/users': typeof AppAdminUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_app/home': typeof AppHomeRoute
   '/_app/admin/requests': typeof AppAdminRequestsRoute
+  '/_app/admin/users': typeof AppAdminUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/home'
     | '/admin/requests'
+    | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/home'
     | '/admin/requests'
+    | '/admin/users'
   id:
     | '__root__'
     | '/'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_app/home'
     | '/_app/admin/requests'
+    | '/_app/admin/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +170,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHomeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/admin/users': {
+      id: '/_app/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AppAdminUsersRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/admin/requests': {
       id: '/_app/admin/requests'
       path: '/admin/requests'
@@ -171,11 +190,13 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppHomeRoute: typeof AppHomeRoute
   AppAdminRequestsRoute: typeof AppAdminRequestsRoute
+  AppAdminUsersRoute: typeof AppAdminUsersRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppHomeRoute: AppHomeRoute,
   AppAdminRequestsRoute: AppAdminRequestsRoute,
+  AppAdminUsersRoute: AppAdminUsersRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
