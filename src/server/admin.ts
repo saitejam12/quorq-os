@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
 import { z } from 'zod'
-import { getClient } from '#/db'
+import { requireDb } from '#/db'
 import { verifyToken } from '#/server/jwt'
 import { SESSION_COOKIE, getAuthSecret } from '#/server/auth'
 import { TIERS, canSetTier, hasTier } from '#/lib/tiers'
@@ -25,7 +25,7 @@ export interface UserStats {
 const GENERIC_ERROR = 'Something went wrong'
 const FORBIDDEN = 'You do not have access to perform this action'
 
-type Sql = NonNullable<Awaited<ReturnType<typeof getClient>>>
+type Sql = ReturnType<typeof requireDb>
 
 // Authorization reads the DB, not the token: a stale token must never
 // retain privileges after a tier change or deactivation.
@@ -52,8 +52,7 @@ async function getCaller(
 export const listUsers = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Result<Array<AdminUser>>> => {
     try {
-      const sql = await getClient()
-      if (!sql) return { ok: false, error: GENERIC_ERROR }
+      const sql = requireDb()
       const caller = await getCaller(sql, 'ops')
       if (!caller) return { ok: false, error: FORBIDDEN }
       const rows = await sql`
@@ -86,8 +85,7 @@ async function setPendingStatus(
   status: 'active' | 'rejected',
 ): Promise<Result<null>> {
   try {
-    const sql = await getClient()
-    if (!sql) return { ok: false, error: GENERIC_ERROR }
+    const sql = requireDb()
     const caller = await getCaller(sql, 'master')
     if (!caller) return { ok: false, error: FORBIDDEN }
     const updated = await sql`
@@ -118,8 +116,7 @@ export const setUserTier = createServerFn({ method: 'POST' })
   .validator(z.object({ userId: z.number(), tier: z.enum(TIERS) }))
   .handler(async ({ data }): Promise<Result<null>> => {
     try {
-      const sql = await getClient()
-      if (!sql) return { ok: false, error: GENERIC_ERROR }
+      const sql = requireDb()
       const caller = await getCaller(sql, 'ops')
       if (!caller) return { ok: false, error: FORBIDDEN }
       if (caller.id === data.userId) {
@@ -151,8 +148,7 @@ export const setUserTier = createServerFn({ method: 'POST' })
 export const getUserStats = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Result<UserStats>> => {
     try {
-      const sql = await getClient()
-      if (!sql) return { ok: false, error: GENERIC_ERROR }
+      const sql = requireDb()
       const caller = await getCaller(sql, 'master')
       if (!caller) return { ok: false, error: FORBIDDEN }
       const rows = await sql`

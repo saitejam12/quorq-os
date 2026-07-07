@@ -5,7 +5,7 @@ import {
   setCookie,
 } from '@tanstack/react-start/server'
 import { z } from 'zod'
-import { getClient } from '#/db'
+import { requireDb } from '#/db'
 import { hashPassword, verifyPassword } from '#/server/password'
 import { signToken, verifyToken } from '#/server/jwt'
 import type { Tier } from '#/lib/tiers'
@@ -42,8 +42,7 @@ export const signup = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }): Promise<Result<null>> => {
     try {
-      const sql = await getClient()
-      if (!sql) return { ok: false, error: GENERIC_ERROR }
+      const sql = requireDb()
       const email = data.email.toLowerCase()
       const existing = await sql`SELECT id FROM users WHERE email = ${email}`
       if (existing.length > 0) {
@@ -73,8 +72,7 @@ export const login = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }): Promise<Result<AuthUser>> => {
     try {
-      const sql = await getClient()
-      if (!sql) return { ok: false, error: GENERIC_ERROR }
+      const sql = requireDb()
       const rows = await sql`
         SELECT id, email, name, password_hash, tier, status
         FROM users
