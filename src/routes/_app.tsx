@@ -1,9 +1,15 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Logo, SidebarNav } from '#/components/AppSidebar'
+import { getCurrentUser } from '#/server/auth'
 
 export const Route = createFileRoute('/_app')({
+  beforeLoad: async () => {
+    const user = await getCurrentUser()
+    if (!user) throw redirect({ to: '/login' })
+    return { user }
+  },
   component: AppLayout,
 })
 
