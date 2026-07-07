@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ShieldCheck, LogIn, Loader2 } from 'lucide-react'
+import BrandPanel from '#/components/BrandPanel'
 
 export const Route = createFileRoute('/login')({
   // beforeLoad: async () => {
@@ -39,28 +40,7 @@ function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      {/* brand panel */}
-      <div className="hidden w-1/2 flex-col justify-between bg-slate-900 p-12 text-white lg:flex">
-        <div>
-          <div className="text-2xl font-bold">PeopleOS</div>
-          <div className="text-sm text-slate-400">
-            HR Analytics Suite · FY 2026–27
-          </div>
-        </div>
-        <div>
-          <h2 className="text-3xl font-bold leading-tight">
-            Everything your people team needs, in one place.
-          </h2>
-          <p className="mt-4 max-w-md text-slate-400">
-            Hiring, Payrolls, Engagement and much more — For Employees, Managers
-            and HR.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <ShieldCheck size={14} /> Secure session · Neon PostgreSQL
-        </div>
-      </div>
-
+      <BrandPanel />
       {/* form panel */}
       <div className="flex w-full items-center justify-center p-6 lg:w-1/2">
         <div className="w-full max-w-sm">

@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useState } from 'react'
-import { ShieldCheck, Send, Loader2, MailCheck, ArrowLeft } from 'lucide-react'
+import { Send, Loader2, MailCheck, ArrowLeft } from 'lucide-react'
 import { z } from 'zod'
+import BrandPanel from '#/components/BrandPanel'
 
 export const Route = createFileRoute('/forgot-password')({
   component: ForgotPasswordPage,
@@ -34,27 +35,7 @@ function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      {/* brand panel */}
-      <div className="hidden w-1/2 flex-col justify-between bg-slate-900 p-12 text-white lg:flex">
-        <div>
-          <div className="text-2xl font-bold">PeopleOS</div>
-          <div className="text-sm text-slate-400">
-            HR Analytics Suite · FY 2026–27
-          </div>
-        </div>
-        <div>
-          <h2 className="text-3xl font-bold leading-tight">
-            Locked out? We'll get you back in.
-          </h2>
-          <p className="mt-4 max-w-md text-slate-400">
-            Enter your work email and we'll send you a secure link to reset your
-            password.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <ShieldCheck size={14} /> Secure session · Neon PostgreSQL
-        </div>
-      </div>
+      <BrandPanel />
 
       {/* form panel */}
       <div className="flex w-full items-center justify-center p-6 lg:w-1/2">
