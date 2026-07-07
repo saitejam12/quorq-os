@@ -1,27 +1,27 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ShieldCheck, LogIn, Loader2 } from 'lucide-react'
+import { LogIn, Loader2 } from 'lucide-react'
 import BrandPanel from '#/components/BrandPanel'
+import { getCurrentUser, login } from '#/server/auth'
 
 export const Route = createFileRoute('/login')({
-  // beforeLoad: async () => {
-  //   const user = await getCurrentUser()
-  //   if (user) throw redirect({ to: landingFor(user.role) })
-  // },
+  beforeLoad: async () => {
+    const user = await getCurrentUser()
+    if (user) throw redirect({ to: '/home' })
+  },
   component: LoginPage,
 })
 
 const demoAccounts = [
-  { role: 'Admin', email: 'admin@quorq.com', password: 'admin123' },
-  { role: 'HR', email: 'hr@quorq.com', password: 'hr123' },
-  { role: 'Manager', email: 'manager@quorq.com', password: 'manager123' },
-  { role: 'Employee', email: 'employee@quorq.com', password: 'employee123' },
-]
+  { tier: 'basic', email: 'basic@quorq.com', password: 'basic123' },
+  { tier: 'ops', email: 'ops@quorq.com', password: 'ops123' },
+  { tier: 'master', email: 'master@quorq.com', password: 'master123' },
+] as const
 
 function LoginPage() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('admin@quorq.com')
-  const [password, setPassword] = useState('admin123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -29,13 +29,13 @@ function LoginPage() {
     e.preventDefault()
     setBusy(true)
     setError('')
-    // const res = await login({ data: { email, password } })
-    // setBusy(false)
-    // if (!res.ok) {
-    //   setError(res.error)
-    //   return
-    // }
-    // navigate({ to: landingFor(res.user.role) })
+    const res = await login({ data: { email, password } })
+    setBusy(false)
+    if (!res.ok) {
+      setError(res.error)
+      return
+    }
+    void navigate({ to: '/home' })
   }
 
   return (
@@ -92,6 +92,28 @@ function LoginPage() {
               Sign in
             </button>
           </form>
+
+          <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
+            <div className="text-xs font-medium text-slate-500">
+              Demo accounts
+            </div>
+            <div className="mt-2 flex gap-2">
+              {demoAccounts.map((account) => (
+                <button
+                  key={account.tier}
+                  type="button"
+                  onClick={() => {
+                    setEmail(account.email)
+                    setPassword(account.password)
+                  }}
+                  className="flex-1 rounded-md border border-slate-200 py-1.5 text-xs font-medium capitalize text-slate-600 hover:bg-slate-50"
+                >
+                  {account.tier}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="mt-4 flex items-center justify-between text-sm text-slate-700">
             <div>New User? </div>
             <a href="/signup" className="text-blue-500 hover:underline">
