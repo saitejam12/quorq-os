@@ -107,15 +107,15 @@ async function setPendingStatus(
 }
 
 export const approveUser = createServerFn({ method: 'POST' })
-  .inputValidator(UserIdSchema)
+  .validator(UserIdSchema)
   .handler(async ({ data }) => setPendingStatus(data.userId, 'active'))
 
 export const rejectUser = createServerFn({ method: 'POST' })
-  .inputValidator(UserIdSchema)
+  .validator(UserIdSchema)
   .handler(async ({ data }) => setPendingStatus(data.userId, 'rejected'))
 
 export const setUserTier = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ userId: z.number(), tier: z.enum(TIERS) }))
+  .validator(z.object({ userId: z.number(), tier: z.enum(TIERS) }))
   .handler(async ({ data }): Promise<Result<null>> => {
     try {
       const sql = await getClient()

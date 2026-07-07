@@ -33,7 +33,7 @@ export function getAuthSecret(): string {
 }
 
 export const signup = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     z.object({
       name: z.string().min(1),
       email: z.email(),
@@ -65,7 +65,7 @@ export const signup = createServerFn({ method: 'POST' })
   })
 
 export const login = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     z.object({
       email: z.email(),
       password: z.string().min(1),

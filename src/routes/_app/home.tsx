@@ -2,6 +2,9 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Bell, Power, ArrowRight, ClipboardCheck, Palmtree } from 'lucide-react'
 
 export const Route = createFileRoute('/_app/home')({
+  validateSearch: (search: Record<string, unknown>): { denied?: '1' } => ({
+    denied: search.denied === '1' ? '1' : undefined,
+  }),
   component: HomePage,
 })
 
