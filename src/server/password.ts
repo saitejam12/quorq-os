@@ -8,13 +8,18 @@ function toBase64(bytes: Uint8Array): string {
   return btoa(String.fromCharCode(...bytes))
 }
 
-function fromBase64(value: string): Uint8Array {
-  return Uint8Array.from(atob(value), (c) => c.charCodeAt(0))
+function fromBase64(value: string): Uint8Array<ArrayBuffer> {
+  const binary = atob(value)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return bytes
 }
 
 async function derive(
   password: string,
-  salt: Uint8Array,
+  salt: Uint8Array<ArrayBuffer>,
   iterations: number,
 ): Promise<Uint8Array> {
   const key = await crypto.subtle.importKey(
@@ -48,7 +53,7 @@ export async function verifyPassword(
     return false
   }
   let expected: Uint8Array
-  let salt: Uint8Array
+  let salt: Uint8Array<ArrayBuffer>
   try {
     expected = fromBase64(hashB64)
     salt = fromBase64(saltB64)
