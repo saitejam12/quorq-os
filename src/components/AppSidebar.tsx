@@ -2,17 +2,13 @@ import { useState } from 'react'
 import { Link, useRouteContext, useRouterState } from '@tanstack/react-router'
 import {
   Home,
-  Radio,
-  LayoutGrid,
-  ClipboardList,
-  Wallet,
-  CalendarDays,
-  FileText,
-  Users,
-  LifeBuoy,
-  Layers,
-  Split,
+  UserCircle,
+  UsersRound,
+  Building2,
+  BarChart3,
+  SlidersHorizontal,
   Shield,
+  HelpCircle,
   Settings,
   ChevronDown,
 } from 'lucide-react'
@@ -20,11 +16,37 @@ import type { LucideIcon } from 'lucide-react'
 import { hasTier } from '#/lib/tiers'
 import type { Tier } from '#/lib/tiers'
 
+// Every path here is a real route under src/routes/_app. Keeping the union
+// explicit lets TanStack's <Link> type-check each destination.
+type RoutePath =
+  | '/'
+  | '/profile'
+  | '/directory'
+  | '/engagement'
+  | '/org'
+  | '/hiring'
+  | '/onboarding'
+  | '/time'
+  | '/leave'
+  | '/expenses'
+  | '/payroll'
+  | '/overview'
+  | '/workforce'
+  | '/talent'
+  | '/attendance'
+  | '/attrition'
+  | '/reports'
+  | '/import-export'
+  | '/alerts'
+  | '/settings'
+  | '/monitoring'
+  | '/help'
+  | '/admin/users'
+  | '/admin/requests'
+
 type NavLeaf = {
   label: string
-  // Only routed pages get `to`; the rest are placeholders that render as
-  // buttons until their routes are scaffolded (sub-projects 2-6).
-  to?: '/home' | '/admin/requests' | '/admin/users'
+  to?: RoutePath
   minTier?: Tier
 }
 
@@ -34,60 +56,63 @@ type NavItem = NavLeaf & {
 }
 
 const NAV: Array<NavItem> = [
-  { label: 'Home', icon: Home, to: '/home' },
-  { label: 'Engage', icon: Radio },
+  { label: 'Home', icon: Home, to: '/' },
+  { label: 'My Profile', icon: UserCircle, to: '/profile' },
   {
-    label: 'My Worklife',
-    icon: LayoutGrid,
+    label: 'People',
+    icon: UsersRound,
     children: [
-      { label: 'Profile' },
-      { label: 'Attendance' },
-      { label: 'Shifts' },
-      { label: 'Assets' },
+      { label: 'Employee Directory', to: '/directory' },
+      { label: 'Engagement', to: '/engagement' },
+      { label: 'Org Structure', to: '/org' },
+      { label: 'Hiring', to: '/hiring', minTier: 'ops' },
+      { label: 'Onboarding', to: '/onboarding', minTier: 'ops' },
     ],
   },
   {
-    label: 'To do',
-    icon: ClipboardList,
+    label: 'Workplace',
+    icon: Building2,
     children: [
-      { label: 'Approvals' },
-      { label: 'Tasks' },
-      { label: 'Reviews' },
+      { label: 'Time Tracking', to: '/time' },
+      { label: 'Leave Management', to: '/leave' },
+      { label: 'Expenses', to: '/expenses' },
+      { label: 'Payroll', to: '/payroll', minTier: 'ops' },
     ],
   },
   {
-    label: 'Salary',
-    icon: Wallet,
+    label: 'Analytics',
+    icon: BarChart3,
+    minTier: 'ops',
     children: [
-      { label: 'Payslips' },
-      { label: 'IT Statement' },
-      { label: 'YTD Reports' },
-      { label: 'Loans' },
+      { label: 'Executive Overview', to: '/overview', minTier: 'ops' },
+      { label: 'Workforce Intelligence', to: '/workforce', minTier: 'ops' },
+      { label: 'Talent Acquisition', to: '/talent', minTier: 'ops' },
+      { label: 'Attendance & Leave', to: '/attendance', minTier: 'ops' },
+      { label: 'Attrition & Retention', to: '/attrition', minTier: 'ops' },
+      { label: 'Reports Hub', to: '/reports', minTier: 'ops' },
     ],
   },
   {
-    label: 'Leave',
-    icon: CalendarDays,
+    label: 'Management',
+    icon: SlidersHorizontal,
+    minTier: 'ops',
     children: [
-      { label: 'Apply Leave' },
-      { label: 'Leave Balance' },
-      { label: 'Holidays' },
+      { label: 'Import & Export', to: '/import-export', minTier: 'ops' },
+      { label: 'Alerts & Notifications', to: '/alerts', minTier: 'ops' },
     ],
   },
-  { label: 'Document Center', icon: FileText },
-  { label: 'Helpdesk', icon: LifeBuoy },
-  { label: 'People', icon: Users, minTier: 'ops' },
-  { label: 'Request Hub', icon: Layers, minTier: 'ops' },
-  { label: 'Workflow Delegates', icon: Split, minTier: 'ops' },
   {
     label: 'Administration',
     icon: Shield,
     minTier: 'ops',
     children: [
-      { label: 'User Requests', to: '/admin/requests', minTier: 'master' },
       { label: 'User Management', to: '/admin/users', minTier: 'ops' },
+      { label: 'User Requests', to: '/admin/requests', minTier: 'master' },
+      { label: 'Settings', to: '/settings', minTier: 'ops' },
+      { label: 'Monitoring', to: '/monitoring', minTier: 'master' },
     ],
   },
+  { label: 'Help', icon: HelpCircle, to: '/help' },
 ]
 
 const TIER_BADGE: Record<Tier, string> = {
@@ -98,6 +123,13 @@ const TIER_BADGE: Record<Tier, string> = {
 
 const rowBase =
   'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors'
+
+function groupForPath(pathname: string): string | null {
+  const group = NAV.find((item) =>
+    item.children?.some((child) => child.to === pathname),
+  )
+  return group?.label ?? null
+}
 
 export function Logo() {
   return (
@@ -114,8 +146,9 @@ export function Logo() {
 
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const { user } = useRouteContext({ from: '/_app' })
-  const [open, setOpen] = useState<string | null>(null)
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  // Open the group containing the current route on first render.
+  const [open, setOpen] = useState<string | null>(() => groupForPath(pathname))
 
   const visible = NAV.filter((item) =>
     hasTier(user.tier, item.minTier ?? 'basic'),

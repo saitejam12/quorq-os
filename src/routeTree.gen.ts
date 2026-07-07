@@ -13,8 +13,28 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AppRouteImport } from './routes/_app'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppHomeRouteImport } from './routes/_app/home'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppWorkforceRouteImport } from './routes/_app/workforce'
+import { Route as AppTimeRouteImport } from './routes/_app/time'
+import { Route as AppTalentRouteImport } from './routes/_app/talent'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppReportsRouteImport } from './routes/_app/reports'
+import { Route as AppProfileRouteImport } from './routes/_app/profile'
+import { Route as AppPayrollRouteImport } from './routes/_app/payroll'
+import { Route as AppOverviewRouteImport } from './routes/_app/overview'
+import { Route as AppOrgRouteImport } from './routes/_app/org'
+import { Route as AppOnboardingRouteImport } from './routes/_app/onboarding'
+import { Route as AppMonitoringRouteImport } from './routes/_app/monitoring'
+import { Route as AppLeaveRouteImport } from './routes/_app/leave'
+import { Route as AppImportExportRouteImport } from './routes/_app/import-export'
+import { Route as AppHiringRouteImport } from './routes/_app/hiring'
+import { Route as AppHelpRouteImport } from './routes/_app/help'
+import { Route as AppExpensesRouteImport } from './routes/_app/expenses'
+import { Route as AppEngagementRouteImport } from './routes/_app/engagement'
+import { Route as AppDirectoryRouteImport } from './routes/_app/directory'
+import { Route as AppAttritionRouteImport } from './routes/_app/attrition'
+import { Route as AppAttendanceRouteImport } from './routes/_app/attendance'
+import { Route as AppAlertsRouteImport } from './routes/_app/alerts'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
 import { Route as AppAdminRequestsRouteImport } from './routes/_app/admin/requests'
 
@@ -37,14 +57,114 @@ const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const AppHomeRoute = AppHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
+const AppWorkforceRoute = AppWorkforceRouteImport.update({
+  id: '/workforce',
+  path: '/workforce',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTimeRoute = AppTimeRouteImport.update({
+  id: '/time',
+  path: '/time',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTalentRoute = AppTalentRouteImport.update({
+  id: '/talent',
+  path: '/talent',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPayrollRoute = AppPayrollRouteImport.update({
+  id: '/payroll',
+  path: '/payroll',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOverviewRoute = AppOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrgRoute = AppOrgRouteImport.update({
+  id: '/org',
+  path: '/org',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOnboardingRoute = AppOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMonitoringRoute = AppMonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLeaveRoute = AppLeaveRouteImport.update({
+  id: '/leave',
+  path: '/leave',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppImportExportRoute = AppImportExportRouteImport.update({
+  id: '/import-export',
+  path: '/import-export',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHiringRoute = AppHiringRouteImport.update({
+  id: '/hiring',
+  path: '/hiring',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHelpRoute = AppHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExpensesRoute = AppExpensesRouteImport.update({
+  id: '/expenses',
+  path: '/expenses',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEngagementRoute = AppEngagementRouteImport.update({
+  id: '/engagement',
+  path: '/engagement',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDirectoryRoute = AppDirectoryRouteImport.update({
+  id: '/directory',
+  path: '/directory',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAttritionRoute = AppAttritionRouteImport.update({
+  id: '/attrition',
+  path: '/attrition',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAttendanceRoute = AppAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAlertsRoute = AppAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
@@ -59,31 +179,91 @@ const AppAdminRequestsRoute = AppAdminRequestsRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AppIndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/home': typeof AppHomeRoute
+  '/alerts': typeof AppAlertsRoute
+  '/attendance': typeof AppAttendanceRoute
+  '/attrition': typeof AppAttritionRoute
+  '/directory': typeof AppDirectoryRoute
+  '/engagement': typeof AppEngagementRoute
+  '/expenses': typeof AppExpensesRoute
+  '/help': typeof AppHelpRoute
+  '/hiring': typeof AppHiringRoute
+  '/import-export': typeof AppImportExportRoute
+  '/leave': typeof AppLeaveRoute
+  '/monitoring': typeof AppMonitoringRoute
+  '/onboarding': typeof AppOnboardingRoute
+  '/org': typeof AppOrgRoute
+  '/overview': typeof AppOverviewRoute
+  '/payroll': typeof AppPayrollRoute
+  '/profile': typeof AppProfileRoute
+  '/reports': typeof AppReportsRoute
+  '/settings': typeof AppSettingsRoute
+  '/talent': typeof AppTalentRoute
+  '/time': typeof AppTimeRoute
+  '/workforce': typeof AppWorkforceRoute
   '/admin/requests': typeof AppAdminRequestsRoute
   '/admin/users': typeof AppAdminUsersRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/home': typeof AppHomeRoute
+  '/alerts': typeof AppAlertsRoute
+  '/attendance': typeof AppAttendanceRoute
+  '/attrition': typeof AppAttritionRoute
+  '/directory': typeof AppDirectoryRoute
+  '/engagement': typeof AppEngagementRoute
+  '/expenses': typeof AppExpensesRoute
+  '/help': typeof AppHelpRoute
+  '/hiring': typeof AppHiringRoute
+  '/import-export': typeof AppImportExportRoute
+  '/leave': typeof AppLeaveRoute
+  '/monitoring': typeof AppMonitoringRoute
+  '/onboarding': typeof AppOnboardingRoute
+  '/org': typeof AppOrgRoute
+  '/overview': typeof AppOverviewRoute
+  '/payroll': typeof AppPayrollRoute
+  '/profile': typeof AppProfileRoute
+  '/reports': typeof AppReportsRoute
+  '/settings': typeof AppSettingsRoute
+  '/talent': typeof AppTalentRoute
+  '/time': typeof AppTimeRoute
+  '/workforce': typeof AppWorkforceRoute
+  '/': typeof AppIndexRoute
   '/admin/requests': typeof AppAdminRequestsRoute
   '/admin/users': typeof AppAdminUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/_app/home': typeof AppHomeRoute
+  '/_app/alerts': typeof AppAlertsRoute
+  '/_app/attendance': typeof AppAttendanceRoute
+  '/_app/attrition': typeof AppAttritionRoute
+  '/_app/directory': typeof AppDirectoryRoute
+  '/_app/engagement': typeof AppEngagementRoute
+  '/_app/expenses': typeof AppExpensesRoute
+  '/_app/help': typeof AppHelpRoute
+  '/_app/hiring': typeof AppHiringRoute
+  '/_app/import-export': typeof AppImportExportRoute
+  '/_app/leave': typeof AppLeaveRoute
+  '/_app/monitoring': typeof AppMonitoringRoute
+  '/_app/onboarding': typeof AppOnboardingRoute
+  '/_app/org': typeof AppOrgRoute
+  '/_app/overview': typeof AppOverviewRoute
+  '/_app/payroll': typeof AppPayrollRoute
+  '/_app/profile': typeof AppProfileRoute
+  '/_app/reports': typeof AppReportsRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/talent': typeof AppTalentRoute
+  '/_app/time': typeof AppTimeRoute
+  '/_app/workforce': typeof AppWorkforceRoute
+  '/_app/': typeof AppIndexRoute
   '/_app/admin/requests': typeof AppAdminRequestsRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
 }
@@ -94,32 +274,91 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/signup'
-    | '/home'
+    | '/alerts'
+    | '/attendance'
+    | '/attrition'
+    | '/directory'
+    | '/engagement'
+    | '/expenses'
+    | '/help'
+    | '/hiring'
+    | '/import-export'
+    | '/leave'
+    | '/monitoring'
+    | '/onboarding'
+    | '/org'
+    | '/overview'
+    | '/payroll'
+    | '/profile'
+    | '/reports'
+    | '/settings'
+    | '/talent'
+    | '/time'
+    | '/workforce'
     | '/admin/requests'
     | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/forgot-password'
     | '/login'
     | '/signup'
-    | '/home'
+    | '/alerts'
+    | '/attendance'
+    | '/attrition'
+    | '/directory'
+    | '/engagement'
+    | '/expenses'
+    | '/help'
+    | '/hiring'
+    | '/import-export'
+    | '/leave'
+    | '/monitoring'
+    | '/onboarding'
+    | '/org'
+    | '/overview'
+    | '/payroll'
+    | '/profile'
+    | '/reports'
+    | '/settings'
+    | '/talent'
+    | '/time'
+    | '/workforce'
+    | '/'
     | '/admin/requests'
     | '/admin/users'
   id:
     | '__root__'
-    | '/'
     | '/_app'
     | '/forgot-password'
     | '/login'
     | '/signup'
-    | '/_app/home'
+    | '/_app/alerts'
+    | '/_app/attendance'
+    | '/_app/attrition'
+    | '/_app/directory'
+    | '/_app/engagement'
+    | '/_app/expenses'
+    | '/_app/help'
+    | '/_app/hiring'
+    | '/_app/import-export'
+    | '/_app/leave'
+    | '/_app/monitoring'
+    | '/_app/onboarding'
+    | '/_app/org'
+    | '/_app/overview'
+    | '/_app/payroll'
+    | '/_app/profile'
+    | '/_app/reports'
+    | '/_app/settings'
+    | '/_app/talent'
+    | '/_app/time'
+    | '/_app/workforce'
+    | '/_app/'
     | '/_app/admin/requests'
     | '/_app/admin/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
@@ -156,18 +395,158 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_app/': {
+      id: '/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/home': {
-      id: '/_app/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof AppHomeRouteImport
+    '/_app/workforce': {
+      id: '/_app/workforce'
+      path: '/workforce'
+      fullPath: '/workforce'
+      preLoaderRoute: typeof AppWorkforceRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/time': {
+      id: '/_app/time'
+      path: '/time'
+      fullPath: '/time'
+      preLoaderRoute: typeof AppTimeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/talent': {
+      id: '/_app/talent'
+      path: '/talent'
+      fullPath: '/talent'
+      preLoaderRoute: typeof AppTalentRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/payroll': {
+      id: '/_app/payroll'
+      path: '/payroll'
+      fullPath: '/payroll'
+      preLoaderRoute: typeof AppPayrollRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/overview': {
+      id: '/_app/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof AppOverviewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/org': {
+      id: '/_app/org'
+      path: '/org'
+      fullPath: '/org'
+      preLoaderRoute: typeof AppOrgRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/onboarding': {
+      id: '/_app/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AppOnboardingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/monitoring': {
+      id: '/_app/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof AppMonitoringRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/leave': {
+      id: '/_app/leave'
+      path: '/leave'
+      fullPath: '/leave'
+      preLoaderRoute: typeof AppLeaveRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/import-export': {
+      id: '/_app/import-export'
+      path: '/import-export'
+      fullPath: '/import-export'
+      preLoaderRoute: typeof AppImportExportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/hiring': {
+      id: '/_app/hiring'
+      path: '/hiring'
+      fullPath: '/hiring'
+      preLoaderRoute: typeof AppHiringRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/help': {
+      id: '/_app/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof AppHelpRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/expenses': {
+      id: '/_app/expenses'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof AppExpensesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/engagement': {
+      id: '/_app/engagement'
+      path: '/engagement'
+      fullPath: '/engagement'
+      preLoaderRoute: typeof AppEngagementRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/directory': {
+      id: '/_app/directory'
+      path: '/directory'
+      fullPath: '/directory'
+      preLoaderRoute: typeof AppDirectoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/attrition': {
+      id: '/_app/attrition'
+      path: '/attrition'
+      fullPath: '/attrition'
+      preLoaderRoute: typeof AppAttritionRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/attendance': {
+      id: '/_app/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AppAttendanceRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/alerts': {
+      id: '/_app/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AppAlertsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/users': {
@@ -188,13 +567,55 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
-  AppHomeRoute: typeof AppHomeRoute
+  AppAlertsRoute: typeof AppAlertsRoute
+  AppAttendanceRoute: typeof AppAttendanceRoute
+  AppAttritionRoute: typeof AppAttritionRoute
+  AppDirectoryRoute: typeof AppDirectoryRoute
+  AppEngagementRoute: typeof AppEngagementRoute
+  AppExpensesRoute: typeof AppExpensesRoute
+  AppHelpRoute: typeof AppHelpRoute
+  AppHiringRoute: typeof AppHiringRoute
+  AppImportExportRoute: typeof AppImportExportRoute
+  AppLeaveRoute: typeof AppLeaveRoute
+  AppMonitoringRoute: typeof AppMonitoringRoute
+  AppOnboardingRoute: typeof AppOnboardingRoute
+  AppOrgRoute: typeof AppOrgRoute
+  AppOverviewRoute: typeof AppOverviewRoute
+  AppPayrollRoute: typeof AppPayrollRoute
+  AppProfileRoute: typeof AppProfileRoute
+  AppReportsRoute: typeof AppReportsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppTalentRoute: typeof AppTalentRoute
+  AppTimeRoute: typeof AppTimeRoute
+  AppWorkforceRoute: typeof AppWorkforceRoute
+  AppIndexRoute: typeof AppIndexRoute
   AppAdminRequestsRoute: typeof AppAdminRequestsRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppHomeRoute: AppHomeRoute,
+  AppAlertsRoute: AppAlertsRoute,
+  AppAttendanceRoute: AppAttendanceRoute,
+  AppAttritionRoute: AppAttritionRoute,
+  AppDirectoryRoute: AppDirectoryRoute,
+  AppEngagementRoute: AppEngagementRoute,
+  AppExpensesRoute: AppExpensesRoute,
+  AppHelpRoute: AppHelpRoute,
+  AppHiringRoute: AppHiringRoute,
+  AppImportExportRoute: AppImportExportRoute,
+  AppLeaveRoute: AppLeaveRoute,
+  AppMonitoringRoute: AppMonitoringRoute,
+  AppOnboardingRoute: AppOnboardingRoute,
+  AppOrgRoute: AppOrgRoute,
+  AppOverviewRoute: AppOverviewRoute,
+  AppPayrollRoute: AppPayrollRoute,
+  AppProfileRoute: AppProfileRoute,
+  AppReportsRoute: AppReportsRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppTalentRoute: AppTalentRoute,
+  AppTimeRoute: AppTimeRoute,
+  AppWorkforceRoute: AppWorkforceRoute,
+  AppIndexRoute: AppIndexRoute,
   AppAdminRequestsRoute: AppAdminRequestsRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
 }
@@ -202,7 +623,6 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,

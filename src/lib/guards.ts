@@ -5,6 +5,6 @@ import type { AuthUser } from '#/server/auth'
 
 export function requireTier(user: AuthUser, minTier: Tier): void {
   if (!hasTier(user.tier, minTier)) {
-    throw redirect({ to: '/home', search: { denied: '1' } })
+    throw redirect({ to: '/', search: { denied: '1' } })
   }
 }

@@ -8,6 +8,7 @@ export const Route = createFileRoute('/_app/admin/requests')({
   beforeLoad: ({ context }) => {
     requireTier(context.user, 'master')
   },
+  staticData: { title: 'User Requests' },
   component: RequestsPage,
 })
 
@@ -43,8 +44,7 @@ function RequestsPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-lg font-semibold text-slate-800">User Requests</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="text-sm text-slate-500">
         Approve or decline signup requests. Approved users join with the
         basic tier.
       </p>

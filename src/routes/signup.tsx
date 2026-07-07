@@ -9,7 +9,7 @@ import { getCurrentUser, signup } from '#/server/auth'
 export const Route = createFileRoute('/signup')({
   beforeLoad: async () => {
     const user = await getCurrentUser()
-    if (user) throw redirect({ to: '/home' })
+    if (user) throw redirect({ to: '/' })
   },
   component: SignupPage,
 })

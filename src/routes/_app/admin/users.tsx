@@ -10,6 +10,7 @@ export const Route = createFileRoute('/_app/admin/users')({
   beforeLoad: ({ context }) => {
     requireTier(context.user, 'ops')
   },
+  staticData: { title: 'User Management' },
   component: UsersPage,
 })
 
@@ -45,8 +46,7 @@ function UsersPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-lg font-semibold text-slate-800">User Management</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="text-sm text-slate-500">
         Assign access tiers. Only a master can grant or revoke master access.
       </p>
 

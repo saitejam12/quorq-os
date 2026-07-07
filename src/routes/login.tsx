@@ -7,7 +7,7 @@ import { getCurrentUser, login } from '#/server/auth'
 export const Route = createFileRoute('/login')({
   beforeLoad: async () => {
     const user = await getCurrentUser()
-    if (user) throw redirect({ to: '/home' })
+    if (user) throw redirect({ to: '/' })
   },
   component: LoginPage,
 })
@@ -35,7 +35,7 @@ function LoginPage() {
       setError(res.error)
       return
     }
-    void navigate({ to: '/home' })
+    void navigate({ to: '/' })
   }
 
   return (

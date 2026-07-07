@@ -1,8 +1,21 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import {
+  Outlet,
+  createFileRoute,
+  redirect,
+  useRouterState,
+} from '@tanstack/react-router'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Logo, SidebarNav } from '#/components/AppSidebar'
+import Header from '#/components/Header'
 import { getCurrentUser } from '#/server/auth'
+
+// Lets each route declare its header title via `staticData: { title }`.
+declare module '@tanstack/react-router' {
+  interface StaticDataRouteOption {
+    title?: string
+  }
+}
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: async () => {
@@ -15,6 +28,11 @@ export const Route = createFileRoute('/_app')({
 
 function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const title = useRouterState({
+    select: (s) =>
+      [...s.matches].reverse().find((m) => m.staticData.title)?.staticData
+        .title ?? '',
+  })
 
   return (
     <div className="min-h-screen bg-slate-50 lg:flex">
@@ -48,8 +66,11 @@ function AppLayout() {
       </div>
 
       {/* Main content */}
-      <main className="min-w-0 flex-1">
-        <Outlet />
+      <main className="flex min-w-0 flex-1 flex-col">
+        <Header title={title} />
+        <div className="flex-1">
+          <Outlet />
+        </div>
       </main>
     </div>
   )
