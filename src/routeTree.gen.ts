@@ -31,10 +31,11 @@ import { Route as AppHiringRouteImport } from './routes/_app/hiring'
 import { Route as AppHelpRouteImport } from './routes/_app/help'
 import { Route as AppExpensesRouteImport } from './routes/_app/expenses'
 import { Route as AppEngagementRouteImport } from './routes/_app/engagement'
-import { Route as AppDirectoryRouteImport } from './routes/_app/directory'
 import { Route as AppAttritionRouteImport } from './routes/_app/attrition'
 import { Route as AppAttendanceRouteImport } from './routes/_app/attendance'
 import { Route as AppAlertsRouteImport } from './routes/_app/alerts'
+import { Route as AppDirectoryIndexRouteImport } from './routes/_app/directory/index'
+import { Route as AppDirectoryIdRouteImport } from './routes/_app/directory/$id'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
 import { Route as AppAdminRequestsRouteImport } from './routes/_app/admin/requests'
 
@@ -147,11 +148,6 @@ const AppEngagementRoute = AppEngagementRouteImport.update({
   path: '/engagement',
   getParentRoute: () => AppRoute,
 } as any)
-const AppDirectoryRoute = AppDirectoryRouteImport.update({
-  id: '/directory',
-  path: '/directory',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppAttritionRoute = AppAttritionRouteImport.update({
   id: '/attrition',
   path: '/attrition',
@@ -165,6 +161,16 @@ const AppAttendanceRoute = AppAttendanceRouteImport.update({
 const AppAlertsRoute = AppAlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDirectoryIndexRoute = AppDirectoryIndexRouteImport.update({
+  id: '/directory/',
+  path: '/directory/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDirectoryIdRoute = AppDirectoryIdRouteImport.update({
+  id: '/directory/$id',
+  path: '/directory/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
@@ -186,7 +192,6 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AppAlertsRoute
   '/attendance': typeof AppAttendanceRoute
   '/attrition': typeof AppAttritionRoute
-  '/directory': typeof AppDirectoryRoute
   '/engagement': typeof AppEngagementRoute
   '/expenses': typeof AppExpensesRoute
   '/help': typeof AppHelpRoute
@@ -206,6 +211,8 @@ export interface FileRoutesByFullPath {
   '/workforce': typeof AppWorkforceRoute
   '/admin/requests': typeof AppAdminRequestsRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/directory/$id': typeof AppDirectoryIdRoute
+  '/directory/': typeof AppDirectoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
@@ -214,7 +221,6 @@ export interface FileRoutesByTo {
   '/alerts': typeof AppAlertsRoute
   '/attendance': typeof AppAttendanceRoute
   '/attrition': typeof AppAttritionRoute
-  '/directory': typeof AppDirectoryRoute
   '/engagement': typeof AppEngagementRoute
   '/expenses': typeof AppExpensesRoute
   '/help': typeof AppHelpRoute
@@ -235,6 +241,8 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/admin/requests': typeof AppAdminRequestsRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/directory/$id': typeof AppDirectoryIdRoute
+  '/directory': typeof AppDirectoryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -245,7 +253,6 @@ export interface FileRoutesById {
   '/_app/alerts': typeof AppAlertsRoute
   '/_app/attendance': typeof AppAttendanceRoute
   '/_app/attrition': typeof AppAttritionRoute
-  '/_app/directory': typeof AppDirectoryRoute
   '/_app/engagement': typeof AppEngagementRoute
   '/_app/expenses': typeof AppExpensesRoute
   '/_app/help': typeof AppHelpRoute
@@ -266,6 +273,8 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/admin/requests': typeof AppAdminRequestsRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
+  '/_app/directory/$id': typeof AppDirectoryIdRoute
+  '/_app/directory/': typeof AppDirectoryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -277,7 +286,6 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/attendance'
     | '/attrition'
-    | '/directory'
     | '/engagement'
     | '/expenses'
     | '/help'
@@ -297,6 +305,8 @@ export interface FileRouteTypes {
     | '/workforce'
     | '/admin/requests'
     | '/admin/users'
+    | '/directory/$id'
+    | '/directory/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/forgot-password'
@@ -305,7 +315,6 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/attendance'
     | '/attrition'
-    | '/directory'
     | '/engagement'
     | '/expenses'
     | '/help'
@@ -326,6 +335,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/requests'
     | '/admin/users'
+    | '/directory/$id'
+    | '/directory'
   id:
     | '__root__'
     | '/_app'
@@ -335,7 +346,6 @@ export interface FileRouteTypes {
     | '/_app/alerts'
     | '/_app/attendance'
     | '/_app/attrition'
-    | '/_app/directory'
     | '/_app/engagement'
     | '/_app/expenses'
     | '/_app/help'
@@ -356,6 +366,8 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/admin/requests'
     | '/_app/admin/users'
+    | '/_app/directory/$id'
+    | '/_app/directory/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -521,13 +533,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEngagementRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/directory': {
-      id: '/_app/directory'
-      path: '/directory'
-      fullPath: '/directory'
-      preLoaderRoute: typeof AppDirectoryRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/attrition': {
       id: '/_app/attrition'
       path: '/attrition'
@@ -547,6 +552,20 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts'
       preLoaderRoute: typeof AppAlertsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/directory/': {
+      id: '/_app/directory/'
+      path: '/directory'
+      fullPath: '/directory/'
+      preLoaderRoute: typeof AppDirectoryIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/directory/$id': {
+      id: '/_app/directory/$id'
+      path: '/directory/$id'
+      fullPath: '/directory/$id'
+      preLoaderRoute: typeof AppDirectoryIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/users': {
@@ -570,7 +589,6 @@ interface AppRouteChildren {
   AppAlertsRoute: typeof AppAlertsRoute
   AppAttendanceRoute: typeof AppAttendanceRoute
   AppAttritionRoute: typeof AppAttritionRoute
-  AppDirectoryRoute: typeof AppDirectoryRoute
   AppEngagementRoute: typeof AppEngagementRoute
   AppExpensesRoute: typeof AppExpensesRoute
   AppHelpRoute: typeof AppHelpRoute
@@ -591,13 +609,14 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminRequestsRoute: typeof AppAdminRequestsRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
+  AppDirectoryIdRoute: typeof AppDirectoryIdRoute
+  AppDirectoryIndexRoute: typeof AppDirectoryIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAlertsRoute: AppAlertsRoute,
   AppAttendanceRoute: AppAttendanceRoute,
   AppAttritionRoute: AppAttritionRoute,
-  AppDirectoryRoute: AppDirectoryRoute,
   AppEngagementRoute: AppEngagementRoute,
   AppExpensesRoute: AppExpensesRoute,
   AppHelpRoute: AppHelpRoute,
@@ -618,6 +637,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAdminRequestsRoute: AppAdminRequestsRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
+  AppDirectoryIdRoute: AppDirectoryIdRoute,
+  AppDirectoryIndexRoute: AppDirectoryIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

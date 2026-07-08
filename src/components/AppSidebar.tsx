@@ -9,8 +9,8 @@ import {
   SlidersHorizontal,
   Shield,
   HelpCircle,
-  Settings,
   ChevronDown,
+  UserStar,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { hasTier } from '#/lib/tiers'
@@ -65,9 +65,16 @@ const NAV: Array<NavItem> = [
       { label: 'Employee Directory', to: '/directory' },
       { label: 'Engagement', to: '/engagement' },
       { label: 'Org Structure', to: '/org' },
+    ],
+  },
+  {
+    label: 'Hiring & Onboarding',
+    icon: UserStar,
+    children: [
       { label: 'Hiring', to: '/hiring', minTier: 'ops' },
       { label: 'Onboarding', to: '/onboarding', minTier: 'ops' },
     ],
+    minTier: 'ops',
   },
   {
     label: 'Workplace',
@@ -75,9 +82,13 @@ const NAV: Array<NavItem> = [
     children: [
       { label: 'Time Tracking', to: '/time' },
       { label: 'Leave Management', to: '/leave' },
-      { label: 'Expenses', to: '/expenses' },
-      { label: 'Payroll', to: '/payroll', minTier: 'ops' },
     ],
+  },
+  {
+    label: 'Payroll',
+    icon: Building2,
+    to: '/payroll',
+    minTier: 'ops',
   },
   {
     label: 'Analytics',
@@ -133,7 +144,7 @@ function groupForPath(pathname: string): string | null {
 
 export function Logo() {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 h-16">
       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-bold text-white">
         Q
       </div>
@@ -275,13 +286,6 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             {user.tier}
           </span>
         </div>
-        <button
-          type="button"
-          className="text-slate-400 hover:text-slate-600"
-          aria-label="Settings"
-        >
-          <Settings size={16} />
-        </button>
       </div>
     </div>
   )
