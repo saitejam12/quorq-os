@@ -2,7 +2,7 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { LogIn, Loader2 } from 'lucide-react'
 import BrandPanel from '#/components/BrandPanel'
-import { getCurrentUser, login } from '#/server/auth'
+import { getCurrentUser, login, getAuthDiagnostics } from '#/server/auth'
 
 export const Route = createFileRoute('/login')({
   beforeLoad: async () => {
@@ -29,13 +29,41 @@ function LoginPage() {
     e.preventDefault()
     setBusy(true)
     setError('')
-    const res = await login({ data: { email, password } })
-    setBusy(false)
-    if (!res.ok) {
-      setError(res.error)
-      return
+    console.info('[auth] login attempt', { email })
+    try {
+      const res = await login({ data: { email, password } })
+      if (!res.ok) {
+        console.error('[auth] login failed:', res.error)
+        // If it's a server-configuration failure, report exactly which worker
+        // secret is missing so it's obvious in the deployed browser console.
+        try {
+          const diag = await getAuthDiagnostics()
+          if (!diag.hasAuthSecret || !diag.hasDatabaseUrl) {
+            console.error(
+              '[auth] server misconfigured — missing worker secrets:',
+              {
+                AUTH_SECRET: diag.hasAuthSecret ? 'set' : 'MISSING',
+                DATABASE_URL: diag.hasDatabaseUrl ? 'set' : 'MISSING',
+              },
+              '→ set them with `wrangler secret put AUTH_SECRET` / `wrangler secret put DATABASE_URL`.',
+            )
+          }
+        } catch (diagErr) {
+          console.error('[auth] diagnostics probe failed', diagErr)
+        }
+        setError(res.error)
+        setBusy(false)
+        return
+      }
+      console.info('[auth] login ok — redirecting')
+      setBusy(false)
+      void navigate({ to: '/' })
+    } catch (err) {
+      // A thrown RPC (e.g. a 500 from the server function) lands here.
+      console.error('[auth] login request threw:', err)
+      setError('Something went wrong. Check the browser console for details.')
+      setBusy(false)
     }
-    void navigate({ to: '/' })
   }
 
   return (

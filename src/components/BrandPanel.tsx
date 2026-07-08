@@ -4,7 +4,7 @@ const BrandPanel = () => {
   return (
     <div className="hidden w-1/2 flex-col justify-between bg-slate-900 p-12 text-white lg:flex">
       <div>
-        <div className="text-2xl font-bold">PeopleOS</div>
+        <div className="text-2xl font-bold">Quorq-OS</div>
         <div className="text-sm text-slate-400">
           HR Analytics Suite · FY 2026–27
         </div>

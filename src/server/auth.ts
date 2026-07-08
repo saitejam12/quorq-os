@@ -25,12 +25,32 @@ export type Result<T> =
   | { ok: false; error: string }
 
 const GENERIC_ERROR = 'Something went wrong'
+// Shown when a required worker secret (AUTH_SECRET / DATABASE_URL) is absent —
+// the usual cause of auth failing in a deployment where secrets were never set.
+const CONFIG_ERROR =
+  'Authentication is unavailable — the server is missing its AUTH_SECRET / DATABASE_URL secrets. An administrator must set them with `wrangler secret put`.'
 
 export function getAuthSecret(): string {
   const secret = process.env.AUTH_SECRET
   if (!secret) throw new Error('AUTH_SECRET is not configured')
   return secret
 }
+
+// A thrown `requireDb()` / `getAuthSecret()` reports the missing binding in its
+// message; detect that so callers can return an actionable error instead of a
+// generic one.
+export function isConfigError(error: unknown): boolean {
+  return error instanceof Error && /is not configured/i.test(error.message)
+}
+
+// Booleans only (never the values) so the client console can pinpoint which
+// worker secret is missing in a broken deployment without leaking anything.
+export const getAuthDiagnostics = createServerFn({ method: 'GET' }).handler(
+  async (): Promise<{ hasAuthSecret: boolean; hasDatabaseUrl: boolean }> => ({
+    hasAuthSecret: !!process.env.AUTH_SECRET,
+    hasDatabaseUrl: !!process.env.DATABASE_URL,
+  }),
+)
 
 export const signup = createServerFn({ method: 'POST' })
   .validator(
@@ -59,7 +79,7 @@ export const signup = createServerFn({ method: 'POST' })
       return { ok: true, data: null }
     } catch (error) {
       console.error('signup failed', error)
-      return { ok: false, error: GENERIC_ERROR }
+      return { ok: false, error: isConfigError(error) ? CONFIG_ERROR : GENERIC_ERROR }
     }
   })
 
@@ -123,7 +143,7 @@ export const login = createServerFn({ method: 'POST' })
       return { ok: true, data: user }
     } catch (error) {
       console.error('login failed', error)
-      return { ok: false, error: GENERIC_ERROR }
+      return { ok: false, error: isConfigError(error) ? CONFIG_ERROR : GENERIC_ERROR }
     }
   })
 
@@ -136,15 +156,22 @@ export const logout = createServerFn({ method: 'POST' }).handler(
 
 export const getCurrentUser = createServerFn({ method: 'GET' }).handler(
   async (): Promise<AuthUser | null> => {
-    const token = getCookie(SESSION_COOKIE)
-    if (!token) return null
-    const payload = await verifyToken(token, getAuthSecret())
-    if (!payload) return null
-    return {
-      id: payload.sub,
-      email: payload.email,
-      name: payload.name,
-      tier: payload.tier,
+    try {
+      const token = getCookie(SESSION_COOKIE)
+      if (!token) return null
+      const payload = await verifyToken(token, getAuthSecret())
+      if (!payload) return null
+      return {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name,
+        tier: payload.tier,
+      }
+    } catch (error) {
+      // A missing AUTH_SECRET must not crash every route load — treat the session
+      // as absent so the app still reaches the (functional) login page.
+      console.error('getCurrentUser failed', error)
+      return null
     }
   },
 )
