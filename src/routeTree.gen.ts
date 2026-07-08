@@ -17,9 +17,9 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppWorkforceRouteImport } from './routes/_app/workforce'
 import { Route as AppTimeRouteImport } from './routes/_app/time'
 import { Route as AppTalentRouteImport } from './routes/_app/talent'
-import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppReportsRouteImport } from './routes/_app/reports'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
+import { Route as AppPostingsRouteImport } from './routes/_app/postings'
 import { Route as AppPayrollRouteImport } from './routes/_app/payroll'
 import { Route as AppOverviewRouteImport } from './routes/_app/overview'
 import { Route as AppOrgRouteImport } from './routes/_app/org'
@@ -78,11 +78,6 @@ const AppTalentRoute = AppTalentRouteImport.update({
   path: '/talent',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSettingsRoute = AppSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppReportsRoute = AppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -91,6 +86,11 @@ const AppReportsRoute = AppReportsRouteImport.update({
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPostingsRoute = AppPostingsRouteImport.update({
+  id: '/postings',
+  path: '/postings',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPayrollRoute = AppPayrollRouteImport.update({
@@ -203,9 +203,9 @@ export interface FileRoutesByFullPath {
   '/org': typeof AppOrgRoute
   '/overview': typeof AppOverviewRoute
   '/payroll': typeof AppPayrollRoute
+  '/postings': typeof AppPostingsRoute
   '/profile': typeof AppProfileRoute
   '/reports': typeof AppReportsRoute
-  '/settings': typeof AppSettingsRoute
   '/talent': typeof AppTalentRoute
   '/time': typeof AppTimeRoute
   '/workforce': typeof AppWorkforceRoute
@@ -232,9 +232,9 @@ export interface FileRoutesByTo {
   '/org': typeof AppOrgRoute
   '/overview': typeof AppOverviewRoute
   '/payroll': typeof AppPayrollRoute
+  '/postings': typeof AppPostingsRoute
   '/profile': typeof AppProfileRoute
   '/reports': typeof AppReportsRoute
-  '/settings': typeof AppSettingsRoute
   '/talent': typeof AppTalentRoute
   '/time': typeof AppTimeRoute
   '/workforce': typeof AppWorkforceRoute
@@ -264,9 +264,9 @@ export interface FileRoutesById {
   '/_app/org': typeof AppOrgRoute
   '/_app/overview': typeof AppOverviewRoute
   '/_app/payroll': typeof AppPayrollRoute
+  '/_app/postings': typeof AppPostingsRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/reports': typeof AppReportsRoute
-  '/_app/settings': typeof AppSettingsRoute
   '/_app/talent': typeof AppTalentRoute
   '/_app/time': typeof AppTimeRoute
   '/_app/workforce': typeof AppWorkforceRoute
@@ -297,9 +297,9 @@ export interface FileRouteTypes {
     | '/org'
     | '/overview'
     | '/payroll'
+    | '/postings'
     | '/profile'
     | '/reports'
-    | '/settings'
     | '/talent'
     | '/time'
     | '/workforce'
@@ -326,9 +326,9 @@ export interface FileRouteTypes {
     | '/org'
     | '/overview'
     | '/payroll'
+    | '/postings'
     | '/profile'
     | '/reports'
-    | '/settings'
     | '/talent'
     | '/time'
     | '/workforce'
@@ -357,9 +357,9 @@ export interface FileRouteTypes {
     | '/_app/org'
     | '/_app/overview'
     | '/_app/payroll'
+    | '/_app/postings'
     | '/_app/profile'
     | '/_app/reports'
-    | '/_app/settings'
     | '/_app/talent'
     | '/_app/time'
     | '/_app/workforce'
@@ -435,13 +435,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTalentRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/settings': {
-      id: '/_app/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/reports': {
       id: '/_app/reports'
       path: '/reports'
@@ -454,6 +447,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/postings': {
+      id: '/_app/postings'
+      path: '/postings'
+      fullPath: '/postings'
+      preLoaderRoute: typeof AppPostingsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/payroll': {
@@ -600,9 +600,9 @@ interface AppRouteChildren {
   AppOrgRoute: typeof AppOrgRoute
   AppOverviewRoute: typeof AppOverviewRoute
   AppPayrollRoute: typeof AppPayrollRoute
+  AppPostingsRoute: typeof AppPostingsRoute
   AppProfileRoute: typeof AppProfileRoute
   AppReportsRoute: typeof AppReportsRoute
-  AppSettingsRoute: typeof AppSettingsRoute
   AppTalentRoute: typeof AppTalentRoute
   AppTimeRoute: typeof AppTimeRoute
   AppWorkforceRoute: typeof AppWorkforceRoute
@@ -628,9 +628,9 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrgRoute: AppOrgRoute,
   AppOverviewRoute: AppOverviewRoute,
   AppPayrollRoute: AppPayrollRoute,
+  AppPostingsRoute: AppPostingsRoute,
   AppProfileRoute: AppProfileRoute,
   AppReportsRoute: AppReportsRoute,
-  AppSettingsRoute: AppSettingsRoute,
   AppTalentRoute: AppTalentRoute,
   AppTimeRoute: AppTimeRoute,
   AppWorkforceRoute: AppWorkforceRoute,

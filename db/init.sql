@@ -181,6 +181,31 @@ CREATE TABLE IF NOT EXISTS job_openings (
     category VARCHAR(24) NOT NULL DEFAULT 'others'
 );
 
+-- Careers-facing posting fields on job_openings. A published, active row is what
+-- an external careers site (separate repo/API) pulls:
+--   SELECT ... FROM job_openings WHERE published AND posting_status = 'active'
+-- The existing status column stays as the urgency badge, while posting_status is
+-- the separate active/closed lifecycle.
+ALTER TABLE job_openings ADD COLUMN IF NOT EXISTS location VARCHAR(64) NOT NULL DEFAULT 'Hyderabad';
+ALTER TABLE job_openings ADD COLUMN IF NOT EXISTS employment_type VARCHAR(24) NOT NULL DEFAULT 'full-time';
+ALTER TABLE job_openings ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE job_openings ADD COLUMN IF NOT EXISTS published BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE job_openings ADD COLUMN IF NOT EXISTS published_at TIMESTAMP;
+ALTER TABLE job_openings ADD COLUMN IF NOT EXISTS template_id INTEGER;
+ALTER TABLE job_openings ADD COLUMN IF NOT EXISTS posting_status VARCHAR(16) NOT NULL DEFAULT 'active';
+ALTER TABLE job_openings ADD COLUMN IF NOT EXISTS deactivation_reason VARCHAR(48);
+ALTER TABLE job_openings ADD COLUMN IF NOT EXISTS deactivated_at TIMESTAMP;
+
+-- Job-description templates offered in the "+ New opening" popup.
+CREATE TABLE IF NOT EXISTS jd_templates (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(120) NOT NULL,
+    category VARCHAR(24) NOT NULL DEFAULT 'others',
+    summary VARCHAR(200) NOT NULL,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Candidate applications (recruitment funnel).
 CREATE TABLE IF NOT EXISTS applications (
     id SERIAL PRIMARY KEY,
@@ -232,18 +257,25 @@ CREATE TABLE IF NOT EXISTS prebuilt_reports (
     icon VARCHAR(32) NOT NULL DEFAULT 'file'
 );
 
--- Time tracking (clock in/out).
+-- Time tracking (clock in/out). Timestamps are stored as timestamptz so they are
+-- absolute UTC instants, rendered by the UI in the viewer's local timezone.
 CREATE TABLE IF NOT EXISTS time_entries (
     id SERIAL PRIMARY KEY,
     employee_id INTEGER NOT NULL REFERENCES employees(id),
     employee_name VARCHAR(120) NOT NULL,
     department VARCHAR(64) NOT NULL,
     day DATE NOT NULL,
-    clock_in TIMESTAMP,
-    clock_out TIMESTAMP,
+    clock_in TIMESTAMPTZ,
+    clock_out TIMESTAMPTZ,
     hours_worked NUMERIC(4,2) NOT NULL DEFAULT 0,
     status VARCHAR(16) NOT NULL DEFAULT 'active'
 );
+-- Convert pre-existing (naive TIMESTAMP) columns to timestamptz. Written as
+-- single statements with no DO block so apply-schema comma splitting stays safe,
+-- and a no-op once the column is already timestamptz. Neon session tz is UTC, so
+-- the cast treats the existing values as UTC.
+ALTER TABLE time_entries ALTER COLUMN clock_in TYPE timestamptz USING clock_in::timestamptz;
+ALTER TABLE time_entries ALTER COLUMN clock_out TYPE timestamptz USING clock_out::timestamptz;
 
 -- Expense claims / reimbursements.
 CREATE TABLE IF NOT EXISTS expenses (

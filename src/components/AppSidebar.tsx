@@ -25,6 +25,7 @@ type RoutePath =
   | '/engagement'
   | '/org'
   | '/hiring'
+  | '/postings'
   | '/onboarding'
   | '/time'
   | '/leave'
@@ -71,7 +72,8 @@ const NAV: Array<NavItem> = [
     label: 'Hiring & Onboarding',
     icon: UserStar,
     children: [
-      { label: 'Hiring', to: '/hiring', minTier: 'ops' },
+      { label: 'Applications', to: '/hiring', minTier: 'ops' },
+      { label: 'Job Postings', to: '/postings', minTier: 'ops' },
       { label: 'Onboarding', to: '/onboarding', minTier: 'ops' },
     ],
     minTier: 'ops',
@@ -119,7 +121,6 @@ const NAV: Array<NavItem> = [
     children: [
       { label: 'User Management', to: '/admin/users', minTier: 'ops' },
       { label: 'User Requests', to: '/admin/requests', minTier: 'master' },
-      { label: 'Settings', to: '/settings', minTier: 'ops' },
       { label: 'Monitoring', to: '/monitoring', minTier: 'master' },
     ],
   },

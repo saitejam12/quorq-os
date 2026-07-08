@@ -200,6 +200,7 @@ await sql`DELETE FROM onboarding_tasks`
 await sql`DELETE FROM onboardings`
 await sql`DELETE FROM applications`
 await sql`DELETE FROM job_openings`
+await sql`DELETE FROM jd_templates`
 await sql`DELETE FROM attendance_records`
 await sql`DELETE FROM leave_requests`
 await sql`DELETE FROM time_entries`
@@ -435,15 +436,50 @@ const OPENINGS = [
   { role: 'Recruiter', department: 'HR', category: 'others' },
   { role: 'Growth Manager', department: 'Marketing', category: 'others' },
 ]
+// job-description templates (offered in the "+ New opening" popup)
+const JD_TEMPLATES = [
+  { title: 'Software Engineer', category: 'tech', summary: 'Build and ship product features across the stack.',
+    description: 'Design, build and maintain product features.\nCollaborate with product and design.\nWrite tested, maintainable code.\n\nRequirements: 2+ years building web applications; strong fundamentals in one modern language.' },
+  { title: 'Senior Software Engineer', category: 'tech', summary: 'Own services end to end and mentor engineers.',
+    description: 'Own the design and delivery of backend services.\nMentor engineers and raise the technical bar.\nDrive reliability and performance.\n\nRequirements: 5+ years; experience owning production systems.' },
+  { title: 'Engineering Manager', category: 'tech', summary: 'Lead a team of engineers and delivery.',
+    description: 'Lead, grow and support a team of engineers.\nOwn delivery, planning and quality.\nPartner with product on the roadmap.\n\nRequirements: prior people-management experience; strong engineering background.' },
+  { title: 'Account Executive', category: 'sales', summary: 'Own the full sales cycle for new business.',
+    description: 'Manage the full sales cycle from prospect to close.\nBuild a pipeline and hit quota.\nPartner with SDRs and marketing.\n\nRequirements: 2+ years closing B2B deals.' },
+  { title: 'Sales Manager', category: 'sales', summary: 'Lead a quota-carrying sales team.',
+    description: 'Lead and coach a team of account executives.\nForecast and own regional targets.\nBuild repeatable sales processes.\n\nRequirements: prior sales-management experience.' },
+  { title: 'Product Manager', category: 'others', summary: 'Own the roadmap and outcomes for a product area.',
+    description: 'Own the roadmap and outcomes for a product area.\nTalk to customers and define requirements.\nPartner with engineering and design.\n\nRequirements: 3+ years in product management.' },
+  { title: 'HR Business Partner', category: 'others', summary: 'Partner with leaders on people strategy.',
+    description: 'Partner with department leaders on people strategy.\nSupport hiring, performance and engagement.\nAdvise on policy and compliance.\n\nRequirements: prior HRBP experience.' },
+]
+const templateIds = {}
+for (const t of JD_TEMPLATES) {
+  const r = await sql`
+    INSERT INTO jd_templates (title, category, summary, description)
+    VALUES (${t.title}, ${t.category}, ${t.summary}, ${t.description}) RETURNING id`
+  templateIds[t.title] = r[0].id
+}
+console.log(`Inserted ${JD_TEMPLATES.length} JD templates`)
+
 const JOB_STATUS = ['critical', 'at_risk', 'in_progress', 'on_track']
+const EMP_TYPES = ['full-time', 'full-time', 'full-time', 'contract']
 const jobIds = []
 for (const o of OPENINGS) {
   const daysOpen = randInt(5, 70)
   const critical = daysOpen > 45
+  const tpl =
+    JD_TEMPLATES.find((t) => t.title === o.role) ??
+    JD_TEMPLATES.find((t) => t.category === o.category) ??
+    JD_TEMPLATES[0]
   const rows = await sql`
-    INSERT INTO job_openings (role, department, status, opened_date, days_open, is_critical, category)
+    INSERT INTO job_openings
+      (role, department, status, opened_date, days_open, is_critical, category,
+       location, employment_type, description, published, published_at, template_id, posting_status)
     VALUES (${o.role}, ${o.department}, ${critical ? 'critical' : pick(JOB_STATUS)},
-            ${iso(daysAgo(daysOpen))}, ${daysOpen}, ${critical}, ${o.category})
+            ${iso(daysAgo(daysOpen))}, ${daysOpen}, ${critical}, ${o.category},
+            ${pick(LOCATIONS)}, ${pick(EMP_TYPES)}, ${tpl.description}, true,
+            ${iso(daysAgo(daysOpen))}, ${templateIds[tpl.title]}, 'active')
     RETURNING id, department`
   jobIds.push(rows[0])
 }
@@ -473,26 +509,39 @@ await bulk(
 )
 console.log(`Inserted ${jobIds.length} openings, ${appRows.length} applications`)
 
-// ---- time entries (today + recent history) -------------------------------
+// ---- time entries (today, UTC instants; some with multiple sessions) -----
+const timeDay = iso(daysAgo(0))
+// Times are stored as UTC (trailing Z) so they are unambiguous absolute instants.
+const utcTs = (h, m) => `${timeDay}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00Z`
+const hrsOf = (a, b) => Math.round(((Date.parse(b) - Date.parse(a)) / 3600000) * 100) / 100
 const timeRows = []
 for (const emp of allEmployees) {
-  if (rand() < 0.6) continue // ~40% clocked in today
-  const inH = 8 + randInt(0, 2)
-  const active = rand() < 0.35
-  const worked = active ? 0 : 8 + randInt(0, 2)
-  const base = daysAgo(0)
-  const mm = String(randInt(0, 59)).padStart(2, '0')
-  const clockIn = `${iso(base)} ${String(inH).padStart(2, '0')}:${mm}:00`
-  timeRows.push({
-    employee_id: emp.id,
-    employee_name: emp.name,
-    department: emp.department,
-    day: iso(base),
-    clock_in: clockIn,
-    clock_out: active ? null : `${iso(base)} ${String(inH + worked).padStart(2, '0')}:00:00`,
-    hours_worked: active ? 0 : worked,
-    status: active ? 'active' : 'completed',
-  })
+  if (rand() < 0.6) continue // ~40% have activity today
+  const base = { employee_id: emp.id, employee_name: emp.name, department: emp.department, day: timeDay }
+
+  if (rand() < 0.4) {
+    // two sessions: a completed morning block + an afternoon block
+    const mIn = utcTs(9, randInt(0, 30))
+    const mOut = utcTs(12, randInt(0, 59))
+    timeRows.push({ ...base, clock_in: mIn, clock_out: mOut, hours_worked: hrsOf(mIn, mOut), status: 'completed' })
+
+    const aIn = utcTs(13, randInt(0, 59))
+    if (rand() < 0.5) {
+      timeRows.push({ ...base, clock_in: aIn, clock_out: null, hours_worked: 0, status: 'active' })
+    } else {
+      const aOut = utcTs(17, randInt(0, 59))
+      timeRows.push({ ...base, clock_in: aIn, clock_out: aOut, hours_worked: hrsOf(aIn, aOut), status: 'completed' })
+    }
+  } else {
+    // single session: open or completed
+    const cin = utcTs(8 + randInt(0, 2), randInt(0, 59))
+    if (rand() < 0.35) {
+      timeRows.push({ ...base, clock_in: cin, clock_out: null, hours_worked: 0, status: 'active' })
+    } else {
+      const cout = utcTs(16 + randInt(0, 2), randInt(0, 59))
+      timeRows.push({ ...base, clock_in: cin, clock_out: cout, hours_worked: hrsOf(cin, cout), status: 'completed' })
+    }
+  }
 }
 await bulk(
   'time_entries',

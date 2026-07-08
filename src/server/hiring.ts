@@ -17,6 +17,7 @@ export const getHiring = createServerFn({ method: 'GET' }).handler(async () => {
            count(a.id) applicants
     from job_openings j
     left join applications a on a.job_id = j.id
+    where j.posting_status = 'active'
     group by j.id order by j.days_open desc`) as Array<any>
 
   const stageCounts = (await sql`select stage, count(*) c from applications group by stage`) as Array<any>
@@ -52,14 +53,6 @@ export const getHiring = createServerFn({ method: 'GET' }).handler(async () => {
       offers: sc('offer'),
       joined: sc('joined'),
     },
-    jobs: jobs.map((j) => ({
-      id: j.id,
-      role: j.role,
-      department: j.department,
-      status: j.status,
-      daysOpen: n(j.days_open),
-      applicants: n(j.applicants),
-    })),
     columns: STAGES.map((st) => ({
       stage: st,
       count: sc(st),
@@ -85,30 +78,3 @@ export const moveApplication = createServerFn({ method: 'POST' })
     }
   })
 
-export const createJob = createServerFn({ method: 'POST' })
-  .validator((d: unknown) =>
-    z
-      .object({
-        role: z.string().min(1).max(120),
-        department: z.string().min(1).max(64),
-        category: z.enum(['tech', 'sales', 'others']),
-        critical: z.boolean(),
-      })
-      .parse(d),
-  )
-  .handler(async ({ data }): Promise<Result<null>> => {
-    try {
-      const sql = requireDb()
-      const me = await getSessionUser()
-      if (!canApprove(me)) return { ok: false, error: 'Only ops and master can create jobs' }
-      const today = new Date().toISOString().slice(0, 10)
-      await sql`
-        insert into job_openings (role, department, status, opened_date, days_open, is_critical, category)
-        values (${data.role}, ${data.department}, ${data.critical ? 'critical' : 'in_progress'},
-                ${today}, 0, ${data.critical}, ${data.category})`
-      return { ok: true, data: null }
-    } catch (error) {
-      console.error('createJob failed', error)
-      return { ok: false, error: 'Failed to create job opening' }
-    }
-  })

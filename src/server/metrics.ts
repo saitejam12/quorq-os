@@ -283,9 +283,9 @@ export const getAttrition = createServerFn({ method: 'GET' }).handler(async () =
 // ---------------------------------------------------------------------------
 export const getTalent = createServerFn({ method: 'GET' }).handler(async () => {
   const sql = requireDb()
-  const openCount = n((await sql`select count(*) c from job_openings`)[0].c)
-  const critical = n((await sql`select count(*) c from job_openings where is_critical`)[0].c)
-  const byCat = (await sql`select category, count(*) c from job_openings group by category`) as Array<any>
+  const openCount = n((await sql`select count(*) c from job_openings where posting_status='active'`)[0].c)
+  const critical = n((await sql`select count(*) c from job_openings where is_critical and posting_status='active'`)[0].c)
+  const byCat = (await sql`select category, count(*) c from job_openings where posting_status='active' group by category`) as Array<any>
   const cat = (k: string) => n(byCat.find((r) => r.category === k)?.c)
 
   const stageRows = (await sql`select stage, count(*) c from applications group by stage`) as Array<any>
@@ -318,7 +318,8 @@ export const getTalent = createServerFn({ method: 'GET' }).handler(async () => {
   }))
 
   const openRoles = (await sql`
-    select role, department, days_open, status from job_openings order by days_open desc limit 6`) as Array<any>
+    select role, department, days_open, status from job_openings
+    where posting_status='active' order by days_open desc limit 6`) as Array<any>
 
   const female = n((await sql`select count(*) c from applications where gender='female'`)[0].c)
 
