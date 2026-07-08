@@ -1,5 +1,5 @@
 {
-  "name": "quorq-os",
+  "name": "quorq-hr",
   "private": true,
   "type": "module",
   "imports": {
@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
+    "seed:people": "node scripts/seed-people.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",

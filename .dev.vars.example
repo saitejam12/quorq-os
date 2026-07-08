@@ -1,0 +1,10 @@
+# Copy to .dev.vars (gitignored). These are WORKER env bindings — the
+# Cloudflare runtime does not read .env/.env.local, so server functions
+# only see values defined here (dev) or via `wrangler secret put` (prod).
+
+# JWT signing secret for auth sessions. Any long random string in dev.
+AUTH_SECRET=
+
+# Neon connection string. Same value as DATABASE_URL in .env.local,
+# WITHOUT surrounding quotes.
+DATABASE_URL=
