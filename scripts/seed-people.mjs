@@ -204,6 +204,8 @@ await sql`DELETE FROM jd_templates`
 await sql`DELETE FROM attendance_records`
 await sql`DELETE FROM leave_requests`
 await sql`DELETE FROM time_entries`
+await sql`DELETE FROM holidays`
+await sql`DELETE FROM app_settings`
 await sql`DELETE FROM expenses`
 await sql`DELETE FROM exits`
 await sql`DELETE FROM compliance_items`
@@ -395,6 +397,58 @@ await bulk(
   leaveRows,
 )
 console.log(`Inserted ${leaveRows.length} leave requests`)
+
+// ---- auto-generated leave (from attendance reconciliation) ----------------
+const autoLeaveRows = []
+for (let i = 0; i < 6; i++) {
+  const emp = pick(allEmployees)
+  const day = iso(daysAgo(randInt(3, 40)))
+  const lop = i === 5 // one loss-of-pay example
+  autoLeaveRows.push({
+    employee_id: emp.id,
+    employee_name: emp.name,
+    department: emp.department,
+    type: lop ? 'loss-of-pay' : 'auto-leave',
+    days: 1,
+    start_date: day,
+    end_date: day,
+    reason: 'Auto: no clock-in',
+    status: 'approved',
+    source: 'auto',
+    created_at: iso(daysAgo(randInt(0, 2))),
+  })
+}
+await bulk(
+  'leave_requests',
+  ['employee_id', 'employee_name', 'department', 'type', 'days', 'start_date', 'end_date', 'reason', 'status', 'source', 'created_at'],
+  autoLeaveRows,
+)
+console.log(`Inserted ${autoLeaveRows.length} auto-generated leave rows`)
+
+// ---- holidays + reconciliation marker -------------------------------------
+const holidayYear = new Date().getFullYear()
+const holidayList = [
+  { holiday_date: `${holidayYear}-01-26`, name: 'Republic Day' },
+  { holiday_date: `${holidayYear}-03-14`, name: 'Holi' },
+  { holiday_date: `${holidayYear}-05-01`, name: 'May Day' },
+  { holiday_date: `${holidayYear}-08-15`, name: 'Independence Day' },
+  { holiday_date: `${holidayYear}-10-02`, name: 'Gandhi Jayanti' },
+  { holiday_date: `${holidayYear}-10-20`, name: 'Diwali' },
+  { holiday_date: `${holidayYear}-12-25`, name: 'Christmas' },
+  // relative to the seed date so the landing "Upcoming Holidays" card is non-empty
+  { holiday_date: iso(daysAgo(-18)), name: 'Founders Day' },
+  { holiday_date: iso(daysAgo(-46)), name: 'Company Offsite' },
+]
+const holidayRows = [
+  ...new Map(holidayList.map((h) => [h.holiday_date, h])).values(),
+]
+await bulk('holidays', ['holiday_date', 'name'], holidayRows)
+console.log(`Inserted ${holidayRows.length} holidays`)
+
+// Start reconciliation at yesterday so seeding doesn't backfill the whole history.
+await sql`INSERT INTO app_settings (key, value) VALUES ('attendance_last_reconciled', ${iso(daysAgo(1))})
+  ON CONFLICT (key) DO UPDATE SET value = excluded.value`
+console.log('Set attendance reconciliation marker')
 
 // ---- exits (attrition) ---------------------------------------------------
 const EXIT_REASONS = ['salary', 'growth', 'management', 'personal', 'competitor']

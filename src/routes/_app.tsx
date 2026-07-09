@@ -9,6 +9,7 @@ import { Menu, X } from 'lucide-react'
 import { Logo, SidebarNav } from '#/components/AppSidebar'
 import Header from '#/components/Header'
 import { getCurrentUser } from '#/server/auth'
+import { reconcileAttendance } from '#/server/attendance'
 
 // Lets each route declare its header title via `staticData: { title }`.
 declare module '@tanstack/react-router' {
@@ -21,6 +22,14 @@ export const Route = createFileRoute('/_app')({
   beforeLoad: async () => {
     const user = await getCurrentUser()
     if (!user) throw redirect({ to: '/login' })
+    // Daily lazy catch-up: converts missed working days into leave. Guarded
+    // internally so it's a single cheap query except on the first load each day;
+    // never allowed to block app access.
+    try {
+      await reconcileAttendance()
+    } catch (error) {
+      console.error('attendance reconciliation skipped', error)
+    }
     return { user }
   },
   component: AppLayout,

@@ -353,3 +353,30 @@ CREATE TABLE IF NOT EXISTS onboarding_notes (
     done BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ==========================================================================
+-- Holiday calendar + attendance reconciliation
+-- ==========================================================================
+
+-- Company-wide public holidays, maintained by master on /calendar. A holiday
+-- date is a non-working day for auto-leave reconciliation, and upcoming ones
+-- surface on the landing page.
+CREATE TABLE IF NOT EXISTS holidays (
+    id SERIAL PRIMARY KEY,
+    holiday_date DATE NOT NULL UNIQUE,
+    name VARCHAR(120) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Generic key/value store for app singletons. First use: the reconciliation
+-- marker app_settings('attendance_last_reconciled') holding the last fully
+-- processed working-day boundary as an ISO date string.
+CREATE TABLE IF NOT EXISTS app_settings (
+    key VARCHAR(64) PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Distinguish auto-generated leave rows (source='auto', type auto-leave or
+-- loss-of-pay) from manually-created ones.
+ALTER TABLE leave_requests ADD COLUMN IF NOT EXISTS source VARCHAR(16) NOT NULL DEFAULT 'manual';

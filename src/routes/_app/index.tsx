@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { X } from 'lucide-react'
 import { hasTier } from '#/lib/tiers'
+import ClockWidget from '#/components/ClockWidget'
 import BasicDashboard from '#/components/dashboards/BasicDashboard'
 import OpsDashboard from '#/components/dashboards/OpsDashboard'
 import MasterDashboard from '#/components/dashboards/MasterDashboard'
@@ -53,6 +54,7 @@ function HomePage() {
 
       {/* stacked tier dashboards: higher tiers see extra panels on top */}
       <div className="mt-6 space-y-8">
+        <ClockWidget className="max-w-sm" />
         {user.tier === 'master' ? <MasterDashboard /> : null}
         {hasTier(user.tier, 'ops') ? <OpsDashboard /> : null}
         <BasicDashboard />

@@ -1,17 +1,9 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
-import {
-  Clock,
-  LogIn,
-  LogOut,
-  Timer,
-  Users,
-  Pencil,
-  X,
-  Loader2,
-} from 'lucide-react'
-import { getTimeTracking, clockIn, clockOut, editClockIn } from '#/server/time'
+import { Timer, Users, Pencil, X, Loader2 } from 'lucide-react'
+import { getTimeTracking, editTimeEntry } from '#/server/time'
 import { Card, CardHeader, KpiCard, Avatar, Badge } from '#/components/ui'
+import ClockWidget from '#/components/ClockWidget'
 import { hasTier } from '#/lib/tiers'
 
 export const Route = createFileRoute('/_app/time')({
@@ -34,10 +26,11 @@ const fmtDay = (d: string) =>
     month: 'short',
   })
 
-// machine-local "HH:MM" for a <input type="time">
-const localHHMM = (iso: string) => {
+// machine-local "YYYY-MM-DDTHH:MM" for a <input type="datetime-local">
+const pad = (n: number) => String(n).padStart(2, '0')
+const localDateTime = (iso: string) => {
   const d = new Date(iso)
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 type TeamEntry = ReturnType<
@@ -52,25 +45,27 @@ function EditClockInOutModal({
   onClose: () => void
 }) {
   const router = useRouter()
-  const [time, setTime] = useState(
-    entry.clockIn ? localHHMM(entry.clockIn) : '09:00',
+  const [clockInLocal, setClockInLocal] = useState(
+    entry.clockIn ? localDateTime(entry.clockIn) : '',
   )
-  const [exitTime, setExitTime] = useState(
-    entry.clockOut ? localHHMM(entry.clockOut) : '17:00',
+  const [clockOutLocal, setClockOutLocal] = useState(
+    entry.clockOut ? localDateTime(entry.clockOut) : '',
   )
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
   async function save() {
-    if (!entry.clockIn) return
-    // Keep the original local date; apply the new local time; send as a UTC instant.
-    const edited = new Date(entry.clockIn)
-    const [hh, mm] = time.split(':')
-    edited.setHours(Number(hh), Number(mm), 0, 0)
+    if (!clockInLocal) {
+      setError('Clock-in is required')
+      return
+    }
+    // datetime-local values are machine-local; convert to absolute UTC instants.
+    const clockIn = new Date(clockInLocal).toISOString()
+    const clockOut = clockOutLocal ? new Date(clockOutLocal).toISOString() : null
     setBusy(true)
     setError('')
-    const res = await editClockIn({
-      data: { entryId: entry.id, clockIn: edited.toISOString() },
+    const res = await editTimeEntry({
+      data: { entryId: entry.id, clockIn, clockOut },
     })
     setBusy(false)
     if (res.ok) {
@@ -92,7 +87,7 @@ function EditClockInOutModal({
       >
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
           <h3 className="text-sm font-semibold text-slate-800">
-            Edit clock-in — {entry.name}
+            Edit time entry — {entry.name}
           </h3>
           <button
             onClick={onClose}
@@ -105,23 +100,23 @@ function EditClockInOutModal({
         <div className="space-y-4 p-5">
           <label className="block space-y-1.5">
             <span className="text-xs font-medium text-slate-600">
-              Clock-in time (your timezone)
+              Clock-in date &amp; time (your timezone)
             </span>
             <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
+              type="datetime-local"
+              value={clockInLocal}
+              onChange={(e) => setClockInLocal(e.target.value)}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
             />
           </label>
           <label className="block space-y-1.5">
             <span className="text-xs font-medium text-slate-600">
-              Clock-out time (your timezone)
+              Clock-out date &amp; time (leave empty to reopen)
             </span>
             <input
-              type="time"
-              value={exitTime}
-              onChange={(e) => setExitTime(e.target.value)}
+              type="datetime-local"
+              value={clockOutLocal}
+              onChange={(e) => setClockOutLocal(e.target.value)}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
             />
           </label>
@@ -148,85 +143,17 @@ function TimeTracking() {
   const d = Route.useLoaderData()
   const { user } = Route.useRouteContext()
   const router = useRouter()
-  const [busy, setBusy] = useState(false)
   const [editing, setEditing] = useState<TeamEntry | null>(null)
   const isManager = hasTier(user.tier, 'ops')
-
-  const active = d.today.active
-
-  async function toggle() {
-    setBusy(true)
-    if (active) await clockOut()
-    else await clockIn()
-    setBusy(false)
-    router.invalidate()
-  }
 
   return (
     <div className="space-y-5 p-6">
       {/* clock widget */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <Card className="p-6 lg:col-span-1">
-          <div className="flex items-center gap-2 text-slate-500">
-            <Clock size={16} />
-            <span className="text-[11px] font-semibold uppercase tracking-wide">
-              Today
-            </span>
-          </div>
-          {d.hasProfile ? (
-            <>
-              <div className="mt-3 text-sm text-slate-500">
-                {active ? 'Clocked in since' : 'Worked today'}
-              </div>
-              <div className="text-2xl font-bold text-slate-900">
-                {active
-                  ? fmtTime(d.today.activeSince)
-                  : `${d.today.hoursToday} hrs`}
-              </div>
-              <button
-                onClick={toggle}
-                disabled={busy}
-                className={`mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60 ${
-                  active
-                    ? 'bg-red-500 hover:bg-red-600'
-                    : 'bg-emerald-600 hover:bg-emerald-700'
-                }`}
-              >
-                {active ? <LogOut size={16} /> : <LogIn size={16} />}
-                {active ? 'Clock out' : 'Clock in'}
-              </button>
-
-              {d.today.sessions.length ? (
-                <div className="mt-4 border-t border-slate-100 pt-3">
-                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                    Today’s sessions
-                  </div>
-                  <div className="space-y-1.5">
-                    {d.today.sessions.map((s) => (
-                      <div
-                        key={s.id}
-                        className="flex items-center justify-between text-xs text-slate-500"
-                      >
-                        <span>
-                          {fmtTime(s.clockIn)} –{' '}
-                          {s.clockOut ? fmtTime(s.clockOut) : 'now'}
-                        </span>
-                        <span className="font-medium text-slate-600">
-                          {s.status === 'active' ? 'active' : `${s.hours} h`}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <p className="mt-3 text-sm text-slate-500">
-              This account isn’t linked to an employee record, so time tracking
-              is unavailable.
-            </p>
-          )}
-        </Card>
+        <ClockWidget
+          className="lg:col-span-1"
+          onChange={() => router.invalidate()}
+        />
 
         <KpiCard
           icon={<Timer size={15} />}

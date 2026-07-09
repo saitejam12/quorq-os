@@ -40,6 +40,7 @@ type RoutePath =
   | '/import-export'
   | '/alerts'
   | '/settings'
+  | '/calendar'
   | '/monitoring'
   | '/help'
   | '/admin/users'
@@ -121,6 +122,7 @@ const NAV: Array<NavItem> = [
     children: [
       { label: 'User Management', to: '/admin/users', minTier: 'ops' },
       { label: 'User Requests', to: '/admin/requests', minTier: 'master' },
+      { label: 'Holiday Calendar', to: '/calendar', minTier: 'master' },
       { label: 'Monitoring', to: '/monitoring', minTier: 'master' },
     ],
   },

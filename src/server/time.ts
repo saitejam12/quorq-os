@@ -81,6 +81,50 @@ export const getTimeTracking = createServerFn({ method: 'GET' }).handler(async (
   }
 })
 
+// Just the signed-in user's own clock state for today — powers the embeddable
+// ClockWidget, which can live on any page (no team/analytics queries needed).
+export const getMyClock = createServerFn({ method: 'GET' }).handler(async () => {
+  const sql = requireDb()
+  const me = await getSessionUser()
+  const empId = me?.employeeId ?? null
+  const today = todayIso()
+
+  if (!empId) {
+    return {
+      hasProfile: false,
+      active: false,
+      activeSince: null as string | null,
+      hoursToday: 0,
+      sessions: [] as Array<{
+        id: number
+        clockIn: string | null
+        clockOut: string | null
+        hours: number
+        status: string
+      }>,
+    }
+  }
+
+  const sessions = (await sql`select id, clock_in, clock_out, hours_worked, status from time_entries
+    where employee_id = ${empId} and day = ${today} order by id`) as Array<any>
+  const openSession = sessions.find((s) => s.clock_out == null && s.status === 'active') ?? null
+  const hoursToday = sessions.reduce((sum, s) => sum + Number(s.hours_worked), 0)
+
+  return {
+    hasProfile: true,
+    active: !!openSession,
+    activeSince: openSession ? (openSession.clock_in as string | null) : null,
+    hoursToday: Math.round(hoursToday * 10) / 10,
+    sessions: sessions.map((s) => ({
+      id: s.id as number,
+      clockIn: s.clock_in as string | null,
+      clockOut: s.clock_out as string | null,
+      hours: Number(s.hours_worked),
+      status: s.status as string,
+    })),
+  }
+})
+
 export const clockIn = createServerFn({ method: 'POST' }).handler(
   async (): Promise<Result<null>> => {
     const sql = requireDb()
@@ -135,14 +179,20 @@ export const clockOut = createServerFn({ method: 'POST' }).handler(
   },
 )
 
-// ops+: correct the clock-in time of a time entry. The client sends an absolute
-// ISO instant, so the timestamptz column stores the correct UTC value directly.
-export const editClockIn = createServerFn({ method: 'POST' })
+// ops+: correct the clock-in and clock-out of a time entry. The client sends
+// absolute ISO instants, so the timestamptz columns store the correct UTC values
+// directly; `clockOut` is null for a still-open entry. `day` follows the
+// clock-in's UTC date so an entry moved to another date lands there.
+export const editTimeEntry = createServerFn({ method: 'POST' })
   .validator((d: unknown) =>
     z
       .object({
         entryId: z.number().int().positive(),
         clockIn: z.string().refine((v) => Number.isFinite(Date.parse(v)), 'Invalid timestamp'),
+        clockOut: z
+          .string()
+          .refine((v) => Number.isFinite(Date.parse(v)), 'Invalid timestamp')
+          .nullable(),
       })
       .parse(d),
   )
@@ -152,23 +202,31 @@ export const editClockIn = createServerFn({ method: 'POST' })
       const me = await getSessionUser()
       if (!canApprove(me)) return { ok: false, error: 'Only ops and master can edit time entries' }
 
-      const entry = (await sql`select id, clock_out from time_entries where id = ${data.entryId}`)[0] as
-        | { id: number; clock_out: string | null }
+      const entry = (await sql`select id from time_entries where id = ${data.entryId}`)[0] as
+        | { id: number }
         | undefined
       if (!entry) return { ok: false, error: 'Time entry not found' }
 
-      if (entry.clock_out != null) {
-        if (Date.parse(data.clockIn) >= Date.parse(entry.clock_out)) {
+      const day = new Date(data.clockIn).toISOString().slice(0, 10)
+
+      if (data.clockOut != null) {
+        if (Date.parse(data.clockIn) >= Date.parse(data.clockOut)) {
           return { ok: false, error: 'Clock-in must be before clock-out' }
         }
-        const hours = hoursBetween(data.clockIn, entry.clock_out)
-        await sql`update time_entries set clock_in = ${data.clockIn}, hours_worked = ${hours} where id = ${data.entryId}`
+        const hours = hoursBetween(data.clockIn, data.clockOut)
+        await sql`update time_entries
+          set clock_in = ${data.clockIn}, clock_out = ${data.clockOut},
+              hours_worked = ${hours}, status = 'completed', day = ${day}
+          where id = ${data.entryId}`
       } else {
-        await sql`update time_entries set clock_in = ${data.clockIn} where id = ${data.entryId}`
+        await sql`update time_entries
+          set clock_in = ${data.clockIn}, clock_out = null,
+              hours_worked = 0, status = 'active', day = ${day}
+          where id = ${data.entryId}`
       }
       return { ok: true, data: null }
     } catch (error) {
-      console.error('editClockIn failed', error)
+      console.error('editTimeEntry failed', error)
       return { ok: false, error: 'Failed to update time entry' }
     }
   })

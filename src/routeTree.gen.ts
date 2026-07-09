@@ -31,6 +31,7 @@ import { Route as AppHiringRouteImport } from './routes/_app/hiring'
 import { Route as AppHelpRouteImport } from './routes/_app/help'
 import { Route as AppExpensesRouteImport } from './routes/_app/expenses'
 import { Route as AppEngagementRouteImport } from './routes/_app/engagement'
+import { Route as AppCalendarRouteImport } from './routes/_app/calendar'
 import { Route as AppAttritionRouteImport } from './routes/_app/attrition'
 import { Route as AppAttendanceRouteImport } from './routes/_app/attendance'
 import { Route as AppAlertsRouteImport } from './routes/_app/alerts'
@@ -148,6 +149,11 @@ const AppEngagementRoute = AppEngagementRouteImport.update({
   path: '/engagement',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCalendarRoute = AppCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAttritionRoute = AppAttritionRouteImport.update({
   id: '/attrition',
   path: '/attrition',
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AppAlertsRoute
   '/attendance': typeof AppAttendanceRoute
   '/attrition': typeof AppAttritionRoute
+  '/calendar': typeof AppCalendarRoute
   '/engagement': typeof AppEngagementRoute
   '/expenses': typeof AppExpensesRoute
   '/help': typeof AppHelpRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AppAlertsRoute
   '/attendance': typeof AppAttendanceRoute
   '/attrition': typeof AppAttritionRoute
+  '/calendar': typeof AppCalendarRoute
   '/engagement': typeof AppEngagementRoute
   '/expenses': typeof AppExpensesRoute
   '/help': typeof AppHelpRoute
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/_app/alerts': typeof AppAlertsRoute
   '/_app/attendance': typeof AppAttendanceRoute
   '/_app/attrition': typeof AppAttritionRoute
+  '/_app/calendar': typeof AppCalendarRoute
   '/_app/engagement': typeof AppEngagementRoute
   '/_app/expenses': typeof AppExpensesRoute
   '/_app/help': typeof AppHelpRoute
@@ -286,6 +295,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/attendance'
     | '/attrition'
+    | '/calendar'
     | '/engagement'
     | '/expenses'
     | '/help'
@@ -315,6 +325,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/attendance'
     | '/attrition'
+    | '/calendar'
     | '/engagement'
     | '/expenses'
     | '/help'
@@ -346,6 +357,7 @@ export interface FileRouteTypes {
     | '/_app/alerts'
     | '/_app/attendance'
     | '/_app/attrition'
+    | '/_app/calendar'
     | '/_app/engagement'
     | '/_app/expenses'
     | '/_app/help'
@@ -533,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEngagementRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/calendar': {
+      id: '/_app/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AppCalendarRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/attrition': {
       id: '/_app/attrition'
       path: '/attrition'
@@ -589,6 +608,7 @@ interface AppRouteChildren {
   AppAlertsRoute: typeof AppAlertsRoute
   AppAttendanceRoute: typeof AppAttendanceRoute
   AppAttritionRoute: typeof AppAttritionRoute
+  AppCalendarRoute: typeof AppCalendarRoute
   AppEngagementRoute: typeof AppEngagementRoute
   AppExpensesRoute: typeof AppExpensesRoute
   AppHelpRoute: typeof AppHelpRoute
@@ -617,6 +637,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAlertsRoute: AppAlertsRoute,
   AppAttendanceRoute: AppAttendanceRoute,
   AppAttritionRoute: AppAttritionRoute,
+  AppCalendarRoute: AppCalendarRoute,
   AppEngagementRoute: AppEngagementRoute,
   AppExpensesRoute: AppExpensesRoute,
   AppHelpRoute: AppHelpRoute,
