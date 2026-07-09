@@ -54,7 +54,9 @@ function HomePage() {
 
       {/* stacked tier dashboards: higher tiers see extra panels on top */}
       <div className="mt-6 space-y-8">
-        <ClockWidget className="max-w-sm" />
+        <div>
+          <ClockWidget className="max-w-md" />
+        </div>
         {user.tier === 'master' ? <MasterDashboard /> : null}
         {hasTier(user.tier, 'ops') ? <OpsDashboard /> : null}
         <BasicDashboard />

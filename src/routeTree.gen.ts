@@ -39,6 +39,7 @@ import { Route as AppDirectoryIndexRouteImport } from './routes/_app/directory/i
 import { Route as AppDirectoryIdRouteImport } from './routes/_app/directory/$id'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
 import { Route as AppAdminRequestsRouteImport } from './routes/_app/admin/requests'
+import { Route as AppAdminProfileRequestsRouteImport } from './routes/_app/admin/profile-requests'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -189,6 +190,11 @@ const AppAdminRequestsRoute = AppAdminRequestsRouteImport.update({
   path: '/admin/requests',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminProfileRequestsRoute = AppAdminProfileRequestsRouteImport.update({
+  id: '/admin/profile-requests',
+  path: '/admin/profile-requests',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -216,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/talent': typeof AppTalentRoute
   '/time': typeof AppTimeRoute
   '/workforce': typeof AppWorkforceRoute
+  '/admin/profile-requests': typeof AppAdminProfileRequestsRoute
   '/admin/requests': typeof AppAdminRequestsRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/directory/$id': typeof AppDirectoryIdRoute
@@ -247,6 +254,7 @@ export interface FileRoutesByTo {
   '/time': typeof AppTimeRoute
   '/workforce': typeof AppWorkforceRoute
   '/': typeof AppIndexRoute
+  '/admin/profile-requests': typeof AppAdminProfileRequestsRoute
   '/admin/requests': typeof AppAdminRequestsRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/directory/$id': typeof AppDirectoryIdRoute
@@ -280,6 +288,7 @@ export interface FileRoutesById {
   '/_app/time': typeof AppTimeRoute
   '/_app/workforce': typeof AppWorkforceRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/admin/profile-requests': typeof AppAdminProfileRequestsRoute
   '/_app/admin/requests': typeof AppAdminRequestsRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/directory/$id': typeof AppDirectoryIdRoute
@@ -313,6 +322,7 @@ export interface FileRouteTypes {
     | '/talent'
     | '/time'
     | '/workforce'
+    | '/admin/profile-requests'
     | '/admin/requests'
     | '/admin/users'
     | '/directory/$id'
@@ -344,6 +354,7 @@ export interface FileRouteTypes {
     | '/time'
     | '/workforce'
     | '/'
+    | '/admin/profile-requests'
     | '/admin/requests'
     | '/admin/users'
     | '/directory/$id'
@@ -376,6 +387,7 @@ export interface FileRouteTypes {
     | '/_app/time'
     | '/_app/workforce'
     | '/_app/'
+    | '/_app/admin/profile-requests'
     | '/_app/admin/requests'
     | '/_app/admin/users'
     | '/_app/directory/$id'
@@ -601,6 +613,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminRequestsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/admin/profile-requests': {
+      id: '/_app/admin/profile-requests'
+      path: '/admin/profile-requests'
+      fullPath: '/admin/profile-requests'
+      preLoaderRoute: typeof AppAdminProfileRequestsRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -627,6 +646,7 @@ interface AppRouteChildren {
   AppTimeRoute: typeof AppTimeRoute
   AppWorkforceRoute: typeof AppWorkforceRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppAdminProfileRequestsRoute: typeof AppAdminProfileRequestsRoute
   AppAdminRequestsRoute: typeof AppAdminRequestsRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
   AppDirectoryIdRoute: typeof AppDirectoryIdRoute
@@ -656,6 +676,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppTimeRoute: AppTimeRoute,
   AppWorkforceRoute: AppWorkforceRoute,
   AppIndexRoute: AppIndexRoute,
+  AppAdminProfileRequestsRoute: AppAdminProfileRequestsRoute,
   AppAdminRequestsRoute: AppAdminRequestsRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
   AppDirectoryIdRoute: AppDirectoryIdRoute,

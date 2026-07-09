@@ -1,14 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
-import { z } from 'zod'
 import { requireDb } from '#/db'
 import { verifyToken } from '#/server/jwt'
 import { SESSION_COOKIE, getAuthSecret } from '#/server/auth'
-import type { Result } from '#/server/auth'
 
 type Sql = ReturnType<typeof requireDb>
-
-const GENERIC_ERROR = 'Something went wrong'
 
 // Resolves the signed-in caller's linked employee id from the session cookie,
 // reading the DB rather than trusting token fields. Returns null when there is
@@ -67,7 +63,9 @@ export const getMyProfile = createServerFn({ method: 'GET' }).handler(
       if (employeeId == null) return null
 
       const e = (
-        await sql`SELECT * FROM employees WHERE id = ${employeeId}`
+        await sql`
+          SELECT *, date_of_joining::text AS date_of_joining_text
+          FROM employees WHERE id = ${employeeId}`
       )[0] as Record<string, unknown> | undefined
       if (!e) return null
 
@@ -88,7 +86,7 @@ export const getMyProfile = createServerFn({ method: 'GET' }).handler(
           employmentType: e.employment_type as string,
           location: e.location as string,
           status: e.status as string,
-          dateOfJoining: String(e.date_of_joining),
+          dateOfJoining: (e.date_of_joining_text as string | null) ?? '',
         },
         personal: {
           phone: (e.phone as string | null) ?? null,
@@ -117,52 +115,3 @@ export const getMyProfile = createServerFn({ method: 'GET' }).handler(
   },
 )
 
-// An optional, length-bounded, trimmed string field. Empty becomes null so the
-// column is cleared rather than storing a blank string.
-const optionalText = (max: number) =>
-  z
-    .string()
-    .max(max)
-    .optional()
-    .transform((v) => {
-      const t = v?.trim()
-      return t ? t : null
-    })
-
-export const updateMyPersonalDetails = createServerFn({ method: 'POST' })
-  .validator((d: unknown) =>
-    z
-      .object({
-        phone: optionalText(24),
-        currentAddress: optionalText(400),
-        permanentAddress: optionalText(400),
-        emergencyContactName: optionalText(120),
-        emergencyContactPhone: optionalText(24),
-      })
-      .parse(d),
-  )
-  .handler(async ({ data }): Promise<Result<null>> => {
-    try {
-      const sql = requireDb()
-      const employeeId = await getCallerEmployeeId(sql)
-      if (employeeId == null) {
-        return {
-          ok: false,
-          error: 'Your account is not linked to an employee record',
-        }
-      }
-      await sql`
-        UPDATE employees SET
-          phone = ${data.phone},
-          current_address = ${data.currentAddress},
-          permanent_address = ${data.permanentAddress},
-          emergency_contact_name = ${data.emergencyContactName},
-          emergency_contact_phone = ${data.emergencyContactPhone}
-        WHERE id = ${employeeId}
-      `
-      return { ok: true, data: null }
-    } catch (error) {
-      console.error('updateMyPersonalDetails failed', error)
-      return { ok: false, error: GENERIC_ERROR }
-    }
-  })

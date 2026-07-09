@@ -45,6 +45,7 @@ type RoutePath =
   | '/help'
   | '/admin/users'
   | '/admin/requests'
+  | '/admin/profile-requests'
 
 type NavLeaf = {
   label: string
@@ -121,6 +122,7 @@ const NAV: Array<NavItem> = [
     minTier: 'ops',
     children: [
       { label: 'User Management', to: '/admin/users', minTier: 'ops' },
+      { label: 'Profile Change Requests', to: '/admin/profile-requests', minTier: 'ops' },
       { label: 'User Requests', to: '/admin/requests', minTier: 'master' },
       { label: 'Holiday Calendar', to: '/calendar', minTier: 'master' },
       { label: 'Monitoring', to: '/monitoring', minTier: 'master' },

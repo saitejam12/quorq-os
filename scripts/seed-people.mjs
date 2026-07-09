@@ -206,6 +206,7 @@ await sql`DELETE FROM leave_requests`
 await sql`DELETE FROM time_entries`
 await sql`DELETE FROM holidays`
 await sql`DELETE FROM app_settings`
+await sql`DELETE FROM profile_change_requests`
 await sql`DELETE FROM expenses`
 await sql`DELETE FROM exits`
 await sql`DELETE FROM compliance_items`
@@ -449,6 +450,17 @@ console.log(`Inserted ${holidayRows.length} holidays`)
 await sql`INSERT INTO app_settings (key, value) VALUES ('attendance_last_reconciled', ${iso(daysAgo(1))})
   ON CONFLICT (key) DO UPDATE SET value = excluded.value`
 console.log('Set attendance reconciliation marker')
+
+// ---- sample profile change requests (pending review) ----------------------
+const pcrEmp1 = pick(allEmployees)
+const pcrEmp2 = pick(allEmployees)
+await sql`insert into profile_change_requests (employee_id, employee_name, department, changes)
+  values (${pcrEmp1.id}, ${pcrEmp1.name}, ${pcrEmp1.department},
+    ${JSON.stringify({ phone: '+91 90000 12345', currentAddress: 'Flat 4B, Green Meadows, Gachibowli, Hyderabad' })}::jsonb)`
+await sql`insert into profile_change_requests (employee_id, employee_name, department, changes)
+  values (${pcrEmp2.id}, ${pcrEmp2.name}, ${pcrEmp2.department},
+    ${JSON.stringify({ bankName: 'Kotak Mahindra Bank', bankAccountNumber: '673920145588' })}::jsonb)`
+console.log('Inserted 2 sample profile change requests')
 
 // ---- exits (attrition) ---------------------------------------------------
 const EXIT_REASONS = ['salary', 'growth', 'management', 'personal', 'competitor']

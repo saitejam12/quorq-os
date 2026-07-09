@@ -17,7 +17,7 @@ export default function BasicDashboard() {
   })
 
   return (
-    <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+    <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-auto">
       {/* Review */}
       <div className={cardBase}>
         <h3 className={cardTitle}>Review</h3>

@@ -380,3 +380,19 @@ CREATE TABLE IF NOT EXISTS app_settings (
 -- Distinguish auto-generated leave rows (source='auto', type auto-leave or
 -- loss-of-pay) from manually-created ones.
 ALTER TABLE leave_requests ADD COLUMN IF NOT EXISTS source VARCHAR(16) NOT NULL DEFAULT 'manual';
+
+-- Employee-initiated profile change requests, approved by ops+. `changes` holds
+-- only the fields the employee changed as JSON. Aadhaar and PAN are never
+-- requestable, so they never appear here.
+CREATE TABLE IF NOT EXISTS profile_change_requests (
+    id SERIAL PRIMARY KEY,
+    employee_id INTEGER NOT NULL REFERENCES employees(id),
+    employee_name VARCHAR(120) NOT NULL,
+    department VARCHAR(64) NOT NULL,
+    changes JSONB NOT NULL,
+    status VARCHAR(16) NOT NULL DEFAULT 'pending',
+    review_reason VARCHAR(300),
+    requested_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    reviewed_at TIMESTAMP,
+    reviewed_by VARCHAR(120)
+);
