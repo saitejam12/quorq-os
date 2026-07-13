@@ -149,13 +149,17 @@ export const updateSalaryComponents = createServerFn({ method: 'POST' })
       const totals = summarize(data.components)
       if (totals.net < 0) return { ok: false, error: 'Deductions exceed earnings — net pay would be negative' }
 
-      await sql`delete from salary_components where employee_id=${data.employeeId}`
-      for (const c of data.components) {
-        await sql`insert into salary_components (employee_id, kind, code, label, amount, sort_order)
-          values (${data.employeeId}, ${c.kind}, ${c.code}, ${c.label}, ${c.amount}, ${c.sortOrder})`
-      }
-      // Write back so org-wide net_pay/ctc totals stay consistent.
-      await sql`update employees set net_pay=${totals.net}, ctc=${Math.round(totals.gross * 12)} where id=${data.employeeId}`
+      // Run the delete, inserts, and write-back as one transaction over a single
+      // HTTP round-trip so a mid-sequence failure can't leave a partial structure.
+      const queries = [
+        sql`delete from salary_components where employee_id=${data.employeeId}`,
+        ...data.components.map((c) =>
+          sql`insert into salary_components (employee_id, kind, code, label, amount, sort_order)
+            values (${data.employeeId}, ${c.kind}, ${c.code}, ${c.label}, ${c.amount}, ${c.sortOrder})`,
+        ),
+        sql`update employees set net_pay=${totals.net}, ctc=${Math.round(totals.gross * 12)} where id=${data.employeeId}`,
+      ]
+      await sql.transaction(queries)
 
       return { ok: true, data: totals }
     } catch (error) {
