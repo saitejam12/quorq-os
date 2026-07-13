@@ -1,3 +1,5 @@
+import type { WaterfallSegment } from '#/lib/payroll'
+
 type Point = { label: string; value: number }
 
 export const CHART_COLORS = [
@@ -314,5 +316,52 @@ export function Heatmap({ data }: { data: Array<Point> }) {
         </span>
       </div>
     </div>
+  )
+}
+
+// Gross -> net waterfall: earnings rise (emerald), deductions step down (rose),
+// net lands (ink). Segment start/end are value ranges from waterfallSegments().
+export function PayWaterfall({ segments }: { segments: Array<WaterfallSegment> }) {
+  const W = 520
+  const H = 176
+  const padT = 10
+  const padB = 30
+  const padX = 8
+  const max = Math.max(...segments.map((s) => Math.max(s.start, s.end)), 1)
+  const bw = (W - padX * 2) / segments.length
+  const y = (v: number) => padT + (1 - v / max) * (H - padT - padB)
+  const fill: Record<string, string> = {
+    earning: '#059669',
+    deduction: '#e11d48',
+    net: '#0f172a',
+  }
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+      {segments.map((s, i) => {
+        const top = y(Math.max(s.start, s.end))
+        const bottom = y(Math.min(s.start, s.end))
+        return (
+          <g key={i}>
+            <rect
+              x={padX + i * bw + bw * 0.16}
+              y={top}
+              width={bw * 0.68}
+              height={Math.max(2, bottom - top)}
+              rx="3"
+              fill={fill[s.kind]}
+            />
+            <text
+              x={padX + i * bw + bw / 2}
+              y={H - 10}
+              fontSize="9"
+              fill="#94a3b8"
+              textAnchor="middle"
+            >
+              {s.label.split(' ')[0]}
+            </text>
+          </g>
+        )
+      })}
+    </svg>
   )
 }
