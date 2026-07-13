@@ -24,10 +24,12 @@ export const getHiring = createServerFn({ method: 'GET' }).handler(async () => {
   const sc = (st: string) => n(stageCounts.find((r) => r.stage === st)?.c)
 
   const cands = (await sql`
-    select id, candidate_name, department, source, stage
-    from applications
-    where stage in ('applied','screened','interviewed','offer','joined')
-    order by applied_date desc`) as Array<any>
+    select a.id, a.candidate_name, a.department, a.source, a.stage, a.applied_date::text applied_date,
+           j.role
+    from applications a
+    left join job_openings j on j.id = a.job_id
+    where a.stage in ('applied','screened','interviewed','offer','joined')
+    order by a.applied_date desc`) as Array<any>
 
   const pipeline: Record<string, Array<any> | undefined> = {
     applied: [], screened: [], interviewed: [], offer: [], joined: [],
@@ -40,6 +42,8 @@ export const getHiring = createServerFn({ method: 'GET' }).handler(async () => {
         name: c.candidate_name,
         department: c.department,
         source: c.source,
+        appliedDate: c.applied_date,
+        role: c.role ?? c.department,
       })
     }
   }
@@ -58,6 +62,13 @@ export const getHiring = createServerFn({ method: 'GET' }).handler(async () => {
       count: sc(st),
       candidates: pipeline[st] ?? [],
     })),
+    funnel: [
+      { label: 'Applied', value: sc('applied') },
+      { label: 'Screened', value: sc('screened') },
+      { label: 'Interviewed', value: sc('interviewed') },
+      { label: 'Offer', value: sc('offer') },
+      { label: 'Joined', value: sc('joined') },
+    ],
   }
 })
 
@@ -75,6 +86,26 @@ export const moveApplication = createServerFn({ method: 'POST' })
     } catch (error) {
       console.error('moveApplication failed', error)
       return { ok: false, error: 'Failed to update application' }
+    }
+  })
+
+export const declineApplication = createServerFn({ method: 'POST' })
+  .validator((d: unknown) =>
+    z.object({
+      id: z.number().int().positive(),
+      reason: z.enum(['salary', 'location', 'counter_offer', 'other']),
+    }).parse(d),
+  )
+  .handler(async ({ data }): Promise<Result<null>> => {
+    try {
+      const sql = requireDb()
+      const me = await getSessionUser()
+      if (!canApprove(me)) return { ok: false, error: 'Not authorised' }
+      await sql`update applications set stage='declined', decline_reason=${data.reason} where id=${data.id}`
+      return { ok: true, data: null }
+    } catch (error) {
+      console.error('declineApplication failed', error)
+      return { ok: false, error: 'Failed to decline application' }
     }
   })
 
