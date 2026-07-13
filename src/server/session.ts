@@ -24,7 +24,13 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     SELECT id, name, tier, status, employee_id FROM users WHERE id = ${payload.sub}
   `
   const row = rows[0] as
-    | { id: number; name: string; tier: Tier; status: string; employee_id: number | null }
+    | {
+        id: number
+        name: string
+        tier: Tier
+        status: string
+        employee_id: number | null
+      }
     | undefined
   if (!row || row.status !== 'active') return null
   return {

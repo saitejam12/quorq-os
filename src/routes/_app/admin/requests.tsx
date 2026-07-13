@@ -45,8 +45,8 @@ function RequestsPage() {
   return (
     <div className="p-6">
       <p className="text-sm text-slate-500">
-        Approve or decline signup requests. Approved users join with the
-        basic tier.
+        Approve or decline signup requests. Approved users join with the basic
+        tier.
       </p>
 
       {usersQuery.error ? (

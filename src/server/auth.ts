@@ -20,9 +20,7 @@ export interface AuthUser {
   tier: Tier
 }
 
-export type Result<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string }
+export type Result<T> = { ok: true; data: T } | { ok: false; error: string }
 
 const GENERIC_ERROR = 'Something went wrong'
 // Shown when a required worker secret (AUTH_SECRET / DATABASE_URL) is absent —
@@ -79,7 +77,10 @@ export const signup = createServerFn({ method: 'POST' })
       return { ok: true, data: null }
     } catch (error) {
       console.error('signup failed', error)
-      return { ok: false, error: isConfigError(error) ? CONFIG_ERROR : GENERIC_ERROR }
+      return {
+        ok: false,
+        error: isConfigError(error) ? CONFIG_ERROR : GENERIC_ERROR,
+      }
     }
   })
 
@@ -143,7 +144,10 @@ export const login = createServerFn({ method: 'POST' })
       return { ok: true, data: user }
     } catch (error) {
       console.error('login failed', error)
-      return { ok: false, error: isConfigError(error) ? CONFIG_ERROR : GENERIC_ERROR }
+      return {
+        ok: false,
+        error: isConfigError(error) ? CONFIG_ERROR : GENERIC_ERROR,
+      }
     }
   })
 

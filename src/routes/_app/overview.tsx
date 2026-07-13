@@ -105,11 +105,16 @@ function ExecutiveOverview() {
             hint="vs industry avg"
           />
           <div className="px-3 pb-3">
-            <LineChart data={d.attritionTrend} target={d.industryAvg} suffix="%" />
+            <LineChart
+              data={d.attritionTrend}
+              target={d.industryAvg}
+              suffix="%"
+            />
           </div>
           <div className="flex gap-5 px-5 pb-4 text-xs text-slate-500">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-0.5 w-5 bg-blue-600" /> Attrition %
+              <span className="inline-block h-0.5 w-5 bg-blue-600" /> Attrition
+              %
             </span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-0.5 w-5 border-t-2 border-dashed border-amber-500" />{' '}
@@ -127,7 +132,9 @@ function ExecutiveOverview() {
                   className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dotTone[a.tone]}`}
                 />
                 <p className="text-xs leading-relaxed text-slate-600">
-                  <span className="font-semibold text-slate-800">{a.title}:</span>{' '}
+                  <span className="font-semibold text-slate-800">
+                    {a.title}:
+                  </span>{' '}
                   {a.body}
                 </p>
               </div>
@@ -150,7 +157,9 @@ function ExecutiveOverview() {
             {d.compliance.map((c, i) => (
               <div key={i} className="flex items-center justify-between py-2.5">
                 <span className="flex items-center gap-2 text-sm text-slate-600">
-                  <span className="text-slate-400">{complianceIcon[c.label]}</span>
+                  <span className="text-slate-400">
+                    {complianceIcon[c.label]}
+                  </span>
                   {c.label}
                 </span>
                 <span className={`text-sm font-medium ${toneClass[c.tone]}`}>
@@ -165,23 +174,45 @@ function ExecutiveOverview() {
           <CardHeader title="Attendance heatmap" hint="This week" />
           <div className="px-5 pb-5">
             <Heatmap
-              data={d.heatmap.map((h) => ({ label: h.label, value: h.percent }))}
+              data={d.heatmap.map((h) => ({
+                label: h.label,
+                value: h.percent,
+              }))}
             />
-            <p className="mt-3 text-xs text-slate-400">Rolling 5-day attendance</p>
+            <p className="mt-3 text-xs text-slate-400">
+              Rolling 5-day attendance
+            </p>
           </div>
         </Card>
 
         <Card>
           <CardHeader title="Hiring velocity" hint="Current quarter" />
           <div className="space-y-3 px-5 pb-4 pt-1">
-            <ProgressRow label="Open roles" value={d.velocity.openRoles} max={d.velocity.openRoles} />
-            <ProgressRow label="Interviewing" value={d.velocity.interviewing} max={d.velocity.openRoles} />
-            <ProgressRow label="Offers made" value={d.velocity.offersMade} max={d.velocity.openRoles} />
-            <ProgressRow label="Joined" value={d.velocity.joined} max={d.velocity.openRoles} color="#10b981" />
+            <ProgressRow
+              label="Open roles"
+              value={d.velocity.openRoles}
+              max={d.velocity.openRoles}
+            />
+            <ProgressRow
+              label="Interviewing"
+              value={d.velocity.interviewing}
+              max={d.velocity.openRoles}
+            />
+            <ProgressRow
+              label="Offers made"
+              value={d.velocity.offersMade}
+              max={d.velocity.openRoles}
+            />
+            <ProgressRow
+              label="Joined"
+              value={d.velocity.joined}
+              max={d.velocity.openRoles}
+              color="#10b981"
+            />
             <p className="border-t border-slate-100 pt-3 text-xs text-slate-400">
               Avg time-to-hire:{' '}
-              <b className="text-slate-600">{d.velocity.avgTimeToHire} days</b> ·
-              Target: {d.velocity.target} days · Offer accept:{' '}
+              <b className="text-slate-600">{d.velocity.avgTimeToHire} days</b>{' '}
+              · Target: {d.velocity.target} days · Offer accept:{' '}
               {d.velocity.offerAccept}%
             </p>
           </div>

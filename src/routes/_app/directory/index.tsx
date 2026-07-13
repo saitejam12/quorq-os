@@ -1,6 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import { Search, MapPin, ChevronLeft, ChevronRight, ShieldCheck } from 'lucide-react'
+import {
+  Search,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+  ShieldCheck,
+} from 'lucide-react'
 import { listEmployeesPaginated } from '#/server/people'
 import { Card, Avatar, Badge } from '#/components/ui'
 import { hasTier } from '#/lib/tiers'
@@ -45,7 +51,10 @@ function Directory() {
   }, [data.data, q, dept])
 
   const depts = useMemo(
-    () => ['All', ...Array.from(new Set(data.data.map((e) => e.department))).sort()],
+    () => [
+      'All',
+      ...Array.from(new Set(data.data.map((e) => e.department))).sort(),
+    ],
     [data.data],
   )
 
@@ -63,7 +72,9 @@ function Directory() {
     <div className="space-y-5 p-6">
       {canManage ? (
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-slate-900">Employee directory</h1>
+          <h1 className="text-xl font-bold text-slate-900">
+            Employee directory
+          </h1>
           <Link
             to="/admin/users"
             className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -74,7 +85,10 @@ function Directory() {
       ) : null}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-sm">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}

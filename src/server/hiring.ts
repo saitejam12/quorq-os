@@ -6,7 +6,13 @@ import type { Result } from '#/server/auth'
 
 const n = (v: unknown) => Number(v ?? 0)
 
-export const STAGES = ['applied', 'screened', 'interviewed', 'offer', 'joined'] as const
+export const STAGES = [
+  'applied',
+  'screened',
+  'interviewed',
+  'offer',
+  'joined',
+] as const
 export type Stage = (typeof STAGES)[number]
 
 export const getHiring = createServerFn({ method: 'GET' }).handler(async () => {
@@ -20,7 +26,8 @@ export const getHiring = createServerFn({ method: 'GET' }).handler(async () => {
     where j.posting_status = 'active'
     group by j.id order by j.days_open desc`) as Array<any>
 
-  const stageCounts = (await sql`select stage, count(*) c from applications group by stage`) as Array<any>
+  const stageCounts =
+    (await sql`select stage, count(*) c from applications group by stage`) as Array<any>
   const sc = (st: string) => n(stageCounts.find((r) => r.stage === st)?.c)
 
   const cands = (await sql`
@@ -32,7 +39,11 @@ export const getHiring = createServerFn({ method: 'GET' }).handler(async () => {
     order by a.applied_date desc`) as Array<any>
 
   const pipeline: Record<string, Array<any> | undefined> = {
-    applied: [], screened: [], interviewed: [], offer: [], joined: [],
+    applied: [],
+    screened: [],
+    interviewed: [],
+    offer: [],
+    joined: [],
   }
   for (const c of cands) {
     const col = pipeline[c.stage]
@@ -74,7 +85,9 @@ export const getHiring = createServerFn({ method: 'GET' }).handler(async () => {
 
 export const moveApplication = createServerFn({ method: 'POST' })
   .validator((d: unknown) =>
-    z.object({ id: z.number().int().positive(), toStage: z.enum(STAGES) }).parse(d),
+    z
+      .object({ id: z.number().int().positive(), toStage: z.enum(STAGES) })
+      .parse(d),
   )
   .handler(async ({ data }): Promise<Result<null>> => {
     try {
@@ -91,10 +104,12 @@ export const moveApplication = createServerFn({ method: 'POST' })
 
 export const declineApplication = createServerFn({ method: 'POST' })
   .validator((d: unknown) =>
-    z.object({
-      id: z.number().int().positive(),
-      reason: z.enum(['salary', 'location', 'counter_offer', 'other']),
-    }).parse(d),
+    z
+      .object({
+        id: z.number().int().positive(),
+        reason: z.enum(['salary', 'location', 'counter_offer', 'other']),
+      })
+      .parse(d),
   )
   .handler(async ({ data }): Promise<Result<null>> => {
     try {
@@ -108,4 +123,3 @@ export const declineApplication = createServerFn({ method: 'POST' })
       return { ok: false, error: 'Failed to decline application' }
     }
   })
-

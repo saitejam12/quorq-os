@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { parseCSV, toCSV, importEmployees, importAttendance } from './import-export'
+import {
+  parseCSV,
+  toCSV,
+  importEmployees,
+  importAttendance,
+} from './import-export'
 
 describe('parseCSV', () => {
   it('splits rows and columns', () => {
@@ -31,7 +36,10 @@ describe('toCSV', () => {
 
 describe('importEmployees', () => {
   it('rejects a file missing required columns', () => {
-    const r = importEmployees([['name', 'email'], ['A', 'a@x.com']])
+    const r = importEmployees([
+      ['name', 'email'],
+      ['A', 'a@x.com'],
+    ])
     expect(r.success).toBe(false)
     expect(r.errors[0].message).toContain('Missing required columns')
   })

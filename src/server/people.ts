@@ -42,9 +42,7 @@ async function getCaller(
   const rows = await sql`
     SELECT id, tier, status FROM users WHERE id = ${payload.sub}
   `
-  const row = rows[0] as
-    | { id: number; tier: Tier; status: string }
-    | undefined
+  const row = rows[0] as { id: number; tier: Tier; status: string } | undefined
   if (!row || row.status !== 'active' || !hasTier(row.tier, minTier)) {
     return null
   }
@@ -139,9 +137,7 @@ export const getEmployee = createServerFn({ method: 'GET' })
       if (managerId != null) {
         const m = (
           await sql`SELECT id, name, designation FROM employees WHERE id = ${managerId}`
-        )[0] as
-          | { id: number; name: string; designation: string }
-          | undefined
+        )[0] as { id: number; name: string; designation: string } | undefined
         if (m) manager = m
       }
 
@@ -332,7 +328,9 @@ export const getEngagement = createServerFn({ method: 'GET' }).handler(
     const promoters = num(e.promoters)
     const passives = num(e.passives)
     const detractors = num(e.detractors)
-    const enps = Math.round((promoters / total) * 100 - (detractors / total) * 100)
+    const enps = Math.round(
+      (promoters / total) * 100 - (detractors / total) * 100,
+    )
 
     const recThisMonth = num(
       (

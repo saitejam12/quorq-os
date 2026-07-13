@@ -73,7 +73,10 @@ export const submitProfileChangeRequest = createServerFn({ method: 'POST' })
       const sql = requireDb()
       const me = await getSessionUser()
       if (!me?.employeeId) {
-        return { ok: false, error: 'Your account is not linked to an employee record' }
+        return {
+          ok: false,
+          error: 'Your account is not linked to an employee record',
+        }
       }
 
       const proposed = pickAllowed(data.changes)
@@ -111,85 +114,88 @@ export const submitProfileChangeRequest = createServerFn({ method: 'POST' })
     }
   })
 
-export const getMyProfileChangeRequest = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<MyChangeRequest | null> => {
-    try {
-      const sql = requireDb()
-      const me = await getSessionUser()
-      if (!me?.employeeId) return null
-      const row = (
-        await sql`select id, changes, status, review_reason
+export const getMyProfileChangeRequest = createServerFn({
+  method: 'GET',
+}).handler(async (): Promise<MyChangeRequest | null> => {
+  try {
+    const sql = requireDb()
+    const me = await getSessionUser()
+    if (!me?.employeeId) return null
+    const row = (
+      await sql`select id, changes, status, review_reason
           from profile_change_requests
           where employee_id = ${me.employeeId}
           order by requested_at desc, id desc limit 1`
-      )[0] as
-        | {
-            id: number
-            changes: Record<string, string>
-            status: string
-            review_reason: string | null
-          }
-        | undefined
-      if (!row) return null
-      return {
-        id: row.id,
-        status: row.status,
-        reviewReason: row.review_reason,
-        changedLabels: Object.keys(row.changes).map(labelFor),
-      }
-    } catch (error) {
-      console.error('getMyProfileChangeRequest failed', error)
-      return null
+    )[0] as
+      | {
+          id: number
+          changes: Record<string, string>
+          status: string
+          review_reason: string | null
+        }
+      | undefined
+    if (!row) return null
+    return {
+      id: row.id,
+      status: row.status,
+      reviewReason: row.review_reason,
+      changedLabels: Object.keys(row.changes).map(labelFor),
     }
-  },
-)
+  } catch (error) {
+    console.error('getMyProfileChangeRequest failed', error)
+    return null
+  }
+})
 
-export const listProfileChangeRequests = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<Result<Array<PendingChangeRequest>>> => {
-    try {
-      const sql = requireDb()
-      const me = await getSessionUser()
-      if (!canApprove(me)) {
-        return { ok: false, error: 'Only ops and master can review change requests' }
+export const listProfileChangeRequests = createServerFn({
+  method: 'GET',
+}).handler(async (): Promise<Result<Array<PendingChangeRequest>>> => {
+  try {
+    const sql = requireDb()
+    const me = await getSessionUser()
+    if (!canApprove(me)) {
+      return {
+        ok: false,
+        error: 'Only ops and master can review change requests',
       }
-      const rows = (await sql`
+    }
+    const rows = (await sql`
         select id, employee_id, employee_name, department, changes, requested_at::text as requested_at
         from profile_change_requests where status = 'pending'
         order by requested_at`) as Array<{
-        id: number
-        employee_id: number
-        employee_name: string
-        department: string
-        changes: Record<string, string>
-        requested_at: string
-      }>
+      id: number
+      employee_id: number
+      employee_name: string
+      department: string
+      changes: Record<string, string>
+      requested_at: string
+    }>
 
-      const requests: Array<PendingChangeRequest> = []
-      for (const r of rows) {
-        const current = await currentValues(sql, r.employee_id)
-        const items: Array<ReviewItem> = Object.entries(r.changes).map(
-          ([key, requested]) => ({
-            key,
-            label: labelFor(key),
-            current: current[key] ?? '',
-            requested,
-          }),
-        )
-        requests.push({
-          id: r.id,
-          employeeName: r.employee_name,
-          department: r.department,
-          requestedAt: r.requested_at,
-          items,
-        })
-      }
-      return { ok: true, data: requests }
-    } catch (error) {
-      console.error('listProfileChangeRequests failed', error)
-      return { ok: false, error: 'Failed to load change requests' }
+    const requests: Array<PendingChangeRequest> = []
+    for (const r of rows) {
+      const current = await currentValues(sql, r.employee_id)
+      const items: Array<ReviewItem> = Object.entries(r.changes).map(
+        ([key, requested]) => ({
+          key,
+          label: labelFor(key),
+          current: current[key] ?? '',
+          requested,
+        }),
+      )
+      requests.push({
+        id: r.id,
+        employeeName: r.employee_name,
+        department: r.department,
+        requestedAt: r.requested_at,
+        items,
+      })
     }
-  },
-)
+    return { ok: true, data: requests }
+  } catch (error) {
+    console.error('listProfileChangeRequests failed', error)
+    return { ok: false, error: 'Failed to load change requests' }
+  }
+})
 
 async function loadReviewable(
   sql: Sql,
@@ -223,7 +229,10 @@ export const approveProfileChangeRequest = createServerFn({ method: 'POST' })
       const sql = requireDb()
       const me = await getSessionUser()
       if (!canApprove(me)) {
-        return { ok: false, error: 'Only ops and master can approve change requests' }
+        return {
+          ok: false,
+          error: 'Only ops and master can approve change requests',
+        }
       }
       const loaded = await loadReviewable(sql, data.id, me?.employeeId ?? null)
       if (!loaded.ok) return loaded
@@ -296,7 +305,10 @@ export const rejectProfileChangeRequest = createServerFn({ method: 'POST' })
       const sql = requireDb()
       const me = await getSessionUser()
       if (!canApprove(me)) {
-        return { ok: false, error: 'Only ops and master can reject change requests' }
+        return {
+          ok: false,
+          error: 'Only ops and master can reject change requests',
+        }
       }
       const loaded = await loadReviewable(sql, data.id, me?.employeeId ?? null)
       if (!loaded.ok) return loaded

@@ -27,11 +27,11 @@ One subject-true idea carries the elevation: payroll is a financial statement, s
 like one. This is the signature and it stays coherent with the current `Card`/`KpiCard` kit.
 
 - **Palette (extends, does not replace):** keep slate neutrals + `blue-600` as primary. Add a
-  semantic money triad used *only on figures* — emerald `#059669` for earnings/credits, rose
+  semantic money triad used _only on figures_ — emerald `#059669` for earnings/credits, rose
   `#e11d48` for deductions, slate-900 "ink" for settled net totals; amber stays for pending.
 - **Typography (the signature):** UI text stays system-sans for coherence. Every **monetary
   figure switches to a tabular monospaced face** (JetBrains Mono, `font-variant-numeric:
-  tabular-nums`) so rupee columns align digit-for-digit like a pay stub. Loaded app-wide via a
+tabular-nums`) so rupee columns align digit-for-digit like a pay stub. Loaded app-wide via a
   single `<link>` in `src/routes/__root.tsx`; applied selectively through a `<Money>` component so
   only figures change, not body copy.
 - **Structural device:** a thin ruled **"ledger line"** eyebrow (hairline rule + small uppercase
@@ -120,7 +120,7 @@ employee via the math above (deterministic, reuses the existing PRNG). Also seed
 ### `src/server/payroll.ts`
 
 - `getPayroll` (extend): also return a **roster** — active employees with `id, name, department,
-  emp_code, net_pay` for the searchable table. Existing KPI/run/history fields stay.
+emp_code, net_pay` for the searchable table. Existing KPI/run/history fields stay.
 - `getEmployeePayroll({ employeeId })` (new): returns the employee header, `salary_components`
   split into earnings/deductions, computed gross/deductions/net, current + recent
   `pay_adjustments`, and payslip history from `payslips`. ops+ only.

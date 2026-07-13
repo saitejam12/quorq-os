@@ -47,7 +47,11 @@ export interface PostingRow {
 // category; the operator supplies where and how the role is staffed.
 export function templateToPosting(
   template: JdTemplate,
-  input: { department: string; location: string; employmentType: EmploymentType },
+  input: {
+    department: string
+    location: string
+    employmentType: EmploymentType
+  },
 ): PostingRow {
   return {
     role: template.title,

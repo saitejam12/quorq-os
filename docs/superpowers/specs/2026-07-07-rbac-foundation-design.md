@@ -23,11 +23,11 @@ Each sub-project gets its own spec → plan → implementation cycle. All module
 
 Tiers are hierarchical permission levels, not job roles. A higher tier sees everything lower tiers see, plus more.
 
-| Tier | Rank | Meaning |
-|---|---|---|
-| `basic` | 1 | Employee self-service |
-| `ops` | 2 | HR/manager operations |
-| `master` | 3 | Full administration |
+| Tier     | Rank | Meaning               |
+| -------- | ---- | --------------------- |
+| `basic`  | 1    | Employee self-service |
+| `ops`    | 2    | HR/manager operations |
+| `master` | 3    | Full administration   |
 
 A pure helper module (`src/lib/tiers.ts`) exports the rank map and `hasTier(userTier, minTier): boolean`. It is the single source of truth, used identically in server functions, route guards, and the sidebar.
 
@@ -66,12 +66,14 @@ CREATE TABLE IF NOT EXISTS users (
 TanStack Start server functions, thin and typed. All expected failures return a discriminated union `{ ok: true, data } | { ok: false, error: string }` — no thrown exceptions for expected cases.
 
 `src/server/auth.ts`:
+
 - `signup({ name, email, password })` — creates user with `status='pending'`, `tier='basic'`. Duplicate email → friendly error. No auto-login.
 - `login({ email, password })` — verifies credentials; checks status; on success sets JWT cookie and returns user summary.
 - `logout()` — clears the cookie.
 - `getCurrentUser()` — verifies the JWT cookie; returns `{ id, email, name, tier }` or `null`. Invalid/expired/missing token is `null`, never an error.
 
 `src/server/admin.ts` (every function re-reads the **caller's** row from the DB and checks tier before acting — never trusts the JWT tier for authorization):
+
 - `listUsers()` — ops+. Returns all users with tier and status.
 - `approveUser({ userId })` / `rejectUser({ userId })` — **master only**. Moves a `pending` user to `active`/`rejected`.
 - `setUserTier({ userId, tier })` — ops+. Ops may assign `basic` or `ops`; only master may grant **or revoke** `master`. Violations return a 403-style `ok: false`.
@@ -93,6 +95,7 @@ TanStack Start server functions, thin and typed. All expected failures return a 
   - **master:** Administration additionally shows User Requests → `/admin/requests`
 
   Child items carry their own `minTier`, so the Administration section appears for ops+ and its children filter individually.
+
 - **Single `/home` route** renders stacked tier dashboards (supersets, matching the tier model): `BasicDashboard` (today's cards: review, holidays, payslip) always; `OpsDashboard` panels (team/approvals summary — static placeholders for now) stacked above for ops+; `MasterDashboard` panels (pending-request count and user totals by tier — real DB counts, cheap queries) topmost for master.
 
 ## Error handling
@@ -114,6 +117,7 @@ TanStack Start server functions, thin and typed. All expected failures return a 
 ## Testing
 
 Vitest (already configured):
+
 - `tiers.ts`: `hasTier` across all 9 tier-pair combinations.
 - Password hashing: hash/verify round-trip; wrong password rejected; distinct salts per hash.
 - JWT: sign/verify round-trip; expired token rejected; tampered signature rejected.

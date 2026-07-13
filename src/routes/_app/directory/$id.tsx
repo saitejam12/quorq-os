@@ -186,8 +186,15 @@ function EmployeeProfile() {
       </div>
     )
   }
-  const { employee: e, manager, reports, kudos, canManage, managerOptions, linkedUserTier } =
-    data
+  const {
+    employee: e,
+    manager,
+    reports,
+    kudos,
+    canManage,
+    managerOptions,
+    linkedUserTier,
+  } = data
 
   return (
     <div className="space-y-5 p-6">
@@ -225,7 +232,11 @@ function EmployeeProfile() {
           <CardHeader title="Details" />
           <div className="grid grid-cols-1 gap-x-8 px-5 pb-4 sm:grid-cols-2">
             <Field icon={<Mail size={16} />} label="Email" value={e.email} />
-            <Field icon={<MapPin size={16} />} label="Location" value={e.location} />
+            <Field
+              icon={<MapPin size={16} />}
+              label="Location"
+              value={e.location}
+            />
             <Field
               icon={<Briefcase size={16} />}
               label="Employment type"
@@ -281,7 +292,9 @@ function EmployeeProfile() {
                       <div className="text-sm font-medium text-slate-700">
                         {r.name}
                       </div>
-                      <div className="text-xs text-slate-400">{r.designation}</div>
+                      <div className="text-xs text-slate-400">
+                        {r.designation}
+                      </div>
                     </div>
                   </Link>
                 ))}

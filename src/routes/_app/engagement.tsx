@@ -164,7 +164,9 @@ function Engagement() {
                         {k.from}
                       </span>
                       <span className="text-slate-500"> recognized </span>
-                      <span className="font-semibold text-slate-800">{k.to}</span>
+                      <span className="font-semibold text-slate-800">
+                        {k.to}
+                      </span>
                       <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] capitalize text-slate-500">
                         {k.value}
                       </span>
@@ -199,7 +201,10 @@ function Engagement() {
             <CardHeader title="Top values" hint="Most recognized" />
             <div className="px-5 pb-5 pt-2">
               <HBars
-                data={d.topValues.map((v) => ({ label: v.label, value: v.value }))}
+                data={d.topValues.map((v) => ({
+                  label: v.label,
+                  value: v.value,
+                }))}
                 colorByIndex
               />
             </div>

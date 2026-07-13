@@ -45,7 +45,8 @@ export function buildOrg(rows: Array<OrgEmployee>): Org {
   }
 
   const deptCounts: Record<string, number> = {}
-  for (const e of rows) deptCounts[e.department] = (deptCounts[e.department] ?? 0) + 1
+  for (const e of rows)
+    deptCounts[e.department] = (deptCounts[e.department] ?? 0) + 1
 
   const heads = rows
     .filter((e) => e.managerId == null)

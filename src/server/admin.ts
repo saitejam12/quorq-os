@@ -40,9 +40,7 @@ async function getCaller(
   const rows = await sql`
     SELECT id, tier, status FROM users WHERE id = ${payload.sub}
   `
-  const row = rows[0] as
-    | { id: number; tier: Tier; status: string }
-    | undefined
+  const row = rows[0] as { id: number; tier: Tier; status: string } | undefined
   if (!row || row.status !== 'active' || !hasTier(row.tier, minTier)) {
     return null
   }

@@ -29,44 +29,46 @@
 
 ## File Map
 
-| File | Responsibility |
-|---|---|
-| `src/lib/tiers.ts` (new) | Tier type, rank map, `hasTier`, `canSetTier` — pure, shared client/server |
-| `src/lib/tiers.test.ts` (new) | Unit tests for tier rules |
-| `src/lib/guards.ts` (new) | `requireTier` route-guard helper (throws redirect) |
-| `src/server/password.ts` (new) | PBKDF2 hash/verify |
-| `src/server/password.test.ts` (new) | Unit tests |
-| `src/server/jwt.ts` (new) | HS256 JWT sign/verify |
-| `src/server/jwt.test.ts` (new) | Unit tests |
-| `src/server/auth.ts` (new) | `signup`, `login`, `logout`, `getCurrentUser` server fns; `AuthUser`, `Result<T>` types |
-| `src/server/admin.ts` (new) | `listUsers`, `approveUser`, `rejectUser`, `setUserTier`, `getUserStats` server fns |
-| `db/init.sql` (modify) | Add idempotent `users` schema + seed accounts; make todos seed idempotent |
-| `scripts/hash-password.mjs` (new) | CLI: print PBKDF2 hash for a password (for seeds) |
-| `scripts/apply-schema.mjs` (new) | Run `db/init.sql` against `DATABASE_URL` from `.env.local` |
-| `vitest.config.ts` (new) | Test config (node env, `#/` alias) |
-| `.dev.vars` (new, gitignored) | Local `AUTH_SECRET` |
-| `src/routes/signup.tsx` (modify) | Wire to `signup` fn; drop phone/dob; pending-approval success state |
-| `src/routes/login.tsx` (modify) | Wire to `login` fn; tier demo accounts; inverse guard |
-| `src/routes/_app.tsx` (modify) | Auth guard in `beforeLoad`; user into router context |
-| `src/routes/_app/home.tsx` (modify) | `denied` search param + banner, greeting, logout, stacked tier dashboards |
-| `src/routes/_app/admin/requests.tsx` (new) | Master-only pending-signup approval screen |
-| `src/routes/_app/admin/users.tsx` (new) | Ops+ user list with tier dropdown |
-| `src/components/AppSidebar.tsx` (modify) | `minTier` filtering, Administration section, real user profile block |
-| `src/components/dashboards/styles.ts` (new) | Shared card class strings |
-| `src/components/dashboards/BasicDashboard.tsx` (new) | Existing home cards, extracted |
-| `src/components/dashboards/OpsDashboard.tsx` (new) | Static ops panels |
-| `src/components/dashboards/MasterDashboard.tsx` (new) | Real-count admin stat tiles |
+| File                                                  | Responsibility                                                                          |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `src/lib/tiers.ts` (new)                              | Tier type, rank map, `hasTier`, `canSetTier` — pure, shared client/server               |
+| `src/lib/tiers.test.ts` (new)                         | Unit tests for tier rules                                                               |
+| `src/lib/guards.ts` (new)                             | `requireTier` route-guard helper (throws redirect)                                      |
+| `src/server/password.ts` (new)                        | PBKDF2 hash/verify                                                                      |
+| `src/server/password.test.ts` (new)                   | Unit tests                                                                              |
+| `src/server/jwt.ts` (new)                             | HS256 JWT sign/verify                                                                   |
+| `src/server/jwt.test.ts` (new)                        | Unit tests                                                                              |
+| `src/server/auth.ts` (new)                            | `signup`, `login`, `logout`, `getCurrentUser` server fns; `AuthUser`, `Result<T>` types |
+| `src/server/admin.ts` (new)                           | `listUsers`, `approveUser`, `rejectUser`, `setUserTier`, `getUserStats` server fns      |
+| `db/init.sql` (modify)                                | Add idempotent `users` schema + seed accounts; make todos seed idempotent               |
+| `scripts/hash-password.mjs` (new)                     | CLI: print PBKDF2 hash for a password (for seeds)                                       |
+| `scripts/apply-schema.mjs` (new)                      | Run `db/init.sql` against `DATABASE_URL` from `.env.local`                              |
+| `vitest.config.ts` (new)                              | Test config (node env, `#/` alias)                                                      |
+| `.dev.vars` (new, gitignored)                         | Local `AUTH_SECRET`                                                                     |
+| `src/routes/signup.tsx` (modify)                      | Wire to `signup` fn; drop phone/dob; pending-approval success state                     |
+| `src/routes/login.tsx` (modify)                       | Wire to `login` fn; tier demo accounts; inverse guard                                   |
+| `src/routes/_app.tsx` (modify)                        | Auth guard in `beforeLoad`; user into router context                                    |
+| `src/routes/_app/home.tsx` (modify)                   | `denied` search param + banner, greeting, logout, stacked tier dashboards               |
+| `src/routes/_app/admin/requests.tsx` (new)            | Master-only pending-signup approval screen                                              |
+| `src/routes/_app/admin/users.tsx` (new)               | Ops+ user list with tier dropdown                                                       |
+| `src/components/AppSidebar.tsx` (modify)              | `minTier` filtering, Administration section, real user profile block                    |
+| `src/components/dashboards/styles.ts` (new)           | Shared card class strings                                                               |
+| `src/components/dashboards/BasicDashboard.tsx` (new)  | Existing home cards, extracted                                                          |
+| `src/components/dashboards/OpsDashboard.tsx` (new)    | Static ops panels                                                                       |
+| `src/components/dashboards/MasterDashboard.tsx` (new) | Real-count admin stat tiles                                                             |
 
 ---
 
 ### Task 1: Vitest config + tier helpers
 
 **Files:**
+
 - Create: `vitest.config.ts`
 - Create: `src/lib/tiers.ts`
 - Test: `src/lib/tiers.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing (pure module).
 - Produces: `TIERS: readonly ['basic','ops','master']`, `type Tier = 'basic'|'ops'|'master'`, `TIER_RANK: Record<Tier, number>`, `hasTier(userTier: Tier, minTier: Tier): boolean`, `canSetTier(callerTier: Tier, targetCurrentTier: Tier, newTier: Tier): boolean`. Every later task imports from `#/lib/tiers`.
 
@@ -206,10 +208,12 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 2: Password hashing (PBKDF2)
 
 **Files:**
+
 - Create: `src/server/password.ts`
 - Test: `src/server/password.test.ts`
 
 **Interfaces:**
+
 - Consumes: Web Crypto globals only.
 - Produces: `hashPassword(password: string): Promise<string>` (returns `salt:iterations:hash`, base64 fields) and `verifyPassword(password: string, stored: string): Promise<boolean>`. Used by Task 5 (`auth.ts`) and mirrored by Task 4's seed script.
 
@@ -308,7 +312,12 @@ export async function verifyPassword(
 ): Promise<boolean> {
   const [saltB64, iterationsRaw, hashB64] = stored.split(':')
   const iterations = Number(iterationsRaw)
-  if (!saltB64 || !hashB64 || !Number.isInteger(iterations) || iterations <= 0) {
+  if (
+    !saltB64 ||
+    !hashB64 ||
+    !Number.isInteger(iterations) ||
+    iterations <= 0
+  ) {
     return false
   }
   let expected: Uint8Array
@@ -349,10 +358,12 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 3: JWT sign/verify
 
 **Files:**
+
 - Create: `src/server/jwt.ts`
 - Test: `src/server/jwt.test.ts`
 
 **Interfaces:**
+
 - Consumes: `TIERS` from `#/lib/tiers` (Task 1); Web Crypto.
 - Produces: `type TokenPayload = { sub: number; email: string; name: string; tier: Tier; exp: number }` (exp = unix seconds), `signToken(payload: TokenPayload, secret: string): Promise<string>`, `verifyToken(token: string, secret: string): Promise<TokenPayload | null>`. Used by Tasks 5 and 9.
 
@@ -400,8 +411,9 @@ describe('jwt', () => {
 
   it('rejects a token whose payload was swapped (tier escalation)', async () => {
     const honest = await signToken(payload({ tier: 'basic' }), SECRET)
-    const forgedBody = (await signToken(payload({ tier: 'master' }), SECRET))
-      .split('.')[1]
+    const forgedBody = (
+      await signToken(payload({ tier: 'master' }), SECRET)
+    ).split('.')[1]
     const [header, , signature] = honest.split('.')
     const forged = `${header}.${forgedBody}.${signature}`
     expect(await verifyToken(forged, SECRET)).toBeNull()
@@ -537,6 +549,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 4: DB schema, seed accounts, and AUTH_SECRET
 
 **Files:**
+
 - Modify: `db/init.sql`
 - Create: `scripts/hash-password.mjs`
 - Create: `scripts/apply-schema.mjs`
@@ -544,6 +557,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 - Modify: `.gitignore`
 
 **Interfaces:**
+
 - Consumes: `.env.local` must already contain `DATABASE_URL` (provisioned by the neon vite plugin). If it doesn't, run `pnpm dev` once to provision, then stop it.
 - Produces: `users` table matching the spec; three active seed accounts (`basic@quorq.com`/`basic123` tier basic, `ops@quorq.com`/`ops123` tier ops, `master@quorq.com`/`master123` tier master); `AUTH_SECRET` available as `process.env.AUTH_SECRET` in dev (via `.dev.vars`, which the Cloudflare vite plugin loads and `nodejs_compat` exposes on `process.env`).
 
@@ -713,9 +727,11 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 5: Auth server functions
 
 **Files:**
+
 - Create: `src/server/auth.ts`
 
 **Interfaces:**
+
 - Consumes: `getClient` from `#/db` (returns neon tagged-template client or `undefined`); `hashPassword`/`verifyPassword` (Task 2); `signToken`/`verifyToken` (Task 3); `Tier` (Task 1).
 - Produces (used by every later task):
   - `SESSION_COOKIE = 'quorq_session'`, `getAuthSecret(): string`
@@ -755,9 +771,7 @@ export interface AuthUser {
   tier: Tier
 }
 
-export type Result<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string }
+export type Result<T> = { ok: true; data: T } | { ok: false; error: string }
 
 const GENERIC_ERROR = 'Something went wrong'
 
@@ -906,9 +920,11 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 6: Signup page wiring
 
 **Files:**
+
 - Modify: `src/routes/signup.tsx`
 
 **Interfaces:**
+
 - Consumes: `signup`, `getCurrentUser` from `#/server/auth` (Task 5).
 - Produces: working signup UX — pending-approval success panel; inverse guard (authenticated users are redirected to `/home`).
 
@@ -979,38 +995,42 @@ const form = useForm({
 5. Add a success panel: immediately after `<BrandPanel />`'s sibling `<div className="flex w-full items-center justify-center p-6 lg:w-1/2">` opens, render conditionally. Replace `<div className="w-full max-w-sm py-8">` content wrapper so the panel body becomes:
 
 ```tsx
-{submitted ? (
-  <div className="w-full max-w-sm py-8 text-center">
-    <MailCheck className="mx-auto text-emerald-500" size={48} />
-    <h1 className="mt-4 text-2xl font-bold text-slate-900">
-      Request submitted
-    </h1>
-    <p className="mt-2 text-sm text-slate-500">
-      A master admin must approve your account. You can sign in once
-      it&apos;s approved.
-    </p>
-    <a
-      href="/login"
-      className="mt-6 inline-block text-sm text-blue-500 hover:underline"
-    >
-      Back to sign in
-    </a>
-  </div>
-) : (
-  <div className="w-full max-w-sm py-8">
-    {/* existing heading, form, and footer links stay here unchanged */}
-  </div>
-)}
+{
+  submitted ? (
+    <div className="w-full max-w-sm py-8 text-center">
+      <MailCheck className="mx-auto text-emerald-500" size={48} />
+      <h1 className="mt-4 text-2xl font-bold text-slate-900">
+        Request submitted
+      </h1>
+      <p className="mt-2 text-sm text-slate-500">
+        A master admin must approve your account. You can sign in once it&apos;s
+        approved.
+      </p>
+      <a
+        href="/login"
+        className="mt-6 inline-block text-sm text-blue-500 hover:underline"
+      >
+        Back to sign in
+      </a>
+    </div>
+  ) : (
+    <div className="w-full max-w-sm py-8">
+      {/* existing heading, form, and footer links stay here unchanged */}
+    </div>
+  )
+}
 ```
 
 6. Show the server error inside the form, directly above the submit button's `<form.Subscribe>`:
 
 ```tsx
-{serverError ? (
-  <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-    {serverError}
-  </div>
-) : null}
+{
+  serverError ? (
+    <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+      {serverError}
+    </div>
+  ) : null
+}
 ```
 
 - [ ] **Step 2: Typecheck**
@@ -1032,9 +1052,11 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 7: Login page wiring
 
 **Files:**
+
 - Modify: `src/routes/login.tsx`
 
 **Interfaces:**
+
 - Consumes: `login`, `getCurrentUser` from `#/server/auth` (Task 5).
 - Produces: working login that sets the session cookie and lands on `/home`; three tier demo quick-fill buttons; inverse guard.
 
@@ -1140,9 +1162,11 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 8: App layout auth guard + router context
 
 **Files:**
+
 - Modify: `src/routes/_app.tsx`
 
 **Interfaces:**
+
 - Consumes: `getCurrentUser` (Task 5).
 - Produces: every `/_app/*` route receives `context.user: AuthUser` (typed automatically through the route tree). Unauthenticated visitors are redirected to `/login`. Components access it via `Route.useRouteContext()` (route files) or `useRouteContext({ from: '/_app' })` (shared components).
 
@@ -1186,9 +1210,11 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 9: Admin server functions
 
 **Files:**
+
 - Create: `src/server/admin.ts`
 
 **Interfaces:**
+
 - Consumes: `getClient` from `#/db`; `verifyToken` (Task 3); `SESSION_COOKIE`, `getAuthSecret`, `Result` (Task 5); `TIERS`, `canSetTier`, `hasTier`, `Tier` (Task 1).
 - Produces (used by Tasks 10, 11, 13):
   - `interface AdminUser { id: number; email: string; name: string; tier: Tier; status: 'pending' | 'active' | 'rejected'; createdAt: string }`
@@ -1247,9 +1273,7 @@ async function getCaller(
   const rows = await sql`
     SELECT id, tier, status FROM users WHERE id = ${payload.sub}
   `
-  const row = rows[0] as
-    | { id: number; tier: Tier; status: string }
-    | undefined
+  const row = rows[0] as { id: number; tier: Tier; status: string } | undefined
   if (!row || row.status !== 'active' || !hasTier(row.tier, minTier)) {
     return null
   }
@@ -1405,11 +1429,13 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 10: Tier guard + User Requests screen (master)
 
 **Files:**
+
 - Create: `src/lib/guards.ts`
 - Modify: `src/routes/_app/home.tsx` (route options only — add `validateSearch`)
 - Create: `src/routes/_app/admin/requests.tsx`
 
 **Interfaces:**
+
 - Consumes: `hasTier`, `Tier` (Task 1); `AuthUser` (Task 5); `listUsers`, `approveUser`, `rejectUser`, `AdminUser` (Task 9); `context.user` (Task 8).
 - Produces: `requireTier(user: AuthUser, minTier: Tier): void` — throws `redirect({ to: '/home', search: { denied: '1' } })` when the tier is insufficient. `/home` accepts an optional `denied: '1'` search param. Route `/admin/requests` exists (Task 12 links to it).
 
@@ -1495,8 +1521,8 @@ function RequestsPage() {
     <div className="p-6">
       <h1 className="text-lg font-semibold text-slate-800">User Requests</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Approve or decline signup requests. Approved users join with the
-        basic tier.
+        Approve or decline signup requests. Approved users join with the basic
+        tier.
       </p>
 
       {usersQuery.error ? (
@@ -1593,9 +1619,11 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 11: User Management screen (ops+)
 
 **Files:**
+
 - Create: `src/routes/_app/admin/users.tsx`
 
 **Interfaces:**
+
 - Consumes: `requireTier` (Task 10); `listUsers`, `setUserTier` (Task 9); `TIERS`, `canSetTier` (Task 1); `context.user` (Task 8).
 - Produces: route `/admin/users` (Task 12 links to it).
 
@@ -1769,9 +1797,11 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 12: Sidebar — tier filtering, admin nav, real profile
 
 **Files:**
+
 - Modify: `src/components/AppSidebar.tsx`
 
 **Interfaces:**
+
 - Consumes: `hasTier`, `Tier` (Task 1); router context user via `useRouteContext({ from: '/_app' })` (Task 8); routes `/admin/requests` (Task 10) and `/admin/users` (Task 11).
 - Produces: nav filtered by tier per the spec mapping; Administration section (ops+) with tier-filtered children; profile block showing real name + tier badge.
 
@@ -2056,6 +2086,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ### Task 13: Tiered dashboards on /home + logout
 
 **Files:**
+
 - Create: `src/components/dashboards/styles.ts`
 - Create: `src/components/dashboards/BasicDashboard.tsx`
 - Create: `src/components/dashboards/OpsDashboard.tsx`
@@ -2063,6 +2094,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 - Modify: `src/routes/_app/home.tsx`
 
 **Interfaces:**
+
 - Consumes: `logout` (Task 5); `getUserStats` (Task 9); `hasTier` (Task 1); `context.user` (Task 8); `denied` search param (Task 10).
 - Produces: `/home` renders stacked dashboards — Master panels (master only, real counts), Ops panels (ops+, static), Basic cards (everyone) — plus working logout, dynamic greeting with the user's name, and the access-denied banner.
 
@@ -2133,9 +2165,7 @@ export default function BasicDashboard() {
             <div className="absolute inset-4 rounded-full bg-white" />
           </div>
           <div className="text-right">
-            <div className="text-lg font-semibold text-slate-800">
-              May 2026
-            </div>
+            <div className="text-lg font-semibold text-slate-800">May 2026</div>
             <div className="mt-2 text-2xl font-bold text-slate-900">31</div>
             <div className="text-xs text-slate-500">Paid Days</div>
           </div>
@@ -2147,9 +2177,7 @@ export default function BasicDashboard() {
         </dl>
         <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-sm font-medium">
           <button className="text-blue-600 hover:underline">Download</button>
-          <button className="text-blue-600 hover:underline">
-            Show Salary
-          </button>
+          <button className="text-blue-600 hover:underline">Show Salary</button>
         </div>
       </div>
     </section>
@@ -2230,7 +2258,10 @@ export default function MasterDashboard() {
     <section>
       <h3 className={sectionTitle}>Administration</h3>
       <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-4">
-        <Link to="/admin/requests" className={`${cardBase} hover:border-blue-300`}>
+        <Link
+          to="/admin/requests"
+          className={`${cardBase} hover:border-blue-300`}
+        >
           <StatBody label="Pending requests" value={data?.pending} highlight />
         </Link>
         <div className={cardBase}>
@@ -2443,11 +2474,13 @@ Run `pnpm dev` in the background. Wait for it to report ready on port 3000.
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/login
 ```
+
 Expected: `200`.
 
 ```bash
 curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" http://localhost:3000/home
 ```
+
 Expected: a redirect status (`302` or `307`) with redirect URL ending in `/login` — proves the auth guard runs server-side.
 
 - [ ] **Step 4: Browser smoke checklist**

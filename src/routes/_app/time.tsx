@@ -61,7 +61,9 @@ function EditClockInOutModal({
     }
     // datetime-local values are machine-local; convert to absolute UTC instants.
     const clockIn = new Date(clockInLocal).toISOString()
-    const clockOut = clockOutLocal ? new Date(clockOutLocal).toISOString() : null
+    const clockOut = clockOutLocal
+      ? new Date(clockOutLocal).toISOString()
+      : null
     setBusy(true)
     setError('')
     const res = await editTimeEntry({

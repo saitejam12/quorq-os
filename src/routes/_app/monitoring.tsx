@@ -1,6 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
-import { Activity, CheckCircle, AlertCircle, RefreshCw, Clock, Database } from 'lucide-react'
+import {
+  Activity,
+  CheckCircle,
+  AlertCircle,
+  RefreshCw,
+  Clock,
+  Database,
+} from 'lucide-react'
 import { getHealth } from '#/server/health'
 import type { HealthCheckResponse } from '#/server/health'
 import { Card, CardHeader } from '#/components/ui'
@@ -35,7 +42,9 @@ function Monitoring() {
       setHealth(result)
       setLastRefresh(new Date())
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch health status')
+      setError(
+        err instanceof Error ? err.message : 'Failed to fetch health status',
+      )
     } finally {
       setLoading(false)
     }
@@ -79,7 +88,8 @@ function Monitoring() {
           disabled={loading}
           className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
-          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
+          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />{' '}
+          Refresh
         </button>
       </div>
 
@@ -94,8 +104,12 @@ function Monitoring() {
           <div className="mb-2 flex items-center gap-3">
             {statusIcon}
             <div>
-              <div className="text-lg font-semibold text-slate-900">{statusText}</div>
-              <div className="text-sm text-slate-500">Last updated: {health.timestamp}</div>
+              <div className="text-lg font-semibold text-slate-900">
+                {statusText}
+              </div>
+              <div className="text-sm text-slate-500">
+                Last updated: {health.timestamp}
+              </div>
             </div>
           </div>
         </div>
@@ -112,11 +126,13 @@ function Monitoring() {
                   <span className="flex items-center gap-1.5 text-sm font-medium">
                     {health.database.connected ? (
                       <>
-                        <CheckCircle size={14} className="text-emerald-600" /> Connected
+                        <CheckCircle size={14} className="text-emerald-600" />{' '}
+                        Connected
                       </>
                     ) : (
                       <>
-                        <AlertCircle size={14} className="text-red-600" /> Disconnected
+                        <AlertCircle size={14} className="text-red-600" />{' '}
+                        Disconnected
                       </>
                     )}
                   </span>
@@ -141,7 +157,9 @@ function Monitoring() {
               <>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-600">Version</span>
-                  <span className="font-mono text-sm font-medium text-slate-900">{health.version}</span>
+                  <span className="font-mono text-sm font-medium text-slate-900">
+                    {health.version}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-600">Uptime</span>
@@ -165,7 +183,9 @@ function Monitoring() {
                 {lastRefresh.toLocaleTimeString()}
               </span>
             </div>
-            <div className="text-xs text-slate-400">Auto-refreshes every 30 seconds</div>
+            <div className="text-xs text-slate-400">
+              Auto-refreshes every 30 seconds
+            </div>
           </div>
         </Card>
       </div>

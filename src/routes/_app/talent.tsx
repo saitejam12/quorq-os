@@ -81,12 +81,21 @@ function TalentAcquisition() {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
-          <CardHeader title="Recruitment funnel" hint="This quarter — all active roles" />
+          <CardHeader
+            title="Recruitment funnel"
+            hint="This quarter — all active roles"
+          />
           <div className="px-5 pb-3 pt-2">
             <HBars
               data={d.funnel}
               valueInside
-              barColors={['#3b82f6', '#3b82f6', '#3b82f6', '#f59e0b', '#10b981']}
+              barColors={[
+                '#3b82f6',
+                '#3b82f6',
+                '#3b82f6',
+                '#f59e0b',
+                '#10b981',
+              ]}
             />
           </div>
           <p className="px-5 pb-4 text-xs text-slate-400">
@@ -106,7 +115,10 @@ function TalentAcquisition() {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
-          <CardHeader title="Open roles by department & age" hint="Days unfilled" />
+          <CardHeader
+            title="Open roles by department & age"
+            hint="Days unfilled"
+          />
           <div className="px-5 pb-4">
             <table className="w-full text-sm">
               <thead>
@@ -120,9 +132,13 @@ function TalentAcquisition() {
               <tbody className="divide-y divide-slate-50">
                 {d.openRoles.map((r, i) => (
                   <tr key={i}>
-                    <td className="py-2.5 font-medium text-slate-700">{r.role}</td>
+                    <td className="py-2.5 font-medium text-slate-700">
+                      {r.role}
+                    </td>
                     <td className="py-2.5 text-slate-500">{r.dept}</td>
-                    <td className={`py-2.5 font-medium ${daysTone[r.status] ?? 'text-slate-500'}`}>
+                    <td
+                      className={`py-2.5 font-medium ${daysTone[r.status] ?? 'text-slate-500'}`}
+                    >
                       {r.daysOpen} days
                     </td>
                     <td className="py-2.5">
@@ -138,13 +154,36 @@ function TalentAcquisition() {
         <Card>
           <CardHeader title="Recruitment KPIs at a glance" />
           <div className="divide-y divide-slate-100 px-5 pb-3">
-            <KpiRow label="Total applications received (MTD)" value={d.kpis.totalApps} />
-            <KpiRow label="Interviews conducted (MTD)" value={d.kpis.interviews} />
-            <KpiRow label="Interview-to-offer ratio" value={d.kpis.interviewToOffer} />
-            <KpiRow label="Diversity hiring ratio (gender)" value={`${d.kpis.diversity}% female`} />
-            <KpiRow label="Avg offers declined reason" value={d.kpis.declinedReason} />
-            <KpiRow label="Referral hire conversion" value={`${d.kpis.referralConversion}% (best source)`} tone="text-emerald-600" />
-            <KpiRow label="30-day new hire retention" value={`${d.kpis.newHireRetention}%`} tone="text-emerald-600" />
+            <KpiRow
+              label="Total applications received (MTD)"
+              value={d.kpis.totalApps}
+            />
+            <KpiRow
+              label="Interviews conducted (MTD)"
+              value={d.kpis.interviews}
+            />
+            <KpiRow
+              label="Interview-to-offer ratio"
+              value={d.kpis.interviewToOffer}
+            />
+            <KpiRow
+              label="Diversity hiring ratio (gender)"
+              value={`${d.kpis.diversity}% female`}
+            />
+            <KpiRow
+              label="Avg offers declined reason"
+              value={d.kpis.declinedReason}
+            />
+            <KpiRow
+              label="Referral hire conversion"
+              value={`${d.kpis.referralConversion}% (best source)`}
+              tone="text-emerald-600"
+            />
+            <KpiRow
+              label="30-day new hire retention"
+              value={`${d.kpis.newHireRetention}%`}
+              tone="text-emerald-600"
+            />
           </div>
         </Card>
       </div>

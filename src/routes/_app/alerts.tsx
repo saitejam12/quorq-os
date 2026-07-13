@@ -32,9 +32,13 @@ function Alerts() {
         <div className="divide-y divide-slate-100 px-5 pb-3">
           {d.aiInsights.map((a, i) => (
             <div key={i} className="flex items-start gap-3 py-3">
-              <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dotTone[a.tone]}`} />
+              <span
+                className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dotTone[a.tone]}`}
+              />
               <div>
-                <div className="text-sm font-medium text-slate-800">{a.title}</div>
+                <div className="text-sm font-medium text-slate-800">
+                  {a.title}
+                </div>
                 <div className="text-xs text-slate-500">{a.body}</div>
               </div>
             </div>
@@ -52,13 +56,17 @@ function Alerts() {
                   <Bell size={15} />
                 </span>
                 <div>
-                  <div className="text-sm font-medium text-slate-800">{a.title}</div>
+                  <div className="text-sm font-medium text-slate-800">
+                    {a.title}
+                  </div>
                   <div className="text-xs text-slate-500">{a.body}</div>
                 </div>
               </div>
             ))
           ) : (
-            <p className="py-3 text-sm text-slate-400">No compliance alerts right now.</p>
+            <p className="py-3 text-sm text-slate-400">
+              No compliance alerts right now.
+            </p>
           )}
         </div>
       </Card>

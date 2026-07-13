@@ -47,13 +47,22 @@ export function LineChart({
   const line = data.map((d, i) => `${x(i)},${y(d.value)}`).join(' ')
   const area = `${padL},${y(lo)} ${line} ${x(data.length - 1)},${y(lo)}`
   const ticks = 4
-  const gridVals = Array.from({ length: ticks + 1 }, (_, i) => lo + (span * i) / ticks)
+  const gridVals = Array.from(
+    { length: ticks + 1 },
+    (_, i) => lo + (span * i) / ticks,
+  )
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height }}>
       {gridVals.map((gv, i) => (
         <g key={i}>
-          <line x1={padL} x2={W - padR} y1={y(gv)} y2={y(gv)} stroke="#eef2f7" />
+          <line
+            x1={padL}
+            x2={W - padR}
+            y1={y(gv)}
+            y2={y(gv)}
+            stroke="#eef2f7"
+          />
           <text x={4} y={y(gv) + 3} fontSize="10" fill="#94a3b8">
             {Math.round(gv)}
             {suffix}
@@ -83,7 +92,14 @@ export function LineChart({
         <circle key={i} cx={x(i)} cy={y(d.value)} r="2.5" fill={color} />
       ))}
       {data.map((d, i) => (
-        <text key={i} x={x(i)} y={H - 8} fontSize="10" fill="#94a3b8" textAnchor="middle">
+        <text
+          key={i}
+          x={x(i)}
+          y={H - 8}
+          fontSize="10"
+          fill="#94a3b8"
+          textAnchor="middle"
+        >
           {d.label}
         </text>
       ))}
@@ -116,15 +132,23 @@ export function BarChart({
   const ticks = 4
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height }}>
-      {Array.from({ length: ticks + 1 }, (_, i) => (hi * i) / ticks).map((gv, i) => (
-        <g key={i}>
-          <line x1={padL} x2={W - padR} y1={y(gv)} y2={y(gv)} stroke="#eef2f7" />
-          <text x={4} y={y(gv) + 3} fontSize="10" fill="#94a3b8">
-            {Math.round(gv)}
-            {suffix}
-          </text>
-        </g>
-      ))}
+      {Array.from({ length: ticks + 1 }, (_, i) => (hi * i) / ticks).map(
+        (gv, i) => (
+          <g key={i}>
+            <line
+              x1={padL}
+              x2={W - padR}
+              y1={y(gv)}
+              y2={y(gv)}
+              stroke="#eef2f7"
+            />
+            <text x={4} y={y(gv) + 3} fontSize="10" fill="#94a3b8">
+              {Math.round(gv)}
+              {suffix}
+            </text>
+          </g>
+        ),
+      )}
       {data.map((d, i) => {
         const h = (d.value / hi) * (H - padT - padB)
         const c = (colors ?? CHART_COLORS)[i % (colors ?? CHART_COLORS).length]
@@ -172,7 +196,8 @@ export function HBars({
 }) {
   const max = Math.max(...data.map((d) => d.value), 1)
   const barColor = (i: number) =>
-    barColors?.[i] ?? (colorByIndex ? CHART_COLORS[i % CHART_COLORS.length] : color)
+    barColors?.[i] ??
+    (colorByIndex ? CHART_COLORS[i % CHART_COLORS.length] : color)
   return (
     <div className="space-y-2.5">
       {data.map((d, i) => (
@@ -231,7 +256,9 @@ export function Donut({
     const xi0 = cx + r * Math.cos(a0)
     const yi0 = cy + r * Math.sin(a0)
     const dpath = `M ${x0} ${y0} A ${R} ${R} 0 ${large} 1 ${x1} ${y1} L ${xi1} ${yi1} A ${r} ${r} 0 ${large} 0 ${xi0} ${yi0} Z`
-    return <path key={i} d={dpath} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+    return (
+      <path key={i} d={dpath} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+    )
   })
   return (
     <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -240,7 +267,10 @@ export function Donut({
       </svg>
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 sm:max-w-[220px]">
         {data.map((d, i) => (
-          <div key={i} className="flex items-center gap-1.5 text-xs text-slate-600">
+          <div
+            key={i}
+            className="flex items-center gap-1.5 text-xs text-slate-600"
+          >
             <span
               className="inline-block h-2.5 w-2.5 rounded-full"
               style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
@@ -272,7 +302,10 @@ export function ProgressRow({
       <div className="h-5 flex-1 rounded-full bg-slate-100">
         <div
           className="flex h-5 items-center rounded-full px-2 text-[11px] font-semibold text-white"
-          style={{ width: `${Math.max((value / max) * 100, 6)}%`, background: color }}
+          style={{
+            width: `${Math.max((value / max) * 100, 6)}%`,
+            background: color,
+          }}
         >
           {value}
         </div>
@@ -298,7 +331,9 @@ export function Heatmap({ data }: { data: Array<Point> }) {
         {data.map((d, i) => (
           <div key={i} className="text-center">
             <div className="mb-1 text-xs text-slate-400">{d.label}</div>
-            <div className={`rounded-lg py-3 text-sm font-semibold ${cell(d.value)}`}>
+            <div
+              className={`rounded-lg py-3 text-sm font-semibold ${cell(d.value)}`}
+            >
               {d.value}%
             </div>
           </div>
@@ -306,13 +341,16 @@ export function Heatmap({ data }: { data: Array<Point> }) {
       </div>
       <div className="mt-3 flex gap-4 text-[11px] text-slate-400">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-200" /> 90%+ Good
+          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-200" />{' '}
+          90%+ Good
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-amber-200" /> 80–89%
+          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-amber-200" />{' '}
+          80–89%
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-200" /> &lt;80%
+          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-200" />{' '}
+          &lt;80%
         </span>
       </div>
     </div>
@@ -321,7 +359,11 @@ export function Heatmap({ data }: { data: Array<Point> }) {
 
 // Gross -> net waterfall: earnings rise (emerald), deductions step down (rose),
 // net lands (ink). Segment start/end are value ranges from waterfallSegments().
-export function PayWaterfall({ segments }: { segments: Array<WaterfallSegment> }) {
+export function PayWaterfall({
+  segments,
+}: {
+  segments: Array<WaterfallSegment>
+}) {
   const W = 520
   const H = 176
   const padT = 10

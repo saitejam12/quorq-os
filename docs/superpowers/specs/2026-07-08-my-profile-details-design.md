@@ -81,7 +81,7 @@ untrusted token fields.
   employee record (e.g. a fresh signup) or no valid session. `kyc` is `null` when
   no `employee_kyc` row exists. Self-only, so KYC is always the caller's own.
 - `updateMyPersonalDetails({ phone?, currentAddress?, permanentAddress?,
-  emergencyContactName?, emergencyContactPhone? })` (POST) → updates only the
+emergencyContactName?, emergencyContactPhone? })` (POST) → updates only the
   caller's own `employees` row. No tier check — it is self-service. Each field is
   an optional, length-bounded string, trimmed; empty string is stored as `NULL`.
   Returns `Result<null>`; errors if the caller has no linked employee record.
@@ -137,7 +137,7 @@ reproduces identical data.
 ## Out of scope
 
 - Editing Employee details or KYC from this page (admin-managed / later pass).
-- KYC on the directory profile and any ops/master view of *other* people's KYC
+- KYC on the directory profile and any ops/master view of _other_ people's KYC
   (the access model is recorded for when that view is built, but no such view
   ships here).
 - Document uploads, profile photos, and change-history/audit for personal edits.

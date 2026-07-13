@@ -2,7 +2,11 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { requireDb } from '#/db'
 import { getSessionUser, canApprove } from '#/server/session'
-import { importEmployees, importAttendance, parseCSV } from '#/lib/import-export'
+import {
+  importEmployees,
+  importAttendance,
+  parseCSV,
+} from '#/lib/import-export'
 
 const CsvInput = z.object({ content: z.string().min(1), fileName: z.string() })
 
@@ -11,7 +15,11 @@ export const importEmployeesFromCSV = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     try {
       const me = await getSessionUser()
-      if (!canApprove(me)) return { ok: false as const, error: 'Only ops and master can import data' }
+      if (!canApprove(me))
+        return {
+          ok: false as const,
+          error: 'Only ops and master can import data',
+        }
 
       const lines = parseCSV(data.content)
       const parsed = importEmployees(lines)
@@ -27,7 +35,8 @@ export const importEmployeesFromCSV = createServerFn({ method: 'POST' })
       let inserted = 0
       let duplicates = 0
       for (const emp of parsed.data) {
-        const existing = (await sql`select id from employees where email = ${emp.email}`) as Array<any>
+        const existing =
+          (await sql`select id from employees where email = ${emp.email}`) as Array<any>
         if (existing.length > 0) {
           duplicates++
           continue
@@ -57,7 +66,11 @@ export const importAttendanceFromCSV = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     try {
       const me = await getSessionUser()
-      if (!canApprove(me)) return { ok: false as const, error: 'Only ops and master can import attendance' }
+      if (!canApprove(me))
+        return {
+          ok: false as const,
+          error: 'Only ops and master can import attendance',
+        }
 
       const lines = parseCSV(data.content)
       const parsed = importAttendance(lines)
@@ -80,7 +93,8 @@ export const importAttendanceFromCSV = createServerFn({ method: 'POST' })
           duplicates++
           continue
         }
-        const emp = (await sql`select department from employees where id = ${rec.employeeId}`) as Array<any>
+        const emp =
+          (await sql`select department from employees where id = ${rec.employeeId}`) as Array<any>
         if (emp.length === 0) continue
         await sql`
           insert into attendance_records
@@ -100,59 +114,65 @@ export const importAttendanceFromCSV = createServerFn({ method: 'POST' })
     }
   })
 
-export const exportEmployees = createServerFn({ method: 'GET' }).handler(async () => {
-  try {
-    const me = await getSessionUser()
-    if (!canApprove(me)) return { ok: false as const, error: 'Not authorized to export' }
-    const sql = requireDb()
-    const rows = (await sql`
+export const exportEmployees = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    try {
+      const me = await getSessionUser()
+      if (!canApprove(me))
+        return { ok: false as const, error: 'Not authorized to export' }
+      const sql = requireDb()
+      const rows = (await sql`
       select name, email, department, designation, location, employment_type,
              status, gender, date_of_joining, ctc, manager_id
       from employees order by name`) as Array<any>
-    return {
-      ok: true as const,
-      data: rows.map((r) => ({
-        name: r.name,
-        email: r.email,
-        department: r.department,
-        designation: r.designation,
-        location: r.location,
-        employmentType: r.employment_type,
-        status: r.status,
-        gender: r.gender,
-        dateOfJoining: r.date_of_joining,
-        ctc: r.ctc,
-        managerId: r.manager_id,
-      })),
+      return {
+        ok: true as const,
+        data: rows.map((r) => ({
+          name: r.name,
+          email: r.email,
+          department: r.department,
+          designation: r.designation,
+          location: r.location,
+          employmentType: r.employment_type,
+          status: r.status,
+          gender: r.gender,
+          dateOfJoining: r.date_of_joining,
+          ctc: r.ctc,
+          managerId: r.manager_id,
+        })),
+      }
+    } catch (error) {
+      console.error('exportEmployees failed', error)
+      return { ok: false as const, error: 'Export failed' }
     }
-  } catch (error) {
-    console.error('exportEmployees failed', error)
-    return { ok: false as const, error: 'Export failed' }
-  }
-})
+  },
+)
 
-export const exportAttendance = createServerFn({ method: 'GET' }).handler(async () => {
-  try {
-    const me = await getSessionUser()
-    if (!canApprove(me)) return { ok: false as const, error: 'Not authorized to export' }
-    const sql = requireDb()
-    const rows = (await sql`
+export const exportAttendance = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    try {
+      const me = await getSessionUser()
+      if (!canApprove(me))
+        return { ok: false as const, error: 'Not authorized to export' }
+      const sql = requireDb()
+      const rows = (await sql`
       select employee_id, department, day, status, late, early_exit, overtime_hours
       from attendance_records order by day desc, employee_id`) as Array<any>
-    return {
-      ok: true as const,
-      data: rows.map((r) => ({
-        employeeId: r.employee_id,
-        department: r.department,
-        date: r.day,
-        status: r.status,
-        late: r.late,
-        earlyExit: r.early_exit,
-        overtimeHours: r.overtime_hours,
-      })),
+      return {
+        ok: true as const,
+        data: rows.map((r) => ({
+          employeeId: r.employee_id,
+          department: r.department,
+          date: r.day,
+          status: r.status,
+          late: r.late,
+          earlyExit: r.early_exit,
+          overtimeHours: r.overtime_hours,
+        })),
+      }
+    } catch (error) {
+      console.error('exportAttendance failed', error)
+      return { ok: false as const, error: 'Export failed' }
     }
-  } catch (error) {
-    console.error('exportAttendance failed', error)
-    return { ok: false as const, error: 'Export failed' }
-  }
-})
+  },
+)

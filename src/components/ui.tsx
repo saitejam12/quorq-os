@@ -198,8 +198,20 @@ export function Ring({ value, size = 44 }: { value: number; size?: number }) {
   const off = c * (1 - Math.min(100, Math.max(0, value)) / 100)
   const half = size / 2
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
-      <circle cx={half} cy={half} r={r} fill="none" stroke="#e2e8f0" strokeWidth="4" />
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="shrink-0"
+    >
+      <circle
+        cx={half}
+        cy={half}
+        r={r}
+        fill="none"
+        stroke="#e2e8f0"
+        strokeWidth="4"
+      />
       <circle
         cx={half}
         cy={half}

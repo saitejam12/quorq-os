@@ -122,7 +122,10 @@ Two new files using raw `sql` and the `Result<T>` contract from `src/server/auth
 A shared helper mirrors `admin.ts`'s `getCaller`:
 
 ```ts
-async function getCaller(sql, minTier: Tier): Promise<{ id: number; tier: Tier } | null>
+async function getCaller(
+  sql,
+  minTier: Tier,
+): Promise<{ id: number; tier: Tier } | null>
 ```
 
 It verifies the session cookie, loads the user, and returns `null` unless the user is `active` and `hasTier(row.tier, minTier)`.

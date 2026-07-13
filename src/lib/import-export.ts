@@ -49,7 +49,10 @@ export function toCSV<T extends Record<string, any>>(
     const values = allHeaders.map((header) => {
       const value = row[header]
       if (value === null || value === undefined) return ''
-      if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+      if (
+        typeof value === 'string' &&
+        (value.includes(',') || value.includes('"'))
+      ) {
         return `"${value.replace(/"/g, '""')}"`
       }
       return String(value)
@@ -70,10 +73,14 @@ export const EmployeeImportSchema = z.object({
   department: z.string().min(1, 'Department is required'),
   designation: z.string().min(1, 'Designation is required'),
   location: z.string().default('Hyderabad'),
-  employmentType: z.enum(['full-time', 'part-time', 'contract']).default('full-time'),
+  employmentType: z
+    .enum(['full-time', 'part-time', 'contract'])
+    .default('full-time'),
   status: z.enum(['active', 'on_leave', 'notice', 'exited']).default('active'),
   gender: z.enum(['male', 'female', 'other']).default('male'),
-  dateOfJoining: z.string().refine((d) => !isNaN(Date.parse(d)), 'Invalid date'),
+  dateOfJoining: z
+    .string()
+    .refine((d) => !isNaN(Date.parse(d)), 'Invalid date'),
   ctc: z.coerce.number().min(0).default(0),
   managerId: z.coerce.number().optional().nullable(),
 })
@@ -90,7 +97,14 @@ export const AttendanceImportSchema = z.object({
 export type AttendanceImportData = z.infer<typeof AttendanceImportSchema>
 
 function emptyResult<T>(): ImportResult<T> {
-  return { success: true, rowsProcessed: 0, rowsSkipped: 0, errors: [], warnings: [], data: [] }
+  return {
+    success: true,
+    rowsProcessed: 0,
+    rowsSkipped: 0,
+    errors: [],
+    warnings: [],
+    data: [],
+  }
 }
 
 function zodMessage(error: unknown): string {
@@ -101,17 +115,27 @@ function zodMessage(error: unknown): string {
       : 'Unknown error'
 }
 
-export function importEmployees(csvLines: Array<Array<string>>): ImportResult<EmployeeImportData> {
+export function importEmployees(
+  csvLines: Array<Array<string>>,
+): ImportResult<EmployeeImportData> {
   const result = emptyResult<EmployeeImportData>()
   if (csvLines.length < 2) {
-    result.errors.push({ row: 1, message: 'CSV file must have headers and at least one data row' })
+    result.errors.push({
+      row: 1,
+      message: 'CSV file must have headers and at least one data row',
+    })
     result.success = false
     return result
   }
   const headers = csvLines[0]
-  const missing = ['name', 'email', 'department', 'designation'].filter((f) => !headers.includes(f))
+  const missing = ['name', 'email', 'department', 'designation'].filter(
+    (f) => !headers.includes(f),
+  )
   if (missing.length > 0) {
-    result.errors.push({ row: 1, message: `Missing required columns: ${missing.join(', ')}` })
+    result.errors.push({
+      row: 1,
+      message: `Missing required columns: ${missing.join(', ')}`,
+    })
     result.success = false
     return result
   }
@@ -138,7 +162,10 @@ export function importEmployees(csvLines: Array<Array<string>>): ImportResult<Em
     } catch (error) {
       result.errors.push({ row, message: zodMessage(error) })
       if (result.errors.length > 50) {
-        result.errors.push({ row: -1, message: 'Too many errors. Stopping import.' })
+        result.errors.push({
+          row: -1,
+          message: 'Too many errors. Stopping import.',
+        })
         break
       }
     }
@@ -147,17 +174,27 @@ export function importEmployees(csvLines: Array<Array<string>>): ImportResult<Em
   return result
 }
 
-export function importAttendance(csvLines: Array<Array<string>>): ImportResult<AttendanceImportData> {
+export function importAttendance(
+  csvLines: Array<Array<string>>,
+): ImportResult<AttendanceImportData> {
   const result = emptyResult<AttendanceImportData>()
   if (csvLines.length < 2) {
-    result.errors.push({ row: 1, message: 'CSV file must have headers and at least one data row' })
+    result.errors.push({
+      row: 1,
+      message: 'CSV file must have headers and at least one data row',
+    })
     result.success = false
     return result
   }
   const headers = csvLines[0]
-  const missing = ['employeeId', 'date', 'status'].filter((f) => !headers.includes(f))
+  const missing = ['employeeId', 'date', 'status'].filter(
+    (f) => !headers.includes(f),
+  )
   if (missing.length > 0) {
-    result.errors.push({ row: 1, message: `Missing required columns: ${missing.join(', ')}` })
+    result.errors.push({
+      row: 1,
+      message: `Missing required columns: ${missing.join(', ')}`,
+    })
     result.success = false
     return result
   }
@@ -176,7 +213,10 @@ export function importAttendance(csvLines: Array<Array<string>>): ImportResult<A
     } catch (error) {
       result.errors.push({ row, message: zodMessage(error) })
       if (result.errors.length > 50) {
-        result.errors.push({ row: -1, message: 'Too many errors. Stopping import.' })
+        result.errors.push({
+          row: -1,
+          message: 'Too many errors. Stopping import.',
+        })
         break
       }
     }

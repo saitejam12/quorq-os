@@ -39,10 +39,26 @@ describe('buildStructure', () => {
 describe('summarize', () => {
   it('totals an arbitrary edited component set', () => {
     const comps = [
-      { code: 'basic', label: 'Basic', kind: 'earning' as const, amount: 5000, sortOrder: 0 },
-      { code: 'pf', label: 'PF', kind: 'deduction' as const, amount: 600, sortOrder: 0 },
+      {
+        code: 'basic',
+        label: 'Basic',
+        kind: 'earning' as const,
+        amount: 5000,
+        sortOrder: 0,
+      },
+      {
+        code: 'pf',
+        label: 'PF',
+        kind: 'deduction' as const,
+        amount: 600,
+        sortOrder: 0,
+      },
     ]
-    expect(summarize(comps)).toEqual({ gross: 5000, totalDeductions: 600, net: 4400 })
+    expect(summarize(comps)).toEqual({
+      gross: 5000,
+      totalDeductions: 600,
+      net: 4400,
+    })
   })
 })
 
@@ -61,7 +77,10 @@ describe('applyAdjustments', () => {
 
 describe('waterfallSegments', () => {
   it('rises through earnings then steps down to a net segment', () => {
-    const { earnings, deductions } = buildStructure({ ctc: 600000, netPay: 40000 })
+    const { earnings, deductions } = buildStructure({
+      ctc: 600000,
+      netPay: 40000,
+    })
     const segs = waterfallSegments(earnings, deductions)
     expect(segs[0].start).toBe(0)
     const net = segs[segs.length - 1]

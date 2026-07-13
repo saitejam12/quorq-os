@@ -62,25 +62,84 @@ async function bulk(table, cols, rows) {
 
 // ---- name pools ----------------------------------------------------------
 const FIRST_M = [
-  'Arjun', 'Rohan', 'Vikram', 'Karthik', 'Rahul', 'Aditya', 'Siddharth', 'Nikhil',
-  'Aravind', 'Manish', 'Sameer', 'Varun', 'Deepak', 'Anand', 'Harish', 'Kiran',
-  'Naveen', 'Praveen', 'Suresh', 'Vishal',
+  'Arjun',
+  'Rohan',
+  'Vikram',
+  'Karthik',
+  'Rahul',
+  'Aditya',
+  'Siddharth',
+  'Nikhil',
+  'Aravind',
+  'Manish',
+  'Sameer',
+  'Varun',
+  'Deepak',
+  'Anand',
+  'Harish',
+  'Kiran',
+  'Naveen',
+  'Praveen',
+  'Suresh',
+  'Vishal',
 ]
 const FIRST_F = [
-  'Priya', 'Ananya', 'Divya', 'Sneha', 'Meera', 'Kavya', 'Nisha', 'Pooja',
-  'Ritika', 'Shreya', 'Aishwarya', 'Deepika', 'Lakshmi', 'Sania', 'Tara',
-  'Ishita', 'Neha', 'Radhika', 'Swati', 'Anjali',
+  'Priya',
+  'Ananya',
+  'Divya',
+  'Sneha',
+  'Meera',
+  'Kavya',
+  'Nisha',
+  'Pooja',
+  'Ritika',
+  'Shreya',
+  'Aishwarya',
+  'Deepika',
+  'Lakshmi',
+  'Sania',
+  'Tara',
+  'Ishita',
+  'Neha',
+  'Radhika',
+  'Swati',
+  'Anjali',
 ]
 const LAST = [
-  'Sharma', 'Reddy', 'Nair', 'Iyer', 'Patel', 'Rao', 'Kumar', 'Menon', 'Gupta',
-  'Verma', 'Desai', 'Kapoor', 'Bose', 'Chopra', 'Malhotra', 'Pillai', 'Shetty',
-  'Bhat', 'Joshi', 'Naidu',
+  'Sharma',
+  'Reddy',
+  'Nair',
+  'Iyer',
+  'Patel',
+  'Rao',
+  'Kumar',
+  'Menon',
+  'Gupta',
+  'Verma',
+  'Desai',
+  'Kapoor',
+  'Bose',
+  'Chopra',
+  'Malhotra',
+  'Pillai',
+  'Shetty',
+  'Bhat',
+  'Joshi',
+  'Naidu',
 ]
 const LOCATIONS = ['Hyderabad', 'Bangalore', 'Remote', 'Pune']
 const CITIES = ['Hyderabad', 'Bangalore', 'Pune', 'Chennai', 'Mumbai', 'Delhi']
 const AREAS = [
-  'Gachibowli', 'Indiranagar', 'Koramangala', 'Hitech City', 'Baner',
-  'Andheri', 'Whitefield', 'Madhapur', 'Viman Nagar', 'HSR Layout',
+  'Gachibowli',
+  'Indiranagar',
+  'Koramangala',
+  'Hitech City',
+  'Baner',
+  'Andheri',
+  'Whitefield',
+  'Madhapur',
+  'Viman Nagar',
+  'HSR Layout',
 ]
 const BANKS = [
   { name: 'HDFC Bank', code: 'HDFC' },
@@ -100,20 +159,61 @@ const panNo = () =>
 
 // ---- department structure ------------------------------------------------
 const DEPTS = [
-  { name: 'Engineering', count: 48, head: 'VP Engineering', mgr: 'Engineering Manager',
-    ics: ['Software Engineer', 'Sr. Software Engineer', 'Staff Engineer', 'QA Engineer', 'DevOps Engineer'] },
-  { name: 'Sales', count: 28, head: 'VP Sales', mgr: 'Sales Manager',
-    ics: ['Account Executive', 'Sr. Account Executive', 'SDR'] },
-  { name: 'Operations', count: 22, head: 'Head of Operations', mgr: 'Operations Manager',
-    ics: ['Operations Associate', 'Ops Lead'] },
-  { name: 'Product', count: 14, head: 'Head of Product', mgr: 'Group Product Manager',
-    ics: ['Product Manager', 'Sr. Product Manager', 'Product Designer'] },
-  { name: 'Marketing', count: 12, head: 'Head of Marketing', mgr: 'Growth Manager',
-    ics: ['Marketing Associate', 'Content Strategist'] },
-  { name: 'Finance', count: 10, head: 'Head of Finance', mgr: 'Finance Manager',
-    ics: ['Accountant', 'Financial Analyst'] },
-  { name: 'HR', count: 8, head: 'Head of HR', mgr: 'HR Business Partner',
-    ics: ['HR Associate', 'Recruiter'] },
+  {
+    name: 'Engineering',
+    count: 48,
+    head: 'VP Engineering',
+    mgr: 'Engineering Manager',
+    ics: [
+      'Software Engineer',
+      'Sr. Software Engineer',
+      'Staff Engineer',
+      'QA Engineer',
+      'DevOps Engineer',
+    ],
+  },
+  {
+    name: 'Sales',
+    count: 28,
+    head: 'VP Sales',
+    mgr: 'Sales Manager',
+    ics: ['Account Executive', 'Sr. Account Executive', 'SDR'],
+  },
+  {
+    name: 'Operations',
+    count: 22,
+    head: 'Head of Operations',
+    mgr: 'Operations Manager',
+    ics: ['Operations Associate', 'Ops Lead'],
+  },
+  {
+    name: 'Product',
+    count: 14,
+    head: 'Head of Product',
+    mgr: 'Group Product Manager',
+    ics: ['Product Manager', 'Sr. Product Manager', 'Product Designer'],
+  },
+  {
+    name: 'Marketing',
+    count: 12,
+    head: 'Head of Marketing',
+    mgr: 'Growth Manager',
+    ics: ['Marketing Associate', 'Content Strategist'],
+  },
+  {
+    name: 'Finance',
+    count: 10,
+    head: 'Head of Finance',
+    mgr: 'Finance Manager',
+    ics: ['Accountant', 'Financial Analyst'],
+  },
+  {
+    name: 'HR',
+    count: 8,
+    head: 'Head of HR',
+    mgr: 'HR Business Partner',
+    ics: ['HR Associate', 'Recruiter'],
+  },
 ]
 
 let emailSeq = 0
@@ -126,7 +226,8 @@ function mkEmployee(department, designation, gender) {
   const tenure = randInt(40, 2200)
   const netPay = randInt(26000, 130000)
   const rating = (randInt(26, 49) / 10).toFixed(1)
-  const empType = rand() < 0.85 ? 'full-time' : rand() < 0.6 ? 'contract' : 'part-time'
+  const empType =
+    rand() < 0.85 ? 'full-time' : rand() < 0.6 ? 'contract' : 'part-time'
   const location = rand() < 0.7 ? 'Hyderabad' : pick(LOCATIONS)
   const status = rand() < 0.9 ? 'active' : rand() < 0.6 ? 'on_leave' : 'notice'
   return {
@@ -258,7 +359,9 @@ for (const dep of DEPTS) {
     allEmployees.push(ic)
   }
 }
-console.log(`Inserted ${allEmployees.length} employees across ${DEPTS.length} departments`)
+console.log(
+  `Inserted ${allEmployees.length} employees across ${DEPTS.length} departments`,
+)
 
 // ---- recognitions --------------------------------------------------------
 const VALUES = ['teamwork', 'innovation', 'ownership', 'customer', 'leadership']
@@ -289,11 +392,31 @@ console.log(`Inserted ${recCount} recognitions`)
 
 // ---- announcements -------------------------------------------------------
 const ANNOUNCEMENTS = [
-  { title: 'Updated leave policy for 2026', body: 'Carry-forward limits and the new sabbatical policy take effect this quarter. Read the full details on the intranet.', category: 'policy' },
-  { title: 'All-hands next Friday', body: 'Join us for the quarterly all-hands. Leadership will share the roadmap and celebrate this quarter’s wins.', category: 'event' },
-  { title: 'New health-insurance provider', body: 'We have switched providers effective this month. Digital cards are available in the benefits portal.', category: 'policy' },
-  { title: 'Diwali celebration', body: 'The office celebration is on the 29th. Bring your families for food, games and rangoli.', category: 'event' },
-  { title: 'Welcome to our new joiners', body: 'A warm welcome to everyone who joined this month across all departments. Say hi on Slack!', category: 'general' },
+  {
+    title: 'Updated leave policy for 2026',
+    body: 'Carry-forward limits and the new sabbatical policy take effect this quarter. Read the full details on the intranet.',
+    category: 'policy',
+  },
+  {
+    title: 'All-hands next Friday',
+    body: 'Join us for the quarterly all-hands. Leadership will share the roadmap and celebrate this quarter’s wins.',
+    category: 'event',
+  },
+  {
+    title: 'New health-insurance provider',
+    body: 'We have switched providers effective this month. Digital cards are available in the benefits portal.',
+    category: 'policy',
+  },
+  {
+    title: 'Diwali celebration',
+    body: 'The office celebration is on the 29th. Bring your families for food, games and rangoli.',
+    category: 'event',
+  },
+  {
+    title: 'Welcome to our new joiners',
+    body: 'A warm welcome to everyone who joined this month across all departments. Say hi on Slack!',
+    category: 'general',
+  },
 ]
 for (let i = 0; i < ANNOUNCEMENTS.length; i++) {
   const a = ANNOUNCEMENTS[i]
@@ -309,7 +432,8 @@ let surveyCount = 0
 for (const emp of allEmployees) {
   if (rand() < 0.25) continue // ~75% response rate
   const roll = rand()
-  const score = roll < 0.55 ? randInt(9, 10) : roll < 0.85 ? randInt(7, 8) : randInt(0, 6)
+  const score =
+    roll < 0.55 ? randInt(9, 10) : roll < 0.85 ? randInt(7, 8) : randInt(0, 6)
   await sql`
     INSERT INTO survey_responses (employee_id, department, score, created_at)
     VALUES (${emp.id}, ${emp.department}, ${score}, ${iso(daysAgo(randInt(0, 20)))})`
@@ -345,25 +469,48 @@ for (let dback = 0; dback < 90; dback++) {
 }
 await bulk(
   'attendance_records',
-  ['employee_id', 'department', 'day', 'status', 'late', 'early_exit', 'overtime_hours'],
+  [
+    'employee_id',
+    'department',
+    'day',
+    'status',
+    'late',
+    'early_exit',
+    'overtime_hours',
+  ],
   attRows,
 )
 console.log(`Inserted ${attRows.length} attendance records`)
 
 // ---- leave requests ------------------------------------------------------
-const LTYPES = ['casual', 'sick', 'earned', 'maternity', 'paternity', 'comp-off']
+const LTYPES = [
+  'casual',
+  'sick',
+  'earned',
+  'maternity',
+  'paternity',
+  'comp-off',
+]
 const LEAVE_REASONS = [
-  'Family function', 'Medical', 'Personal work', 'Vacation', 'Not feeling well',
-  'Child care', 'House shifting', 'Festival',
+  'Family function',
+  'Medical',
+  'Personal work',
+  'Vacation',
+  'Not feeling well',
+  'Child care',
+  'House shifting',
+  'Festival',
 ]
 const leaveRows = []
 for (let i = 0; i < 75; i++) {
   const emp = pick(allEmployees)
   const type = pick(LTYPES)
   const days =
-    type === 'maternity' ? randInt(60, 90)
-    : type === 'paternity' ? randInt(5, 10)
-    : randInt(1, 5)
+    type === 'maternity'
+      ? randInt(60, 90)
+      : type === 'paternity'
+        ? randInt(5, 10)
+        : randInt(1, 5)
   const start = randInt(1, 150)
   leaveRows.push({
     employee_id: emp.id,
@@ -396,7 +543,18 @@ for (let i = 0; i < 9; i++) {
 }
 await bulk(
   'leave_requests',
-  ['employee_id', 'employee_name', 'department', 'type', 'days', 'start_date', 'end_date', 'reason', 'status', 'created_at'],
+  [
+    'employee_id',
+    'employee_name',
+    'department',
+    'type',
+    'days',
+    'start_date',
+    'end_date',
+    'reason',
+    'status',
+    'created_at',
+  ],
   leaveRows,
 )
 console.log(`Inserted ${leaveRows.length} leave requests`)
@@ -423,7 +581,19 @@ for (let i = 0; i < 6; i++) {
 }
 await bulk(
   'leave_requests',
-  ['employee_id', 'employee_name', 'department', 'type', 'days', 'start_date', 'end_date', 'reason', 'status', 'source', 'created_at'],
+  [
+    'employee_id',
+    'employee_name',
+    'department',
+    'type',
+    'days',
+    'start_date',
+    'end_date',
+    'reason',
+    'status',
+    'source',
+    'created_at',
+  ],
   autoLeaveRows,
 )
 console.log(`Inserted ${autoLeaveRows.length} auto-generated leave rows`)
@@ -465,7 +635,13 @@ await sql`insert into profile_change_requests (employee_id, employee_name, depar
 console.log('Inserted 2 sample profile change requests')
 
 // ---- exits (attrition) ---------------------------------------------------
-const EXIT_REASONS = ['salary', 'growth', 'management', 'personal', 'competitor']
+const EXIT_REASONS = [
+  'salary',
+  'growth',
+  'management',
+  'personal',
+  'competitor',
+]
 const TENURE = ['under_1yr', '1_2yr', '2_4yr', '4yr_plus']
 const exitRows = []
 for (let i = 0; i < 12; i++) {
@@ -484,14 +660,28 @@ for (let i = 0; i < 12; i++) {
 }
 await bulk(
   'exits',
-  ['employee_name', 'department', 'exit_date', 'type', 'reason', 'regrettable', 'tenure_bucket', 'notice_period_days', 'counter_offer_accepted'],
+  [
+    'employee_name',
+    'department',
+    'exit_date',
+    'type',
+    'reason',
+    'regrettable',
+    'tenure_bucket',
+    'notice_period_days',
+    'counter_offer_accepted',
+  ],
   exitRows,
 )
 console.log(`Inserted ${exitRows.length} exits`)
 
 // ---- job openings + applications (recruitment funnel) --------------------
 const OPENINGS = [
-  { role: 'Senior Software Engineer', department: 'Engineering', category: 'tech' },
+  {
+    role: 'Senior Software Engineer',
+    department: 'Engineering',
+    category: 'tech',
+  },
   { role: 'Staff Engineer', department: 'Engineering', category: 'tech' },
   { role: 'DevOps Engineer', department: 'Engineering', category: 'tech' },
   { role: 'Engineering Manager', department: 'Engineering', category: 'tech' },
@@ -506,20 +696,55 @@ const OPENINGS = [
 ]
 // job-description templates (offered in the "+ New opening" popup)
 const JD_TEMPLATES = [
-  { title: 'Software Engineer', category: 'tech', summary: 'Build and ship product features across the stack.',
-    description: 'Design, build and maintain product features.\nCollaborate with product and design.\nWrite tested, maintainable code.\n\nRequirements: 2+ years building web applications; strong fundamentals in one modern language.' },
-  { title: 'Senior Software Engineer', category: 'tech', summary: 'Own services end to end and mentor engineers.',
-    description: 'Own the design and delivery of backend services.\nMentor engineers and raise the technical bar.\nDrive reliability and performance.\n\nRequirements: 5+ years; experience owning production systems.' },
-  { title: 'Engineering Manager', category: 'tech', summary: 'Lead a team of engineers and delivery.',
-    description: 'Lead, grow and support a team of engineers.\nOwn delivery, planning and quality.\nPartner with product on the roadmap.\n\nRequirements: prior people-management experience; strong engineering background.' },
-  { title: 'Account Executive', category: 'sales', summary: 'Own the full sales cycle for new business.',
-    description: 'Manage the full sales cycle from prospect to close.\nBuild a pipeline and hit quota.\nPartner with SDRs and marketing.\n\nRequirements: 2+ years closing B2B deals.' },
-  { title: 'Sales Manager', category: 'sales', summary: 'Lead a quota-carrying sales team.',
-    description: 'Lead and coach a team of account executives.\nForecast and own regional targets.\nBuild repeatable sales processes.\n\nRequirements: prior sales-management experience.' },
-  { title: 'Product Manager', category: 'others', summary: 'Own the roadmap and outcomes for a product area.',
-    description: 'Own the roadmap and outcomes for a product area.\nTalk to customers and define requirements.\nPartner with engineering and design.\n\nRequirements: 3+ years in product management.' },
-  { title: 'HR Business Partner', category: 'others', summary: 'Partner with leaders on people strategy.',
-    description: 'Partner with department leaders on people strategy.\nSupport hiring, performance and engagement.\nAdvise on policy and compliance.\n\nRequirements: prior HRBP experience.' },
+  {
+    title: 'Software Engineer',
+    category: 'tech',
+    summary: 'Build and ship product features across the stack.',
+    description:
+      'Design, build and maintain product features.\nCollaborate with product and design.\nWrite tested, maintainable code.\n\nRequirements: 2+ years building web applications; strong fundamentals in one modern language.',
+  },
+  {
+    title: 'Senior Software Engineer',
+    category: 'tech',
+    summary: 'Own services end to end and mentor engineers.',
+    description:
+      'Own the design and delivery of backend services.\nMentor engineers and raise the technical bar.\nDrive reliability and performance.\n\nRequirements: 5+ years; experience owning production systems.',
+  },
+  {
+    title: 'Engineering Manager',
+    category: 'tech',
+    summary: 'Lead a team of engineers and delivery.',
+    description:
+      'Lead, grow and support a team of engineers.\nOwn delivery, planning and quality.\nPartner with product on the roadmap.\n\nRequirements: prior people-management experience; strong engineering background.',
+  },
+  {
+    title: 'Account Executive',
+    category: 'sales',
+    summary: 'Own the full sales cycle for new business.',
+    description:
+      'Manage the full sales cycle from prospect to close.\nBuild a pipeline and hit quota.\nPartner with SDRs and marketing.\n\nRequirements: 2+ years closing B2B deals.',
+  },
+  {
+    title: 'Sales Manager',
+    category: 'sales',
+    summary: 'Lead a quota-carrying sales team.',
+    description:
+      'Lead and coach a team of account executives.\nForecast and own regional targets.\nBuild repeatable sales processes.\n\nRequirements: prior sales-management experience.',
+  },
+  {
+    title: 'Product Manager',
+    category: 'others',
+    summary: 'Own the roadmap and outcomes for a product area.',
+    description:
+      'Own the roadmap and outcomes for a product area.\nTalk to customers and define requirements.\nPartner with engineering and design.\n\nRequirements: 3+ years in product management.',
+  },
+  {
+    title: 'HR Business Partner',
+    category: 'others',
+    summary: 'Partner with leaders on people strategy.',
+    description:
+      'Partner with department leaders on people strategy.\nSupport hiring, performance and engagement.\nAdvise on policy and compliance.\n\nRequirements: prior HRBP experience.',
+  },
 ]
 const templateIds = {}
 for (const t of JD_TEMPLATES) {
@@ -551,7 +776,14 @@ for (const o of OPENINGS) {
     RETURNING id, department`
   jobIds.push(rows[0])
 }
-const STAGES = ['applied', 'screened', 'interviewed', 'offer', 'joined', 'declined']
+const STAGES = [
+  'applied',
+  'screened',
+  'interviewed',
+  'offer',
+  'joined',
+  'declined',
+]
 const STAGE_WEIGHTS = [42, 24, 20, 8, 12, 5]
 const SOURCES = ['linkedin', 'referral', 'job_boards', 'agency', 'direct']
 const stageBag = STAGES.flatMap((s, i) => Array(STAGE_WEIGHTS[i]).fill(s))
@@ -566,64 +798,135 @@ for (let i = 0; i < 110; i++) {
     stage,
     source: pick(SOURCES),
     gender: rand() < 0.4 ? 'female' : 'male',
-    decline_reason: stage === 'declined' ? pick(['salary', 'location', 'counter_offer', 'other']) : null,
+    decline_reason:
+      stage === 'declined'
+        ? pick(['salary', 'location', 'counter_offer', 'other'])
+        : null,
     applied_date: iso(daysAgo(randInt(2, 90))),
   })
 }
 await bulk(
   'applications',
-  ['job_id', 'candidate_name', 'department', 'stage', 'source', 'gender', 'decline_reason', 'applied_date'],
+  [
+    'job_id',
+    'candidate_name',
+    'department',
+    'stage',
+    'source',
+    'gender',
+    'decline_reason',
+    'applied_date',
+  ],
   appRows,
 )
-console.log(`Inserted ${jobIds.length} openings, ${appRows.length} applications`)
+console.log(
+  `Inserted ${jobIds.length} openings, ${appRows.length} applications`,
+)
 
 // ---- time entries (today, UTC instants; some with multiple sessions) -----
 const timeDay = iso(daysAgo(0))
 // Times are stored as UTC (trailing Z) so they are unambiguous absolute instants.
-const utcTs = (h, m) => `${timeDay}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00Z`
-const hrsOf = (a, b) => Math.round(((Date.parse(b) - Date.parse(a)) / 3600000) * 100) / 100
+const utcTs = (h, m) =>
+  `${timeDay}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00Z`
+const hrsOf = (a, b) =>
+  Math.round(((Date.parse(b) - Date.parse(a)) / 3600000) * 100) / 100
 const timeRows = []
 for (const emp of allEmployees) {
   if (rand() < 0.6) continue // ~40% have activity today
-  const base = { employee_id: emp.id, employee_name: emp.name, department: emp.department, day: timeDay }
+  const base = {
+    employee_id: emp.id,
+    employee_name: emp.name,
+    department: emp.department,
+    day: timeDay,
+  }
 
   if (rand() < 0.4) {
     // two sessions: a completed morning block + an afternoon block
     const mIn = utcTs(9, randInt(0, 30))
     const mOut = utcTs(12, randInt(0, 59))
-    timeRows.push({ ...base, clock_in: mIn, clock_out: mOut, hours_worked: hrsOf(mIn, mOut), status: 'completed' })
+    timeRows.push({
+      ...base,
+      clock_in: mIn,
+      clock_out: mOut,
+      hours_worked: hrsOf(mIn, mOut),
+      status: 'completed',
+    })
 
     const aIn = utcTs(13, randInt(0, 59))
     if (rand() < 0.5) {
-      timeRows.push({ ...base, clock_in: aIn, clock_out: null, hours_worked: 0, status: 'active' })
+      timeRows.push({
+        ...base,
+        clock_in: aIn,
+        clock_out: null,
+        hours_worked: 0,
+        status: 'active',
+      })
     } else {
       const aOut = utcTs(17, randInt(0, 59))
-      timeRows.push({ ...base, clock_in: aIn, clock_out: aOut, hours_worked: hrsOf(aIn, aOut), status: 'completed' })
+      timeRows.push({
+        ...base,
+        clock_in: aIn,
+        clock_out: aOut,
+        hours_worked: hrsOf(aIn, aOut),
+        status: 'completed',
+      })
     }
   } else {
     // single session: open or completed
     const cin = utcTs(8 + randInt(0, 2), randInt(0, 59))
     if (rand() < 0.35) {
-      timeRows.push({ ...base, clock_in: cin, clock_out: null, hours_worked: 0, status: 'active' })
+      timeRows.push({
+        ...base,
+        clock_in: cin,
+        clock_out: null,
+        hours_worked: 0,
+        status: 'active',
+      })
     } else {
       const cout = utcTs(16 + randInt(0, 2), randInt(0, 59))
-      timeRows.push({ ...base, clock_in: cin, clock_out: cout, hours_worked: hrsOf(cin, cout), status: 'completed' })
+      timeRows.push({
+        ...base,
+        clock_in: cin,
+        clock_out: cout,
+        hours_worked: hrsOf(cin, cout),
+        status: 'completed',
+      })
     }
   }
 }
 await bulk(
   'time_entries',
-  ['employee_id', 'employee_name', 'department', 'day', 'clock_in', 'clock_out', 'hours_worked', 'status'],
+  [
+    'employee_id',
+    'employee_name',
+    'department',
+    'day',
+    'clock_in',
+    'clock_out',
+    'hours_worked',
+    'status',
+  ],
   timeRows,
 )
 console.log(`Inserted ${timeRows.length} time entries`)
 
 // ---- expenses ------------------------------------------------------------
-const EXP_CATS = ['travel', 'food', 'software', 'equipment', 'training', 'other']
+const EXP_CATS = [
+  'travel',
+  'food',
+  'software',
+  'equipment',
+  'training',
+  'other',
+]
 const EXP_STATUS = ['pending', 'approved', 'rejected', 'reimbursed']
 const EXP_DESC = {
-  travel: 'Client visit cab fare', food: 'Team lunch', software: 'SaaS subscription',
-  equipment: 'Laptop accessories', training: 'Online course', other: 'Misc reimbursement',
+  travel: 'Client visit cab fare',
+  food: 'Team lunch',
+  software: 'SaaS subscription',
+  equipment: 'Laptop accessories',
+  training: 'Online course',
+  other: 'Misc reimbursement',
 }
 const expRows = []
 for (let i = 0; i < 48; i++) {
@@ -643,7 +946,17 @@ for (let i = 0; i < 48; i++) {
 }
 await bulk(
   'expenses',
-  ['employee_id', 'employee_name', 'department', 'category', 'amount', 'spent_on', 'description', 'status', 'created_at'],
+  [
+    'employee_id',
+    'employee_name',
+    'department',
+    'category',
+    'amount',
+    'spent_on',
+    'description',
+    'status',
+    'created_at',
+  ],
   expRows,
 )
 console.log(`Inserted ${expRows.length} expenses`)
@@ -681,10 +994,24 @@ const runId = runRows[0].id
 for (const p of payslipRows) p.run_id = runId
 await bulk(
   'payslips',
-  ['run_id', 'employee_id', 'employee_name', 'department', 'period', 'gross', 'deductions', 'lop_days', 'reimbursements', 'net', 'status'],
+  [
+    'run_id',
+    'employee_id',
+    'employee_name',
+    'department',
+    'period',
+    'gross',
+    'deductions',
+    'lop_days',
+    'reimbursements',
+    'net',
+    'status',
+  ],
   payslipRows,
 )
-console.log(`Inserted payroll run ${period} with ${payslipRows.length} payslips`)
+console.log(
+  `Inserted payroll run ${period} with ${payslipRows.length} payslips`,
+)
 
 // ---- salary components (reconciling monthly structure) -------------------
 // Mirrors src/lib/payroll.ts buildStructure. gross = ctc/12 where ctc = netPay*13.5.
@@ -702,12 +1029,48 @@ for (const emp of allEmployees) {
   if (pf + pt > target) pf = Math.max(0, target - pt)
   const tds = Math.max(0, target - pf - pt)
   const lines = [
-    { kind: 'earning', code: 'basic', label: 'Basic', amount: basic, sort_order: 0 },
-    { kind: 'earning', code: 'hra', label: 'House Rent Allowance', amount: hra, sort_order: 1 },
-    { kind: 'earning', code: 'special', label: 'Special Allowance', amount: special, sort_order: 2 },
-    { kind: 'deduction', code: 'pf', label: 'Provident Fund', amount: pf, sort_order: 0 },
-    { kind: 'deduction', code: 'pt', label: 'Professional Tax', amount: pt, sort_order: 1 },
-    { kind: 'deduction', code: 'tds', label: 'TDS', amount: tds, sort_order: 2 },
+    {
+      kind: 'earning',
+      code: 'basic',
+      label: 'Basic',
+      amount: basic,
+      sort_order: 0,
+    },
+    {
+      kind: 'earning',
+      code: 'hra',
+      label: 'House Rent Allowance',
+      amount: hra,
+      sort_order: 1,
+    },
+    {
+      kind: 'earning',
+      code: 'special',
+      label: 'Special Allowance',
+      amount: special,
+      sort_order: 2,
+    },
+    {
+      kind: 'deduction',
+      code: 'pf',
+      label: 'Provident Fund',
+      amount: pf,
+      sort_order: 0,
+    },
+    {
+      kind: 'deduction',
+      code: 'pt',
+      label: 'Professional Tax',
+      amount: pt,
+      sort_order: 1,
+    },
+    {
+      kind: 'deduction',
+      code: 'tds',
+      label: 'TDS',
+      amount: tds,
+      sort_order: 2,
+    },
   ]
   for (const l of lines) componentRows.push({ employee_id: emp.id, ...l })
 
@@ -715,7 +1078,11 @@ for (const emp of allEmployees) {
   if (rand() < 0.15) {
     const kind = pick(ADJ_KINDS)
     const label =
-      kind === 'bonus' ? 'Performance bonus' : kind === 'reimbursement' ? 'Travel reimbursement' : 'Salary advance recovery'
+      kind === 'bonus'
+        ? 'Performance bonus'
+        : kind === 'reimbursement'
+          ? 'Travel reimbursement'
+          : 'Salary advance recovery'
     adjustmentRows.push({
       employee_id: emp.id,
       period: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
@@ -727,9 +1094,17 @@ for (const emp of allEmployees) {
     })
   }
 }
-await bulk('salary_components', ['employee_id', 'kind', 'code', 'label', 'amount', 'sort_order'], componentRows)
+await bulk(
+  'salary_components',
+  ['employee_id', 'kind', 'code', 'label', 'amount', 'sort_order'],
+  componentRows,
+)
 console.log(`Inserted ${componentRows.length} salary components`)
-await bulk('pay_adjustments', ['employee_id', 'period', 'kind', 'label', 'amount', 'note', 'created_by'], adjustmentRows)
+await bulk(
+  'pay_adjustments',
+  ['employee_id', 'period', 'kind', 'label', 'amount', 'note', 'created_by'],
+  adjustmentRows,
+)
 console.log(`Inserted ${adjustmentRows.length} pay adjustments`)
 
 // ---- onboardings + tasks + notes -----------------------------------------
@@ -789,29 +1164,73 @@ await bulk(
   'compliance_items',
   ['label', 'value', 'tone', 'sort_order'],
   [
-    { label: 'PF filings up to date', value: 'On track', tone: 'ok', sort_order: 1 },
+    {
+      label: 'PF filings up to date',
+      value: 'On track',
+      tone: 'ok',
+      sort_order: 1,
+    },
     { label: 'ESI returns', value: '2 pending', tone: 'warn', sort_order: 2 },
     { label: 'TDS deposited', value: 'On track', tone: 'ok', sort_order: 3 },
     { label: 'POSH training', value: '88% done', tone: 'info', sort_order: 4 },
-    { label: 'Labour law audit', value: 'Due in 12 days', tone: 'alert', sort_order: 5 },
+    {
+      label: 'Labour law audit',
+      value: 'Due in 12 days',
+      tone: 'alert',
+      sort_order: 5,
+    },
   ],
 )
 await bulk(
   'statutory_reports',
   ['name', 'frequency', 'next_due', 'status', 'responsibility'],
   [
-    { name: 'PF ECR', frequency: 'Monthly', next_due: iso(daysAgo(-8)), status: 'pending', responsibility: 'Finance' },
-    { name: 'ESI Return', frequency: 'Monthly', next_due: iso(daysAgo(-12)), status: 'in_progress', responsibility: 'Finance' },
-    { name: 'TDS Form 24Q', frequency: 'Quarterly', next_due: iso(daysAgo(-20)), status: 'pending', responsibility: 'Finance' },
-    { name: 'Professional Tax', frequency: 'Monthly', next_due: iso(daysAgo(-5)), status: 'done', responsibility: 'HR' },
-    { name: 'Labour Welfare Fund', frequency: 'Half-yearly', next_due: iso(daysAgo(-40)), status: 'pending', responsibility: 'HR' },
+    {
+      name: 'PF ECR',
+      frequency: 'Monthly',
+      next_due: iso(daysAgo(-8)),
+      status: 'pending',
+      responsibility: 'Finance',
+    },
+    {
+      name: 'ESI Return',
+      frequency: 'Monthly',
+      next_due: iso(daysAgo(-12)),
+      status: 'in_progress',
+      responsibility: 'Finance',
+    },
+    {
+      name: 'TDS Form 24Q',
+      frequency: 'Quarterly',
+      next_due: iso(daysAgo(-20)),
+      status: 'pending',
+      responsibility: 'Finance',
+    },
+    {
+      name: 'Professional Tax',
+      frequency: 'Monthly',
+      next_due: iso(daysAgo(-5)),
+      status: 'done',
+      responsibility: 'HR',
+    },
+    {
+      name: 'Labour Welfare Fund',
+      frequency: 'Half-yearly',
+      next_due: iso(daysAgo(-40)),
+      status: 'pending',
+      responsibility: 'HR',
+    },
   ],
 )
 await bulk(
   'scheduled_reports',
   ['name', 'cadence', 'tone'],
   [
-    { name: 'Weekly headcount summary', cadence: 'Every Monday 9:00', tone: 'ok' },
+    {
+      name: 'Weekly headcount summary',
+      cadence: 'Every Monday 9:00',
+      tone: 'ok',
+    },
     { name: 'Monthly attrition report', cadence: '1st of month', tone: 'info' },
     { name: 'Payroll register', cadence: 'Monthly · 28th', tone: 'ok' },
     { name: 'Attendance exceptions', cadence: 'Daily 8:00', tone: 'warn' },
@@ -823,14 +1242,62 @@ await bulk(
   'prebuilt_reports',
   ['title', 'subtitle', 'category', 'formats', 'icon'],
   [
-    { title: 'Headcount register', subtitle: 'Full employee master with department & role', category: 'HR', formats: 'PDF,Excel,CSV', icon: 'users' },
-    { title: 'Payroll summary', subtitle: 'Gross, deductions and net by employee', category: 'Payroll', formats: 'PDF,Excel', icon: 'wallet' },
-    { title: 'Attrition analysis', subtitle: 'Exits by department, reason and tenure', category: 'HR', formats: 'PDF,Excel', icon: 'trending-down' },
-    { title: 'Leave register', subtitle: 'Approved and pending leave by type', category: 'HR', formats: 'Excel,CSV', icon: 'calendar' },
-    { title: 'Recruitment funnel', subtitle: 'Openings, pipeline and source of hire', category: 'HR', formats: 'PDF', icon: 'filter' },
-    { title: 'PF & ESI statement', subtitle: 'Statutory contributions for the period', category: 'Compliance', formats: 'PDF,Excel', icon: 'shield' },
-    { title: 'Form 16 pack', subtitle: 'Annual tax statements for employees', category: 'Payroll', formats: 'PDF', icon: 'file' },
-    { title: 'Attendance report', subtitle: 'Daily attendance and overtime rollup', category: 'HR', formats: 'Excel,CSV', icon: 'clock' },
+    {
+      title: 'Headcount register',
+      subtitle: 'Full employee master with department & role',
+      category: 'HR',
+      formats: 'PDF,Excel,CSV',
+      icon: 'users',
+    },
+    {
+      title: 'Payroll summary',
+      subtitle: 'Gross, deductions and net by employee',
+      category: 'Payroll',
+      formats: 'PDF,Excel',
+      icon: 'wallet',
+    },
+    {
+      title: 'Attrition analysis',
+      subtitle: 'Exits by department, reason and tenure',
+      category: 'HR',
+      formats: 'PDF,Excel',
+      icon: 'trending-down',
+    },
+    {
+      title: 'Leave register',
+      subtitle: 'Approved and pending leave by type',
+      category: 'HR',
+      formats: 'Excel,CSV',
+      icon: 'calendar',
+    },
+    {
+      title: 'Recruitment funnel',
+      subtitle: 'Openings, pipeline and source of hire',
+      category: 'HR',
+      formats: 'PDF',
+      icon: 'filter',
+    },
+    {
+      title: 'PF & ESI statement',
+      subtitle: 'Statutory contributions for the period',
+      category: 'Compliance',
+      formats: 'PDF,Excel',
+      icon: 'shield',
+    },
+    {
+      title: 'Form 16 pack',
+      subtitle: 'Annual tax statements for employees',
+      category: 'Payroll',
+      formats: 'PDF',
+      icon: 'file',
+    },
+    {
+      title: 'Attendance report',
+      subtitle: 'Daily attendance and overtime rollup',
+      category: 'HR',
+      formats: 'Excel,CSV',
+      icon: 'clock',
+    },
   ],
 )
 console.log('Inserted reference rows (compliance, reports)')
