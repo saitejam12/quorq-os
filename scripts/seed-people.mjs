@@ -194,6 +194,8 @@ const genderFor = () => (rand() < 0.4 ? 'female' : 'male')
 console.log('Clearing existing People data…')
 await sql`UPDATE users SET employee_id = NULL`
 await sql`DELETE FROM payslips`
+await sql`DELETE FROM salary_components`
+await sql`DELETE FROM pay_adjustments`
 await sql`DELETE FROM payroll_runs`
 await sql`DELETE FROM onboarding_notes`
 await sql`DELETE FROM onboarding_tasks`
@@ -650,7 +652,7 @@ console.log(`Inserted ${expRows.length} expenses`)
 const prev = daysAgo(30)
 const period = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`
 const payslipRows = allEmployees.map((emp) => {
-  const gross = Math.round(emp.netPay * 1.35)
+  const gross = Math.round((emp.netPay * 13.5) / 12)
   const deductions = gross - emp.netPay
   const reimb = rand() < 0.2 ? randInt(1000, 8000) : 0
   return {
@@ -683,6 +685,52 @@ await bulk(
   payslipRows,
 )
 console.log(`Inserted payroll run ${period} with ${payslipRows.length} payslips`)
+
+// ---- salary components (reconciling monthly structure) -------------------
+// Mirrors src/lib/payroll.ts buildStructure. gross = ctc/12 where ctc = netPay*13.5.
+const componentRows = []
+const ADJ_KINDS = ['bonus', 'reimbursement', 'deduction']
+const adjustmentRows = []
+for (const emp of allEmployees) {
+  const gross = Math.round((emp.netPay * 13.5) / 12)
+  const basic = Math.round(gross * 0.5)
+  const hra = Math.round(gross * 0.2)
+  const special = gross - basic - hra
+  const target = Math.max(0, gross - emp.netPay)
+  let pf = Math.round(basic * 0.12)
+  let pt = Math.min(200, target)
+  if (pf + pt > target) pf = Math.max(0, target - pt)
+  const tds = Math.max(0, target - pf - pt)
+  const lines = [
+    { kind: 'earning', code: 'basic', label: 'Basic', amount: basic, sort_order: 0 },
+    { kind: 'earning', code: 'hra', label: 'House Rent Allowance', amount: hra, sort_order: 1 },
+    { kind: 'earning', code: 'special', label: 'Special Allowance', amount: special, sort_order: 2 },
+    { kind: 'deduction', code: 'pf', label: 'Provident Fund', amount: pf, sort_order: 0 },
+    { kind: 'deduction', code: 'pt', label: 'Professional Tax', amount: pt, sort_order: 1 },
+    { kind: 'deduction', code: 'tds', label: 'TDS', amount: tds, sort_order: 2 },
+  ]
+  for (const l of lines) componentRows.push({ employee_id: emp.id, ...l })
+
+  // ~15% of employees carry a sample adjustment for the current month.
+  if (rand() < 0.15) {
+    const kind = pick(ADJ_KINDS)
+    const label =
+      kind === 'bonus' ? 'Performance bonus' : kind === 'reimbursement' ? 'Travel reimbursement' : 'Salary advance recovery'
+    adjustmentRows.push({
+      employee_id: emp.id,
+      period: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+      kind,
+      label,
+      amount: randInt(2000, 20000),
+      note: null,
+      created_by: 'Seed',
+    })
+  }
+}
+await bulk('salary_components', ['employee_id', 'kind', 'code', 'label', 'amount', 'sort_order'], componentRows)
+console.log(`Inserted ${componentRows.length} salary components`)
+await bulk('pay_adjustments', ['employee_id', 'period', 'kind', 'label', 'amount', 'note', 'created_by'], adjustmentRows)
+console.log(`Inserted ${adjustmentRows.length} pay adjustments`)
 
 // ---- onboardings + tasks + notes -----------------------------------------
 const ONB_TASKS = [
