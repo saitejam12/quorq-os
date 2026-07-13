@@ -19,6 +19,16 @@ const TASK_TEMPLATE: Array<{ task: string; category: string }> = [
   { task: 'Sign code of conduct', category: 'compliance' },
 ]
 
+async function recomputeProgress(sql: ReturnType<typeof requireDb>, onbId: number): Promise<number> {
+  const counts = (await sql`select count(*) total, count(*) filter (where done) done from onboarding_tasks where onboarding_id=${onbId}`)[0]
+  const total = n(counts.total)
+  const done = n(counts.done)
+  const progress = total ? Math.round((done / total) * 100) : 0
+  const status = progress === 100 ? 'completed' : 'in_progress'
+  await sql`update onboardings set progress=${progress}, status=${status} where id=${onbId}`
+  return progress
+}
+
 export const getOnboarding = createServerFn({ method: 'GET' }).handler(async () => {
   const sql = requireDb()
   const rows = (await sql`select id, candidate_name, role, department, start_date, status, progress, employee_id
@@ -69,7 +79,7 @@ export const getOnboarding = createServerFn({ method: 'GET' }).handler(async () 
   }
 })
 
-async function requireApprover(): Promise<Result<null> | null> {
+async function requireApprover(): Promise<{ ok: false; error: string } | null> {
   const me = await getSessionUser()
   if (!canApprove(me)) return { ok: false, error: 'Not authorised' }
   return null
@@ -181,5 +191,53 @@ export const toggleOnboardingTask = createServerFn({ method: 'POST' })
         await sql`update onboardings set employee_id=${emp.id} where id=${onbId}`
       }
     }
+    return { ok: true, data: { progress } }
+  })
+
+export const updateOnboarding = createServerFn({ method: 'POST' })
+  .validator((d: unknown) =>
+    z.object({
+      id: z.number().int().positive(),
+      department: z.string().min(1).max(64),
+      startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    }).parse(d),
+  )
+  .handler(async ({ data }): Promise<Result<null>> => {
+    const denied = await requireApprover()
+    if (denied) return denied
+    const sql = requireDb()
+    await sql`update onboardings set department=${data.department}, start_date=${data.startDate} where id=${data.id}`
+    return { ok: true, data: null }
+  })
+
+export const addOnboardingTask = createServerFn({ method: 'POST' })
+  .validator((d: unknown) =>
+    z.object({
+      onboardingId: z.number().int().positive(),
+      task: z.string().min(1).max(160),
+      category: z.enum(['docs', 'it', 'orientation', 'compliance']),
+    }).parse(d),
+  )
+  .handler(async ({ data }): Promise<Result<null>> => {
+    const denied = await requireApprover()
+    if (denied) return denied
+    const sql = requireDb()
+    const next = (await sql`select coalesce(max(sort_order),0)+1 so from onboarding_tasks where onboarding_id=${data.onboardingId}`)[0] as { so: number }
+    await sql`insert into onboarding_tasks (onboarding_id, task, category, sort_order)
+      values (${data.onboardingId}, ${data.task.trim()}, ${data.category}, ${n(next.so)})`
+    await recomputeProgress(sql, data.onboardingId)
+    return { ok: true, data: null }
+  })
+
+export const deleteOnboardingTask = createServerFn({ method: 'POST' })
+  .validator((d: unknown) => z.object({ taskId: z.number().int().positive() }).parse(d))
+  .handler(async ({ data }): Promise<Result<{ progress: number }>> => {
+    const denied = await requireApprover()
+    if (denied) return denied
+    const sql = requireDb()
+    const task = (await sql`select onboarding_id from onboarding_tasks where id=${data.taskId}`)[0] as { onboarding_id: number } | undefined
+    if (!task) return { ok: false, error: 'Task not found' }
+    await sql`delete from onboarding_tasks where id=${data.taskId}`
+    const progress = await recomputeProgress(sql, task.onboarding_id)
     return { ok: true, data: { progress } }
   })
