@@ -155,12 +155,12 @@ export function Avatar({ name, size = 40 }: { name: string; size?: number }) {
   )
 }
 
-const moneyTone: Record<string, string> = {
+const moneyTone = {
   ink: 'text-slate-900',
   earning: 'text-emerald-600',
   deduction: 'text-rose-600',
   muted: 'text-slate-400',
-}
+} as const
 
 export function Money({
   value,
