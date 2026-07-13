@@ -36,7 +36,7 @@ export function buildStructure({ ctc, netPay }: { ctc: number; netPay: number })
 
   const target = Math.max(0, gross - netPay)
   let pf = Math.round(basic * 0.12)
-  let pt = Math.min(200, target)
+  const pt = Math.min(200, target)
   if (pf + pt > target) pf = Math.max(0, target - pt)
   const tds = Math.max(0, target - pf - pt)
   const deductions: Array<SalaryComponent> = [
