@@ -5,17 +5,20 @@
 // Deterministic by design: a fixed PRNG seed + curated name pools mean repeated
 // runs produce identical data, so reviews are reproducible. No faker dependency.
 //
-// Usage: pnpm seed:people   (reads DATABASE_URL from .env.local, like apply-schema)
-import { readFileSync } from 'node:fs'
-import { neon } from '@neondatabase/serverless'
+// Usage: pnpm seed:people   (DATABASE_URL from env or .env.local, like apply-schema)
+import pg from 'pg'
+import { SSL, resolveDatabaseUrl } from './db-url.mjs'
 
-const env = readFileSync('.env.local', 'utf8')
-const match = env.match(/^DATABASE_URL=(.+)$/m)
-if (!match) {
-  console.error('DATABASE_URL not found in .env.local')
-  process.exit(1)
+const pool = new pg.Pool({ connectionString: resolveDatabaseUrl(), ssl: SSL })
+
+// Minimal Neon-compatible `sql` shim over node-postgres: a tagged template that
+// resolves to the rows array, plus `sql.query(text, params)` for the bulk inserts.
+const sql = (strings, ...values) => {
+  let text = strings[0]
+  for (let i = 0; i < values.length; i++) text += `$${i + 1}${strings[i + 1]}`
+  return pool.query(text, values).then((r) => r.rows)
 }
-const sql = neon(match[1].trim().replace(/^["']|["']$/g, ''))
+sql.query = (text, params) => pool.query(text, params).then((r) => r.rows)
 
 // ---- deterministic PRNG (mulberry32) -------------------------------------
 let state = 0x9e3779b9
@@ -1315,3 +1318,5 @@ await link('basic@quorq.com', icsFlat[0])
 console.log('Linked demo accounts to employee records')
 
 console.log('Seed complete.')
+// pg keeps pooled sockets open; close them so the process exits.
+await pool.end()

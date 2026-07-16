@@ -40,12 +40,12 @@ function LoginPage() {
           const diag = await getAuthDiagnostics()
           if (!diag.hasAuthSecret || !diag.hasDatabaseUrl) {
             console.error(
-              '[auth] server misconfigured — missing worker secrets:',
+              '[auth] server misconfigured — missing environment variables:',
               {
                 AUTH_SECRET: diag.hasAuthSecret ? 'set' : 'MISSING',
                 DATABASE_URL: diag.hasDatabaseUrl ? 'set' : 'MISSING',
               },
-              '→ set them with `wrangler secret put AUTH_SECRET` / `wrangler secret put DATABASE_URL`.',
+              '→ inject them into the server env (on AWS: from Secrets Manager into the ECS task).',
             )
           }
         } catch (diagErr) {
