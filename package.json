@@ -10,16 +10,18 @@
     "generate-routes": "tsr generate",
     "seed:people": "node scripts/seed-people.mjs",
     "build": "vite build",
+    "start": "node server.js",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier --write . && eslint --fix",
     "check": "prettier --check .",
-    "deploy": "npm run build && wrangler deploy"
+    "apply-schema": "node scripts/apply-schema.mjs"
   },
   "dependencies": {
-    "@cloudflare/vite-plugin": "^1.26.0",
-    "@neondatabase/serverless": "^1.0.2",
+    "@hono/node-server": "^2.0.9",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.1.0",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/query-db-collection": "latest",
     "@tanstack/react-db": "latest",
@@ -33,10 +35,10 @@
     "@tanstack/react-start": "latest",
     "@tanstack/router-plugin": "^1.132.0",
     "lucide-react": "^0.545.0",
+    "pg": "^8.22.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.18",
-    "vite-plugin-neon-new": "^0.8.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -47,6 +49,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^22.10.2",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
@@ -55,8 +58,7 @@
     "prettier": "^3.8.1",
     "typescript": "^6.0.2",
     "vite": "^8.0.0",
-    "vitest": "^4.1.5",
-    "wrangler": "^4.70.0"
+    "vitest": "^4.1.5"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

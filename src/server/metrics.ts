@@ -584,22 +584,22 @@ export const exportCsv = createServerFn({ method: 'GET' })
     let rows: Array<Record<string, unknown>> = []
     if (kind === 'payroll') {
       rows =
-        (await sql`select name, department, designation, employment_type, ctc, net_pay from employees order by department, name`) as Array<any>
+        await sql`select name, department, designation, employment_type, ctc, net_pay from employees order by department, name`
     } else if (kind === 'attrition') {
       rows =
-        (await sql`select employee_name, department, exit_date, type, reason, tenure_bucket from exits order by exit_date`) as Array<any>
+        await sql`select employee_name, department, exit_date, type, reason, tenure_bucket from exits order by exit_date`
     } else if (kind === 'leave') {
       rows =
-        (await sql`select employee_name, department, type, days, start_date, status from leave_requests order by start_date`) as Array<any>
+        await sql`select employee_name, department, type, days, start_date, status from leave_requests order by start_date`
     } else if (kind === 'recruitment') {
       rows =
-        (await sql`select role, department, status, days_open, category from job_openings order by days_open desc`) as Array<any>
+        await sql`select role, department, status, days_open, category from job_openings order by days_open desc`
     } else if (kind === 'compliance') {
       rows =
-        (await sql`select name, frequency, next_due, status, responsibility from statutory_reports order by next_due`) as Array<any>
+        await sql`select name, frequency, next_due, status, responsibility from statutory_reports order by next_due`
     } else {
       rows =
-        (await sql`select name, email, department, designation, employment_type, location, status, date_of_joining from employees order by department, name`) as Array<any>
+        await sql`select name, email, department, designation, employment_type, location, status, date_of_joining from employees order by department, name`
     }
     return { filename: `${kind || 'headcount'}-report.csv`, csv: toCsv(rows) }
   })

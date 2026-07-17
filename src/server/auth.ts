@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { requireDb } from '#/db'
 import { hashPassword, verifyPassword } from '#/server/password'
 import { signToken, verifyToken } from '#/server/jwt'
+import { sendSignupPendingEmail } from '#/server/email/notifications'
 import type { Tier } from '#/lib/tiers'
 
 export const SESSION_COOKIE = 'quorq_session'
@@ -23,10 +24,10 @@ export interface AuthUser {
 export type Result<T> = { ok: true; data: T } | { ok: false; error: string }
 
 const GENERIC_ERROR = 'Something went wrong'
-// Shown when a required worker secret (AUTH_SECRET / DATABASE_URL) is absent —
-// the usual cause of auth failing in a deployment where secrets were never set.
+// Shown when a required env var (AUTH_SECRET / DATABASE_URL) is absent — the
+// usual cause of auth failing in a deployment where they were never injected.
 const CONFIG_ERROR =
-  'Authentication is unavailable — the server is missing its AUTH_SECRET / DATABASE_URL secrets. An administrator must set them with `wrangler secret put`.'
+  'Authentication is unavailable — the server is missing its AUTH_SECRET / DATABASE_URL environment variables. An administrator must inject them (on AWS: from Secrets Manager into the ECS task).'
 
 export function getAuthSecret(): string {
   const secret = process.env.AUTH_SECRET
@@ -74,6 +75,16 @@ export const signup = createServerFn({ method: 'POST' })
         INSERT INTO users (email, name, password_hash)
         VALUES (${email}, ${data.name}, ${passwordHash})
       `
+      // Notify active masters that a request is waiting (best-effort — a mail
+      // failure must not fail the signup, which is already committed).
+      const masters = (
+        await sql`SELECT email FROM users WHERE tier = 'master' AND status = 'active'`
+      ).map((r) => r.email as string)
+      await sendSignupPendingEmail({
+        masters,
+        applicantName: data.name,
+        applicantEmail: email,
+      })
       return { ok: true, data: null }
     } catch (error) {
       console.error('signup failed', error)

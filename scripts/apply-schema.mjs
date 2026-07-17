@@ -1,23 +1,23 @@
-// Applies db/init.sql to the DATABASE_URL in .env.local.
-// Statements are ';'-separated; init.sql keeps semicolons out of literals.
+// Applies db/init.sql to DATABASE_URL via node-postgres (RDS/any TCP Postgres).
+// Statements are ';'-separated; init.sql keeps semicolons out of comments and
+// literals so this naive split stays correct (see CLAUDE.md gotcha #2).
 import { readFileSync } from 'node:fs'
-import { neon } from '@neondatabase/serverless'
+import pg from 'pg'
+import { SSL, resolveDatabaseUrl } from './db-url.mjs'
 
-const env = readFileSync('.env.local', 'utf8')
-const match = env.match(/^DATABASE_URL=(.+)$/m)
-if (!match) {
-  console.error('DATABASE_URL not found in .env.local')
-  process.exit(1)
-}
-const sql = neon(match[1].trim().replace(/^["']|["']$/g, ''))
+const client = new pg.Client({
+  connectionString: resolveDatabaseUrl(),
+  ssl: SSL,
+})
+await client.connect()
 
-const script = readFileSync('db/init.sql', 'utf8')
-const statements = script
+const statements = readFileSync('db/init.sql', 'utf8')
   .split(';')
   .map((s) => s.trim())
   .filter((s) => s.length > 0)
 
 for (const statement of statements) {
-  await sql.query(statement)
+  await client.query(statement)
 }
 console.log(`Applied ${statements.length} statements`)
+await client.end()
