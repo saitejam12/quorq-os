@@ -353,6 +353,24 @@ Cloudflare read secrets from `.dev.vars` / `wrangler secret`. Node reads
 | `PORT`         | Port the Node server binds (default 3000) | ECS task env (plain)           |
 | `APP_VERSION`  | Shown by the health endpoint (optional)   | ECS task env (plain)           |
 
+**Email (AWS SES).** The transactional emails (password reset, signup approve/reject,
+profile-change approve/reject) send via SES v2, signed with SigV4 — no aws-sdk. All are
+best-effort: a missing/failed SES config only logs, never fails the DB action.
+
+| Variable                | Purpose                                       | Where                          |
+| ----------------------- | --------------------------------------------- | ------------------------------ |
+| `AWS_ACCESS_KEY_ID`     | SES send credential                           | Secrets Manager → ECS task env |
+| `AWS_SECRET_ACCESS_KEY` | SES send credential                           | Secrets Manager → ECS task env |
+| `AWS_SESSION_TOKEN`     | Optional; set automatically under a task role | ECS task role (else omit)      |
+| `AWS_REGION`            | SES + endpoint host region                    | ECS task env (plain)           |
+| `SES_FROM_EMAIL`        | Verified sender identity                      | ECS task env (plain)           |
+| `APP_URL`               | Base URL for emailed links (reset/login)      | ECS task env (plain)           |
+
+Under an ECS task role you can grant `ses:SendEmail` to the role and omit the two static
+keys (SigV4 then uses `AWS_SESSION_TOKEN`). SES starts **sandboxed** — verify the sender
+identity and recipients, or request production access. Schema: `apply-schema.mjs` creates
+the `password_reset_tokens` table (added to `db/init.sql`).
+
 The **`DATABASE_URL`** for RDS looks like:
 
 ```

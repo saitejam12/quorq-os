@@ -423,3 +423,15 @@ CREATE TABLE IF NOT EXISTS profile_change_requests (
     reviewed_at TIMESTAMP,
     reviewed_by VARCHAR(120)
 );
+
+-- Password reset tokens. Only the SHA-256 hash is stored (plaintext lives only in
+-- the emailed link), single-use, short-lived. No semicolons in this comment block.
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    used_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_reset_tokens_hash ON password_reset_tokens (token_hash);

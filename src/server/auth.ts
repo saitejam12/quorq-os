@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { requireDb } from '#/db'
 import { hashPassword, verifyPassword } from '#/server/password'
 import { signToken, verifyToken } from '#/server/jwt'
+import { sendSignupPendingEmail } from '#/server/email/notifications'
 import type { Tier } from '#/lib/tiers'
 
 export const SESSION_COOKIE = 'quorq_session'
@@ -74,6 +75,16 @@ export const signup = createServerFn({ method: 'POST' })
         INSERT INTO users (email, name, password_hash)
         VALUES (${email}, ${data.name}, ${passwordHash})
       `
+      // Notify active masters that a request is waiting (best-effort — a mail
+      // failure must not fail the signup, which is already committed).
+      const masters = (
+        await sql`SELECT email FROM users WHERE tier = 'master' AND status = 'active'`
+      ).map((r) => r.email as string)
+      await sendSignupPendingEmail({
+        masters,
+        applicantName: data.name,
+        applicantEmail: email,
+      })
       return { ok: true, data: null }
     } catch (error) {
       console.error('signup failed', error)

@@ -3,6 +3,10 @@ import { z } from 'zod'
 import { requireDb } from '#/db'
 import { canApprove, getSessionUser } from '#/server/session'
 import {
+  sendProfileChangeApprovedEmail,
+  sendProfileChangeRejectedEmail,
+} from '#/server/email/notifications'
+import {
   PROFILE_FIELDS,
   diffChanges,
   getProfileField,
@@ -11,6 +15,18 @@ import {
   validateChanges,
 } from '#/lib/profile-fields'
 import type { Result } from '#/server/auth'
+
+// Employee email + display name for change-request notifications.
+async function employeeContact(
+  sql: Sql,
+  employeeId: number,
+): Promise<{ email: string; name: string } | null> {
+  const row = (
+    await sql`select email, name from employees where id = ${employeeId}`
+  )[0] as { email: string | null; name: string } | undefined
+  if (!row?.email) return null
+  return { email: row.email, name: row.name }
+}
 
 type Sql = ReturnType<typeof requireDb>
 
@@ -284,6 +300,16 @@ export const approveProfileChangeRequest = createServerFn({ method: 'POST' })
       await sql`update profile_change_requests
         set status = 'approved', reviewed_at = now(), reviewed_by = ${me?.name ?? null}
         where id = ${data.id}`
+
+      // Notify the employee (best-effort — the change is already applied).
+      const contact = await employeeContact(sql, loaded.employeeId)
+      if (contact) {
+        await sendProfileChangeApprovedEmail({
+          to: contact.email,
+          name: contact.name,
+          fields: Object.keys(loaded.changes).map(labelFor),
+        })
+      }
       return { ok: true, data: null }
     } catch (error) {
       console.error('approveProfileChangeRequest failed', error)
@@ -317,6 +343,17 @@ export const rejectProfileChangeRequest = createServerFn({ method: 'POST' })
         set status = 'rejected', review_reason = ${data.reason.trim()},
             reviewed_at = now(), reviewed_by = ${me?.name ?? null}
         where id = ${data.id}`
+
+      // Notify the employee with the reason (best-effort).
+      const contact = await employeeContact(sql, loaded.employeeId)
+      if (contact) {
+        await sendProfileChangeRejectedEmail({
+          to: contact.email,
+          name: contact.name,
+          fields: Object.keys(loaded.changes).map(labelFor),
+          reason: data.reason.trim(),
+        })
+      }
       return { ok: true, data: null }
     } catch (error) {
       console.error('rejectProfileChangeRequest failed', error)

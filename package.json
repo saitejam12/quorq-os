@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.0.9",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.1.0",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/query-db-collection": "latest",
     "@tanstack/react-db": "latest",
