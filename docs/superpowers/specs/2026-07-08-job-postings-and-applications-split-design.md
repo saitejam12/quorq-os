@@ -49,17 +49,17 @@ removes it from the careers feed without deleting history.
 
 ### `job_openings` — new columns (idempotent `ALTER TABLE … ADD COLUMN IF NOT EXISTS`)
 
-| Column | Type | Meaning |
-|---|---|---|
-| `location` | `VARCHAR(64) NOT NULL DEFAULT 'Hyderabad'` | Posting location |
-| `employment_type` | `VARCHAR(24) NOT NULL DEFAULT 'full-time'` | `full-time` \| `contract` (FTE vs contract) |
-| `description` | `TEXT` | JD text, copied from the chosen template at creation |
-| `published` | `BOOLEAN NOT NULL DEFAULT FALSE` | Whether visible on the external careers feed |
-| `published_at` | `TIMESTAMP` | When first published |
-| `template_id` | `INTEGER` | The `jd_templates` row used (reference only) |
-| `posting_status` | `VARCHAR(16) NOT NULL DEFAULT 'active'` | Careers lifecycle: `active` \| `closed` |
-| `deactivation_reason` | `VARCHAR(48)` | Set when closed |
-| `deactivated_at` | `TIMESTAMP` | Set when closed |
+| Column                | Type                                       | Meaning                                              |
+| --------------------- | ------------------------------------------ | ---------------------------------------------------- |
+| `location`            | `VARCHAR(64) NOT NULL DEFAULT 'Hyderabad'` | Posting location                                     |
+| `employment_type`     | `VARCHAR(24) NOT NULL DEFAULT 'full-time'` | `full-time` \| `contract` (FTE vs contract)          |
+| `description`         | `TEXT`                                     | JD text, copied from the chosen template at creation |
+| `published`           | `BOOLEAN NOT NULL DEFAULT FALSE`           | Whether visible on the external careers feed         |
+| `published_at`        | `TIMESTAMP`                                | When first published                                 |
+| `template_id`         | `INTEGER`                                  | The `jd_templates` row used (reference only)         |
+| `posting_status`      | `VARCHAR(16) NOT NULL DEFAULT 'active'`    | Careers lifecycle: `active` \| `closed`              |
+| `deactivation_reason` | `VARCHAR(48)`                              | Set when closed                                      |
+| `deactivated_at`      | `TIMESTAMP`                                | Set when closed                                      |
 
 The pre-existing `status` column (`critical`/`at_risk`/`in_progress`/`on_track`)
 is unchanged and remains the **urgency** badge used by analytics. `posting_status`

@@ -4,13 +4,55 @@ import type { OrgEmployee } from './org'
 
 // head (no manager) -> two managers -> ICs, plus a lone IC directly under head.
 const rows: Array<OrgEmployee> = [
-  { id: 1, name: 'Head', designation: 'VP Eng', department: 'Engineering', managerId: null },
-  { id: 2, name: 'Mgr A', designation: 'EM', department: 'Engineering', managerId: 1 },
-  { id: 3, name: 'Mgr B', designation: 'EM', department: 'Engineering', managerId: 1 },
-  { id: 4, name: 'IC 1', designation: 'SWE', department: 'Engineering', managerId: 2 },
-  { id: 5, name: 'IC 2', designation: 'SWE', department: 'Engineering', managerId: 2 },
-  { id: 6, name: 'IC 3', designation: 'SWE', department: 'Engineering', managerId: 3 },
-  { id: 7, name: 'IC 4', designation: 'SWE', department: 'Engineering', managerId: 1 },
+  {
+    id: 1,
+    name: 'Head',
+    designation: 'VP Eng',
+    department: 'Engineering',
+    managerId: null,
+  },
+  {
+    id: 2,
+    name: 'Mgr A',
+    designation: 'EM',
+    department: 'Engineering',
+    managerId: 1,
+  },
+  {
+    id: 3,
+    name: 'Mgr B',
+    designation: 'EM',
+    department: 'Engineering',
+    managerId: 1,
+  },
+  {
+    id: 4,
+    name: 'IC 1',
+    designation: 'SWE',
+    department: 'Engineering',
+    managerId: 2,
+  },
+  {
+    id: 5,
+    name: 'IC 2',
+    designation: 'SWE',
+    department: 'Engineering',
+    managerId: 2,
+  },
+  {
+    id: 6,
+    name: 'IC 3',
+    designation: 'SWE',
+    department: 'Engineering',
+    managerId: 3,
+  },
+  {
+    id: 7,
+    name: 'IC 4',
+    designation: 'SWE',
+    department: 'Engineering',
+    managerId: 1,
+  },
 ]
 
 describe('buildOrg', () => {
@@ -43,16 +85,36 @@ describe('buildOrg', () => {
 
   it('sorts departments alphabetically and handles multiple', () => {
     const org = buildOrg([
-      { id: 1, name: 'Z Head', designation: 'H', department: 'Sales', managerId: null },
-      { id: 2, name: 'A Head', designation: 'H', department: 'Finance', managerId: null },
+      {
+        id: 1,
+        name: 'Z Head',
+        designation: 'H',
+        department: 'Sales',
+        managerId: null,
+      },
+      {
+        id: 2,
+        name: 'A Head',
+        designation: 'H',
+        department: 'Finance',
+        managerId: null,
+      },
     ])
-    expect(org.departments.map((d) => d.department)).toEqual(['Finance', 'Sales'])
+    expect(org.departments.map((d) => d.department)).toEqual([
+      'Finance',
+      'Sales',
+    ])
     expect(org.stats.avgSpan).toBe(0)
   })
 
   it('returns empty structure for no employees', () => {
     const org = buildOrg([])
     expect(org.departments).toEqual([])
-    expect(org.stats).toEqual({ departments: 0, managers: 0, avgSpan: 0, ics: 0 })
+    expect(org.stats).toEqual({
+      departments: 0,
+      managers: 0,
+      avgSpan: 0,
+      ics: 0,
+    })
   })
 })

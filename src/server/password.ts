@@ -49,7 +49,12 @@ export async function verifyPassword(
 ): Promise<boolean> {
   const [saltB64, iterationsRaw, hashB64] = stored.split(':')
   const iterations = Number(iterationsRaw)
-  if (!saltB64 || !hashB64 || !Number.isInteger(iterations) || iterations <= 0) {
+  if (
+    !saltB64 ||
+    !hashB64 ||
+    !Number.isInteger(iterations) ||
+    iterations <= 0
+  ) {
     return false
   }
   let expected: Uint8Array

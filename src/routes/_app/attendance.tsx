@@ -74,13 +74,23 @@ function AttendanceLeave() {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
-          <CardHeader title="Monthly attendance trend" hint="Rolling 12 months" />
+          <CardHeader
+            title="Monthly attendance trend"
+            hint="Rolling 12 months"
+          />
           <div className="px-3 pb-3">
-            <LineChart data={d.trend} target={d.target} suffix="%" yMin={75} yMax={100} />
+            <LineChart
+              data={d.trend}
+              target={d.target}
+              suffix="%"
+              yMin={75}
+              yMax={100}
+            />
           </div>
           <div className="flex gap-5 px-5 pb-4 text-xs text-slate-500">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-0.5 w-5 bg-blue-600" /> Attendance %
+              <span className="inline-block h-0.5 w-5 bg-blue-600" /> Attendance
+              %
             </span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-0.5 w-5 border-t-2 border-dashed border-amber-500" />{' '}
@@ -90,7 +100,10 @@ function AttendanceLeave() {
         </Card>
 
         <Card>
-          <CardHeader title="Leave type breakdown" hint="Days taken YTD by category" />
+          <CardHeader
+            title="Leave type breakdown"
+            hint="Days taken YTD by category"
+          />
           <div className="px-3 pb-4">
             <BarChart data={d.leaveBreakdown} suffix="" />
           </div>
@@ -101,7 +114,12 @@ function AttendanceLeave() {
         <Card>
           <CardHeader title="Weekly heatmap" hint="This week" />
           <div className="px-5 pb-5">
-            <Heatmap data={d.heatmap.map((h) => ({ label: h.label, value: h.percent }))} />
+            <Heatmap
+              data={d.heatmap.map((h) => ({
+                label: h.label,
+                value: h.percent,
+              }))}
+            />
           </div>
         </Card>
 
@@ -120,7 +138,9 @@ function AttendanceLeave() {
               <tbody className="divide-y divide-slate-50">
                 {d.pending.map((p, i) => (
                   <tr key={i}>
-                    <td className="py-2.5 font-medium text-slate-700">{p.name}</td>
+                    <td className="py-2.5 font-medium text-slate-700">
+                      {p.name}
+                    </td>
                     <td className="py-2.5 text-slate-500">{p.type}</td>
                     <td className="py-2.5 text-slate-500">{p.days}</td>
                     <td className="py-2.5">
@@ -136,12 +156,31 @@ function AttendanceLeave() {
         <Card>
           <CardHeader title="Leave & attendance KPIs" />
           <div className="divide-y divide-slate-100 px-5 pb-3">
-            <KpiRow label="Avg leave per employee (YTD)" value={`${d.kpis.avgLeavePerEmployee} days`} />
-            <KpiRow label="Sick leave spike months" value={d.kpis.sickSpikeMonths} />
-            <KpiRow label="Employees with 0 leave taken" value={`${d.kpis.employeesZeroLeave} employees`} tone="text-orange-500" />
-            <KpiRow label="Late arrivals this month" value={`${d.kpis.lateArrivals} instances`} />
-            <KpiRow label="Early exits this month" value={`${d.kpis.earlyExits} instances`} />
-            <KpiRow label="Leave encashment due (yr-end)" value={`${inr(d.kpis.leaveEncashmentL)} est.`} />
+            <KpiRow
+              label="Avg leave per employee (YTD)"
+              value={`${d.kpis.avgLeavePerEmployee} days`}
+            />
+            <KpiRow
+              label="Sick leave spike months"
+              value={d.kpis.sickSpikeMonths}
+            />
+            <KpiRow
+              label="Employees with 0 leave taken"
+              value={`${d.kpis.employeesZeroLeave} employees`}
+              tone="text-orange-500"
+            />
+            <KpiRow
+              label="Late arrivals this month"
+              value={`${d.kpis.lateArrivals} instances`}
+            />
+            <KpiRow
+              label="Early exits this month"
+              value={`${d.kpis.earlyExits} instances`}
+            />
+            <KpiRow
+              label="Leave encashment due (yr-end)"
+              value={`${inr(d.kpis.leaveEncashmentL)} est.`}
+            />
           </div>
         </Card>
       </div>

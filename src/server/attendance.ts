@@ -20,9 +20,9 @@ async function getSetting(
   sql: ReturnType<typeof requireDb>,
   key: string,
 ): Promise<string | null> {
-  const row = (await sql`select value from app_settings where key = ${key}`)[0] as
-    | { value: string }
-    | undefined
+  const row = (
+    await sql`select value from app_settings where key = ${key}`
+  )[0] as { value: string } | undefined
   return row?.value ?? null
 }
 
@@ -49,10 +49,13 @@ interface EmpState {
 // moves forward and each day is guarded by existence checks. Cheap on the common
 // path (marker already at yesterday → early return before any scan).
 export const reconcileAttendance = createServerFn({ method: 'POST' }).handler(
-  async (): Promise<Result<{ daysProcessed: number; entriesCreated: number }>> => {
+  async (): Promise<
+    Result<{ daysProcessed: number; entriesCreated: number }>
+  > => {
     try {
       const me = await getSessionUser()
-      if (!me) return { ok: true, data: { daysProcessed: 0, entriesCreated: 0 } }
+      if (!me)
+        return { ok: true, data: { daysProcessed: 0, entriesCreated: 0 } }
 
       const sql = requireDb()
       const yesterday = yesterdayUtc()
@@ -68,9 +71,10 @@ export const reconcileAttendance = createServerFn({ method: 'POST' }).handler(
         return { ok: true, data: { daysProcessed: 0, entriesCreated: 0 } }
       }
 
-      const holidayRows = (await sql`select holiday_date::text as holiday_date from holidays`) as Array<{
-        holiday_date: string
-      }>
+      const holidayRows =
+        (await sql`select holiday_date::text as holiday_date from holidays`) as Array<{
+          holiday_date: string
+        }>
       const holidays = new Set(holidayRows.map((h) => h.holiday_date))
       const days = workingDaysBetween(marker, yesterday, holidays)
 
@@ -117,10 +121,10 @@ export const reconcileAttendance = createServerFn({ method: 'POST' }).handler(
           }
 
           const attStatus = cls.deduct > 0 ? 'leave' : 'absent'
-          const existing = (await sql`
-            select id from attendance_records where employee_id = ${emp.id} and day = ${day} limit 1`)[0] as
-            | { id: number }
-            | undefined
+          const existing = (
+            await sql`
+            select id from attendance_records where employee_id = ${emp.id} and day = ${day} limit 1`
+          )[0] as { id: number } | undefined
           if (existing) {
             await sql`update attendance_records set status = ${attStatus} where id = ${existing.id}`
           } else {

@@ -28,23 +28,23 @@ A single constant allow-list is the source of truth for both the modal UI and
 server-side application. Each entry: `{ key, label, table, column, max, type,
 required? }`.
 
-| key | table.column | type | max | required |
-|-----|--------------|------|-----|----------|
-| name | employees.name | text | 120 | yes |
-| email | employees.email | email | 160 | yes |
-| department | employees.department | text | 64 | |
-| designation | employees.designation | text | 120 | |
-| employmentType | employees.employment_type | text | 24 | |
-| location | employees.location | text | 64 | |
-| dateOfJoining | employees.date_of_joining | date | — | |
-| phone | employees.phone | text | 24 | |
-| currentAddress | employees.current_address | textarea | 400 | |
-| permanentAddress | employees.permanent_address | textarea | 400 | |
-| emergencyContactName | employees.emergency_contact_name | text | 120 | |
-| emergencyContactPhone | employees.emergency_contact_phone | text | 24 | |
-| bankName | employee_kyc.bank_name | text | 120 | |
-| bankAccountNumber | employee_kyc.bank_account_number | text | 40 | |
-| bankIfsc | employee_kyc.bank_ifsc | text | 20 | |
+| key                   | table.column                      | type     | max | required |
+| --------------------- | --------------------------------- | -------- | --- | -------- |
+| name                  | employees.name                    | text     | 120 | yes      |
+| email                 | employees.email                   | email    | 160 | yes      |
+| department            | employees.department              | text     | 64  |          |
+| designation           | employees.designation             | text     | 120 |          |
+| employmentType        | employees.employment_type         | text     | 24  |          |
+| location              | employees.location                | text     | 64  |          |
+| dateOfJoining         | employees.date_of_joining         | date     | —   |          |
+| phone                 | employees.phone                   | text     | 24  |          |
+| currentAddress        | employees.current_address         | textarea | 400 |          |
+| permanentAddress      | employees.permanent_address       | textarea | 400 |          |
+| emergencyContactName  | employees.emergency_contact_name  | text     | 120 |          |
+| emergencyContactPhone | employees.emergency_contact_phone | text     | 24  |          |
+| bankName              | employee_kyc.bank_name            | text     | 120 |          |
+| bankAccountNumber     | employee_kyc.bank_account_number  | text     | 40  |          |
+| bankIfsc              | employee_kyc.bank_ifsc            | text     | 20  |          |
 
 Aadhaar and PAN are absent from the list, so no code path can request them.
 

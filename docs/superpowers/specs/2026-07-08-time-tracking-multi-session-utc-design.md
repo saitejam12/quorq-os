@@ -64,10 +64,16 @@ A day therefore holds any number of completed sessions plus at most one open one
 
 ```ts
 today: {
-  active: boolean            // an open session exists
+  active: boolean // an open session exists
   activeSince: string | null // clock_in ISO of the open session
-  hoursToday: number         // sum of hours_worked for today's entries
-  sessions: Array<{ id: number; clockIn: string | null; clockOut: string | null; hours: number; status: string }>
+  hoursToday: number // sum of hours_worked for today's entries
+  sessions: Array<{
+    id: number
+    clockIn: string | null
+    clockOut: string | null
+    hours: number
+    status: string
+  }>
 }
 ```
 

@@ -1,5 +1,14 @@
 # QuorqOS — Architecture & Code Functionality
 
+> **⚠️ Scope & staleness:** This document covers only the **RBAC foundation as of
+> 2026-07-07** (sub-project 1 of 6). The auth, tier-model, JWT, and PBKDF2
+> sections remain accurate. The **routing, sidebar, dashboards, and test-count
+> sections are historical** — since then the home route moved to `/`, most
+> "placeholder" modules became real DB-backed pages, and the suite grew well past
+> 27 tests. For the **current** architecture, commands, and gotchas use
+> [`/CLAUDE.md`](../CLAUDE.md); for per-feature detail see the specs indexed in
+> [`docs/README.md`](README.md).
+
 _Last updated: 2026-07-07 · Covers the RBAC foundation (sub-project 1 of 6)_
 
 QuorqOS is a TanStack Start application being built toward a fully automated HR
@@ -14,17 +23,17 @@ This document describes what the code does today, module by module.
 
 ## 1. Tech stack
 
-| Concern | Choice |
-|---|---|
-| Framework | TanStack Start 1.168 (React 19, file-based routing, server functions) |
-| Routing | TanStack Router (`src/routeTree.gen.ts` is generated — never hand-edited) |
-| Data fetching | TanStack Query (`@tanstack/react-query`) |
-| Forms | TanStack React Form (`@tanstack/react-form`) + zod v4 validation |
-| Database | Neon serverless PostgreSQL (`@neondatabase/serverless`, tagged-template client) |
-| Crypto | Web Crypto (`crypto.subtle`) — Cloudflare Workers-native, zero crypto deps |
-| Styling | Tailwind CSS v4 (slate neutrals, `blue-600` primary) + lucide-react icons |
-| Runtime / deploy | Cloudflare Workers (`wrangler`, `nodejs_compat`) |
-| Tests | Vitest (node environment) |
+| Concern          | Choice                                                                          |
+| ---------------- | ------------------------------------------------------------------------------- |
+| Framework        | TanStack Start 1.168 (React 19, file-based routing, server functions)           |
+| Routing          | TanStack Router (`src/routeTree.gen.ts` is generated — never hand-edited)       |
+| Data fetching    | TanStack Query (`@tanstack/react-query`)                                        |
+| Forms            | TanStack React Form (`@tanstack/react-form`) + zod v4 validation                |
+| Database         | Neon serverless PostgreSQL (`@neondatabase/serverless`, tagged-template client) |
+| Crypto           | Web Crypto (`crypto.subtle`) — Cloudflare Workers-native, zero crypto deps      |
+| Styling          | Tailwind CSS v4 (slate neutrals, `blue-600` primary) + lucide-react icons       |
+| Runtime / deploy | Cloudflare Workers (`wrangler`, `nodejs_compat`)                                |
+| Tests            | Vitest (node environment)                                                       |
 
 **Deliberate constraints:** no bcrypt and no JWT library (neither is
 Workers-compatible / both would add weight); all hashing and token signing use
@@ -93,10 +102,10 @@ CREATE TABLE users (
 The `INSERT` statements are idempotent (`ON CONFLICT (email) DO NOTHING`), so
 re-applying the schema is safe. Three seed accounts, all `active`:
 
-| Email | Password | Tier |
-|---|---|---|
-| `basic@quorq.com` | `basic123` | basic |
-| `ops@quorq.com` | `ops123` | ops |
+| Email              | Password    | Tier   |
+| ------------------ | ----------- | ------ |
+| `basic@quorq.com`  | `basic123`  | basic  |
+| `ops@quorq.com`    | `ops123`    | ops    |
 | `master@quorq.com` | `master123` | master |
 
 `scripts/apply-schema.mjs` reads `DATABASE_URL` from `.env.local` (stripping
@@ -175,12 +184,12 @@ them as RPC). Shared types and helpers:
 Token lifetime is **24 hours**. The cookie is `HttpOnly`, `Secure`,
 `SameSite=Lax`, `Path=/`.
 
-| Function | Method | Behavior |
-|---|---|---|
-| `signup({ name, email, password })` | POST | Validates (name ≥ 1, valid email, password ≥ 8). Rejects duplicate email (`"An account with this email already exists"`). Inserts the user with `status='pending'`, `tier='basic'`. **Does not** log the user in. Returns `Result<null>`. |
-| `login({ email, password })` | POST | Looks up by lowercased email, verifies the password. Generic `"Invalid email or password"` on either a missing user or a bad password (no user enumeration). If credentials are valid but `status='pending'` → `"Your account is awaiting approval."`; if `rejected` → `"Your signup request was declined."`. On success, signs a JWT and sets the session cookie. Returns `Result<AuthUser>`. |
-| `logout()` | POST | Clears the session cookie. Returns `Result<null>`. |
-| `getCurrentUser()` | GET | Reads and verifies the cookie; returns `AuthUser` or `null`. A missing/invalid/expired token is `null`, not an error. |
+| Function                            | Method | Behavior                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `signup({ name, email, password })` | POST   | Validates (name ≥ 1, valid email, password ≥ 8). Rejects duplicate email (`"An account with this email already exists"`). Inserts the user with `status='pending'`, `tier='basic'`. **Does not** log the user in. Returns `Result<null>`.                                                                                                                                                      |
+| `login({ email, password })`        | POST   | Looks up by lowercased email, verifies the password. Generic `"Invalid email or password"` on either a missing user or a bad password (no user enumeration). If credentials are valid but `status='pending'` → `"Your account is awaiting approval."`; if `rejected` → `"Your signup request was declined."`. On success, signs a JWT and sets the session cookie. Returns `Result<AuthUser>`. |
+| `logout()`                          | POST   | Clears the session cookie. Returns `Result<null>`.                                                                                                                                                                                                                                                                                                                                             |
+| `getCurrentUser()`                  | GET    | Reads and verifies the cookie; returns `AuthUser` or `null`. A missing/invalid/expired token is `null`, not an error.                                                                                                                                                                                                                                                                          |
 
 ---
 
@@ -199,13 +208,13 @@ token. This is what makes the stateless-JWT design safe: if an admin
 demotes or deactivates a user, that change takes effect on the user's very next
 request even though their existing token still claims the old tier.
 
-| Function | Method | Min tier | Behavior |
-|---|---|---|---|
-| `listUsers()` | GET | ops | Returns all users (`AdminUser[]`: id, email, name, tier, status, createdAt), newest first. |
-| `approveUser({ userId })` | POST | master | Moves a `pending` user to `active`. Errors if the row isn't pending/found. |
-| `rejectUser({ userId })` | POST | master | Moves a `pending` user to `rejected`. |
-| `setUserTier({ userId, tier })` | POST | ops | Enforces `canSetTier` (see §4). Blocks changing **your own** tier. Errors if the target is missing or the change violates the master rule. |
-| `getUserStats()` | GET | master | Aggregates counts: `{ pending, byTier: { basic, ops, master } }` (byTier counts active users only). Powers the master dashboard tiles. |
+| Function                        | Method | Min tier | Behavior                                                                                                                                   |
+| ------------------------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `listUsers()`                   | GET    | ops      | Returns all users (`AdminUser[]`: id, email, name, tier, status, createdAt), newest first.                                                 |
+| `approveUser({ userId })`       | POST   | master   | Moves a `pending` user to `active`. Errors if the row isn't pending/found.                                                                 |
+| `rejectUser({ userId })`        | POST   | master   | Moves a `pending` user to `rejected`.                                                                                                      |
+| `setUserTier({ userId, tier })` | POST   | ops      | Enforces `canSetTier` (see §4). Blocks changing **your own** tier. Errors if the target is missing or the change violates the master rule. |
+| `getUserStats()`                | GET    | master   | Aggregates counts: `{ pending, byTier: { basic, ops, master } }` (byTier counts active users only). Powers the master dashboard tiles.     |
 
 `approveUser`/`rejectUser` delegate to a shared `setPendingStatus` helper. Every
 function follows the `Result<T>` contract and independently enforces its tier —
@@ -248,15 +257,15 @@ already-authenticated users to `/home`.
 
 ### Route summary
 
-| Route | Guard | Notes |
-|---|---|---|
-| `/` | none | Default TanStack welcome page — **not** wired into the app |
-| `/login` | redirect if authed | Credential form + demo quick-fill buttons |
-| `/signup` | redirect if authed | Registration → pending-approval state |
-| `/forgot-password` | none | **UI-only stub** — no server function yet |
-| `/home` | requires auth (`_app`) | Stacked tiered dashboards |
-| `/admin/users` | ops+ | User management |
-| `/admin/requests` | master | Signup approvals |
+| Route              | Guard                  | Notes                                                      |
+| ------------------ | ---------------------- | ---------------------------------------------------------- |
+| `/`                | none                   | Default TanStack welcome page — **not** wired into the app |
+| `/login`           | redirect if authed     | Credential form + demo quick-fill buttons                  |
+| `/signup`          | redirect if authed     | Registration → pending-approval state                      |
+| `/forgot-password` | none                   | **UI-only stub** — no server function yet                  |
+| `/home`            | requires auth (`_app`) | Stacked tiered dashboards                                  |
+| `/admin/users`     | ops+                   | User management                                            |
+| `/admin/requests`  | master                 | Signup approvals                                           |
 
 ---
 
@@ -381,7 +390,7 @@ signup → approve → promote loop).
 
 - **Stateless-JWT staleness:** a tier change does not update already-issued
   tokens; privileged endpoints mitigate this by re-reading tier from the DB, but
-  a user's *own UI* (sidebar/dashboard) reflects a change only after their next
+  a user's _own UI_ (sidebar/dashboard) reflects a change only after their next
   login or token expiry (≤24h). There is no server-side session revocation.
 - **`/` (index.tsx)** is still the default TanStack starter page.
 - **`/forgot-password`** is UI-only; no reset email or token flow.
@@ -394,4 +403,7 @@ signup → approve → promote loop).
 These are intentional per the sub-project 1 scope; sub-projects 2–6 build the
 modules (Employee core, Leave & attendance, Payroll, Workflows & requests,
 Master administration) on top of this foundation.
+
+```
+
 ```

@@ -55,7 +55,9 @@ function AttritionRetention() {
           footer={
             <span>
               Top performer retention:{' '}
-              <span className="text-emerald-600">{d.retention.topPerformer}%</span>
+              <span className="text-emerald-600">
+                {d.retention.topPerformer}%
+              </span>
             </span>
           }
         />
@@ -66,7 +68,9 @@ function AttritionRetention() {
           valueTone="red"
           delta="High risk employees"
           deltaTone="red"
-          footer={d.flightRisk.byDept.map((b) => `${b.dept} ${b.count}`).join(' · ')}
+          footer={d.flightRisk.byDept
+            .map((b) => `${b.dept} ${b.count}`)
+            .join(' · ')}
         />
         <KpiCard
           icon={<IndianRupee size={15} />}
@@ -87,7 +91,10 @@ function AttritionRetention() {
         </Card>
 
         <Card>
-          <CardHeader title="Exit reason analysis" hint="From exit interviews" />
+          <CardHeader
+            title="Exit reason analysis"
+            hint="From exit interviews"
+          />
           <div className="px-5 pb-5 pt-3">
             <Donut data={d.exitReasons} />
           </div>
@@ -109,7 +116,9 @@ function AttritionRetention() {
               <tbody className="divide-y divide-slate-50">
                 {d.flightRiskEmployees.map((e, i) => (
                   <tr key={i}>
-                    <td className="py-2.5 font-medium text-slate-700">{e.name}</td>
+                    <td className="py-2.5 font-medium text-slate-700">
+                      {e.name}
+                    </td>
                     <td className="py-2.5 text-slate-500">{e.dept}</td>
                     <td className="py-2.5">
                       <Badge tone={e.level} />
@@ -135,12 +144,33 @@ function AttritionRetention() {
         <Card>
           <CardHeader title="Retention KPIs" />
           <div className="divide-y divide-slate-100 px-5 pb-3">
-            <KpiRow label="Voluntary attrition rate" value={`${d.kpis.voluntary}%`} tone="text-red-500" />
-            <KpiRow label="Involuntary attrition rate" value={`${d.kpis.involuntary}%`} />
-            <KpiRow label="Regrettable exits (YTD)" value={d.kpis.regrettable} />
-            <KpiRow label="eNPS score" value={`+${d.kpis.enps} (Watch)`} tone="text-amber-500" />
-            <KpiRow label="Avg notice period served" value={`${d.kpis.avgNotice} days`} />
-            <KpiRow label="Counter-offer acceptance" value={`${d.kpis.counterOffer} retained`} tone="text-emerald-600" />
+            <KpiRow
+              label="Voluntary attrition rate"
+              value={`${d.kpis.voluntary}%`}
+              tone="text-red-500"
+            />
+            <KpiRow
+              label="Involuntary attrition rate"
+              value={`${d.kpis.involuntary}%`}
+            />
+            <KpiRow
+              label="Regrettable exits (YTD)"
+              value={d.kpis.regrettable}
+            />
+            <KpiRow
+              label="eNPS score"
+              value={`+${d.kpis.enps} (Watch)`}
+              tone="text-amber-500"
+            />
+            <KpiRow
+              label="Avg notice period served"
+              value={`${d.kpis.avgNotice} days`}
+            />
+            <KpiRow
+              label="Counter-offer acceptance"
+              value={`${d.kpis.counterOffer} retained`}
+              tone="text-emerald-600"
+            />
           </div>
         </Card>
       </div>

@@ -37,8 +37,9 @@ describe('jwt', () => {
 
   it('rejects a token whose payload was swapped (tier escalation)', async () => {
     const honest = await signToken(payload({ tier: 'basic' }), SECRET)
-    const forgedBody = (await signToken(payload({ tier: 'master' }), SECRET))
-      .split('.')[1]
+    const forgedBody = (
+      await signToken(payload({ tier: 'master' }), SECRET)
+    ).split('.')[1]
     const [header, , signature] = honest.split('.')
     const forged = `${header}.${forgedBody}.${signature}`
     expect(await verifyToken(forged, SECRET)).toBeNull()

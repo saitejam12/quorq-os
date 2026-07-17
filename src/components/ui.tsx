@@ -154,3 +154,87 @@ export function Avatar({ name, size = 40 }: { name: string; size?: number }) {
     </span>
   )
 }
+
+const moneyTone = {
+  ink: 'text-slate-900',
+  earning: 'text-emerald-600',
+  deduction: 'text-rose-600',
+  muted: 'text-slate-400',
+} as const
+
+export function Money({
+  value,
+  tone = 'ink',
+  sign = false,
+  className = '',
+}: {
+  value: number
+  tone?: keyof typeof moneyTone
+  sign?: boolean
+  className?: string
+}) {
+  const prefix = sign ? (value < 0 ? '−' : '+') : ''
+  return (
+    <span className={`tabular ${moneyTone[tone]} ${className}`}>
+      {prefix}₹{Math.abs(value).toLocaleString('en-IN')}
+    </span>
+  )
+}
+
+export function LedgerLine({ label }: { label: string }) {
+  return (
+    <div className="mb-2 mt-4 flex items-center gap-3">
+      <span className="tabular text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+        {label}
+      </span>
+      <span className="h-px flex-1 bg-slate-200" />
+    </div>
+  )
+}
+
+export function Ring({ value, size = 44 }: { value: number; size?: number }) {
+  const r = (size - 6) / 2
+  const c = 2 * Math.PI * r
+  const off = c * (1 - Math.min(100, Math.max(0, value)) / 100)
+  const half = size / 2
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="shrink-0"
+    >
+      <circle
+        cx={half}
+        cy={half}
+        r={r}
+        fill="none"
+        stroke="#e2e8f0"
+        strokeWidth="4"
+      />
+      <circle
+        cx={half}
+        cy={half}
+        r={r}
+        fill="none"
+        stroke="#2563eb"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeDasharray={c}
+        strokeDashoffset={off}
+        transform={`rotate(-90 ${half} ${half})`}
+      />
+      <text
+        x="50%"
+        y="52%"
+        dominantBaseline="middle"
+        textAnchor="middle"
+        fontSize={size * 0.26}
+        fontWeight="600"
+        fill="#334155"
+      >
+        {value}%
+      </text>
+    </svg>
+  )
+}

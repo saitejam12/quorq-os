@@ -6,7 +6,14 @@ import type { Result } from '#/server/auth'
 
 const n = (v: unknown) => Number(v ?? 0)
 
-const LEAVE_TYPES = ['casual', 'sick', 'earned', 'maternity', 'paternity', 'comp-off'] as const
+const LEAVE_TYPES = [
+  'casual',
+  'sick',
+  'earned',
+  'maternity',
+  'paternity',
+  'comp-off',
+] as const
 
 export const getLeave = createServerFn({ method: 'GET' }).handler(async () => {
   const sql = requireDb()
@@ -18,12 +25,14 @@ export const getLeave = createServerFn({ method: 'GET' }).handler(async () => {
   let used = 0
   let myRequests: Array<any> = []
   if (empId) {
-    const emp = (await sql`select leave_balance from employees where id = ${empId}`)[0] as
-      | { leave_balance: number | string }
-      | undefined
+    const emp = (
+      await sql`select leave_balance from employees where id = ${empId}`
+    )[0] as { leave_balance: number | string } | undefined
     balance = Number(emp?.leave_balance ?? 0)
     used = n(
-      (await sql`select coalesce(sum(days),0) s from leave_requests where employee_id=${empId} and status='approved'`)[0].s,
+      (
+        await sql`select coalesce(sum(days),0) s from leave_requests where employee_id=${empId} and status='approved'`
+      )[0].s,
     )
     myRequests = (await sql`
       select id, type, days, start_date, reason, status, created_at
@@ -79,9 +88,12 @@ export const applyLeave = createServerFn({ method: 'POST' })
     try {
       const sql = requireDb()
       const me = await getSessionUser()
-      if (!me?.employeeId) return { ok: false, error: 'No employee profile linked' }
+      if (!me?.employeeId)
+        return { ok: false, error: 'No employee profile linked' }
 
-      const emp = (await sql`select name, department, leave_balance from employees where id=${me.employeeId}`)[0] as
+      const emp = (
+        await sql`select name, department, leave_balance from employees where id=${me.employeeId}`
+      )[0] as
         | { name: string; department: string; leave_balance: number | string }
         | undefined
       if (!emp) return { ok: false, error: 'Employee profile not found' }
@@ -89,7 +101,10 @@ export const applyLeave = createServerFn({ method: 'POST' })
       const balance = Number(emp.leave_balance || 0)
       const paidLeave = data.type !== 'maternity' && data.type !== 'paternity'
       if (paidLeave && data.days > balance) {
-        return { ok: false, error: `Insufficient balance — ${balance} days available` }
+        return {
+          ok: false,
+          error: `Insufficient balance — ${balance} days available`,
+        }
       }
 
       const endDate = new Date(
@@ -124,10 +139,18 @@ export const decideLeave = createServerFn({ method: 'POST' })
     try {
       const sql = requireDb()
       const me = await getSessionUser()
-      if (!canApprove(me)) return { ok: false, error: 'Not authorised to approve leave' }
+      if (!canApprove(me))
+        return { ok: false, error: 'Not authorised to approve leave' }
 
-      const req = (await sql`select id, employee_id, days, status from leave_requests where id=${data.id}`)[0] as
-        | { id: number; employee_id: number | null; days: string; status: string }
+      const req = (
+        await sql`select id, employee_id, days, status from leave_requests where id=${data.id}`
+      )[0] as
+        | {
+            id: number
+            employee_id: number | null
+            days: string
+            status: string
+          }
         | undefined
       if (!req) return { ok: false, error: 'Request not found' }
       if (!['pending', 'escalated'].includes(req.status)) {

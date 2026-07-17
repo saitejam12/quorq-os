@@ -320,6 +320,33 @@ CREATE TABLE IF NOT EXISTS payslips (
     status VARCHAR(16) NOT NULL DEFAULT 'paid'
 );
 
+-- Per-employee monthly salary structure. Amounts are monthly. Invariant:
+-- sum(earning) equals ctc/12 and sum(earning) minus sum(deduction) equals net_pay.
+CREATE TABLE IF NOT EXISTS salary_components (
+    id SERIAL PRIMARY KEY,
+    employee_id INTEGER NOT NULL REFERENCES employees(id),
+    kind VARCHAR(12) NOT NULL DEFAULT 'earning',
+    code VARCHAR(24) NOT NULL,
+    label VARCHAR(64) NOT NULL,
+    amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+    sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+-- One-off pay adjustments applied to a period's payslip. amount is stored
+-- positive, the sign is implied by kind (bonus and reimbursement add, deduction
+-- and lop subtract). A null period means the adjustment applies to the next run.
+CREATE TABLE IF NOT EXISTS pay_adjustments (
+    id SERIAL PRIMARY KEY,
+    employee_id INTEGER NOT NULL REFERENCES employees(id),
+    period VARCHAR(7),
+    kind VARCHAR(16) NOT NULL DEFAULT 'bonus',
+    label VARCHAR(64) NOT NULL,
+    amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+    note VARCHAR(300),
+    created_by VARCHAR(120),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Onboarding pipelines.
 CREATE TABLE IF NOT EXISTS onboardings (
     id SERIAL PRIMARY KEY,
@@ -396,3 +423,15 @@ CREATE TABLE IF NOT EXISTS profile_change_requests (
     reviewed_at TIMESTAMP,
     reviewed_by VARCHAR(120)
 );
+
+-- Password reset tokens. Only the SHA-256 hash is stored (plaintext lives only in
+-- the emailed link), single-use, short-lived. No semicolons in this comment block.
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    used_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_reset_tokens_hash ON password_reset_tokens (token_hash);

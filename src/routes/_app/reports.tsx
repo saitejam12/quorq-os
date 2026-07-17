@@ -36,7 +36,13 @@ const reportIcon: Record<string, ReactNode> = {
 }
 
 const builderFields = ['Employee name', 'Department', 'Designation']
-const addFields = ['CTC', 'Tenure', 'Leave balance', 'Performance', 'Attendance %']
+const addFields = [
+  'CTC',
+  'Tenure',
+  'Leave balance',
+  'Performance',
+  'Attendance %',
+]
 
 const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString('en-US', {
@@ -103,7 +109,9 @@ function ReportsHub() {
                     {reportIcon[r.icon]}
                   </span>
                   <div>
-                    <div className="text-sm font-medium text-slate-700">{r.title}</div>
+                    <div className="text-sm font-medium text-slate-700">
+                      {r.title}
+                    </div>
                     <div className="text-xs text-slate-400">{r.subtitle}</div>
                   </div>
                 </div>
@@ -125,19 +133,29 @@ function ReportsHub() {
 
         <div className="space-y-5">
           <Card>
-            <CardHeader title="Custom report builder" hint="Drag & drop fields" />
+            <CardHeader
+              title="Custom report builder"
+              hint="Drag & drop fields"
+            />
             <div className="px-5 pb-5">
               <p className="mb-3 text-xs text-slate-400">
-                Select fields, filters and date range to generate a custom report.
+                Select fields, filters and date range to generate a custom
+                report.
               </p>
               <div className="mb-4 flex flex-wrap gap-2">
                 {builderFields.map((f) => (
-                  <span key={f} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">
+                  <span
+                    key={f}
+                    className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700"
+                  >
                     {f}
                   </span>
                 ))}
                 {addFields.map((f) => (
-                  <span key={f} className="rounded-md border border-dashed border-slate-300 px-2.5 py-1 text-xs text-slate-500">
+                  <span
+                    key={f}
+                    className="rounded-md border border-dashed border-slate-300 px-2.5 py-1 text-xs text-slate-500"
+                  >
                     + {f}
                   </span>
                 ))}
@@ -172,9 +190,14 @@ function ReportsHub() {
             <CardHeader title="Scheduled reports" hint="Auto-email" />
             <div className="divide-y divide-slate-100 px-5 pb-3">
               {d.scheduled.map((r, i) => (
-                <div key={i} className="flex items-center justify-between py-2.5 text-sm">
+                <div
+                  key={i}
+                  className="flex items-center justify-between py-2.5 text-sm"
+                >
                   <span className="text-slate-600">{r.name}</span>
-                  <span className={`font-medium ${cadenceTone[r.tone]}`}>{r.cadence}</span>
+                  <span className={`font-medium ${cadenceTone[r.tone]}`}>
+                    {r.cadence}
+                  </span>
                 </div>
               ))}
             </div>
@@ -183,7 +206,10 @@ function ReportsHub() {
       </div>
 
       <Card>
-        <CardHeader title="Compliance reports — statutory" hint="Regulatory & legal deadlines" />
+        <CardHeader
+          title="Compliance reports — statutory"
+          hint="Regulatory & legal deadlines"
+        />
         <div className="px-5 pb-5">
           <table className="w-full text-sm">
             <thead>

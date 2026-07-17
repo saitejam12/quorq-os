@@ -4,6 +4,10 @@ import { z } from 'zod'
 import { requireDb } from '#/db'
 import { verifyToken } from '#/server/jwt'
 import { SESSION_COOKIE, getAuthSecret } from '#/server/auth'
+import {
+  sendSignupApprovedEmail,
+  sendSignupRejectedEmail,
+} from '#/server/email/notifications'
 import { TIERS, canSetTier, hasTier } from '#/lib/tiers'
 import type { Tier } from '#/lib/tiers'
 import type { Result } from '#/server/auth'
@@ -40,9 +44,7 @@ async function getCaller(
   const rows = await sql`
     SELECT id, tier, status FROM users WHERE id = ${payload.sub}
   `
-  const row = rows[0] as
-    | { id: number; tier: Tier; status: string }
-    | undefined
+  const row = rows[0] as { id: number; tier: Tier; status: string } | undefined
   if (!row || row.status !== 'active' || !hasTier(row.tier, minTier)) {
     return null
   }
@@ -92,10 +94,24 @@ async function setPendingStatus(
       UPDATE users
       SET status = ${status}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${userId} AND status = 'pending'
-      RETURNING id
+      RETURNING id, email, name
     `
     if (updated.length === 0) {
       return { ok: false, error: 'Request not found or already handled' }
+    }
+    // Notify the applicant of the outcome (best-effort — the status change is
+    // authoritative and already committed).
+    const applicant = updated[0] as { email: string; name: string }
+    if (status === 'active') {
+      await sendSignupApprovedEmail({
+        to: applicant.email,
+        name: applicant.name,
+      })
+    } else {
+      await sendSignupRejectedEmail({
+        to: applicant.email,
+        name: applicant.name,
+      })
     }
     return { ok: true, data: null }
   } catch (error) {

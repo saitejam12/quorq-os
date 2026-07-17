@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Send, Loader2, MailCheck, ArrowLeft } from 'lucide-react'
 import { z } from 'zod'
 import BrandPanel from '#/components/BrandPanel'
+import { requestPasswordReset } from '#/server/reset'
 
 export const Route = createFileRoute('/forgot-password')({
   component: ForgotPasswordPage,
@@ -27,8 +28,9 @@ function ForgotPasswordPage() {
   const form = useForm({
     defaultValues: { email: '' },
     onSubmit: async ({ value }) => {
-      // const res = await requestPasswordReset({ data: value })
-      // if (!res.ok) throw new Error(res.error)
+      // Always resolves ok:true (enumeration-safe); the generic confirmation
+      // below is shown regardless of whether the email maps to an account.
+      await requestPasswordReset({ data: value })
       setSentTo(value.email)
     },
   })

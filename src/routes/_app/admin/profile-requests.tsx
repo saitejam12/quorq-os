@@ -89,7 +89,9 @@ function RequestCard({
   })
   const reject = useMutation({
     mutationFn: () =>
-      rejectProfileChangeRequest({ data: { id: req.id, reason: reason.trim() } }),
+      rejectProfileChangeRequest({
+        data: { id: req.id, reason: reason.trim() },
+      }),
     onSuccess: (res) => {
       if (res.ok) onDone()
       else setError(res.error)
@@ -144,7 +146,9 @@ function RequestCard({
               <td className="px-4 py-2 font-medium text-slate-700">
                 {item.label}
               </td>
-              <td className="px-4 py-2 text-slate-400">{item.current || '—'}</td>
+              <td className="px-4 py-2 text-slate-400">
+                {item.current || '—'}
+              </td>
               <td className="px-4 py-2 text-slate-800">
                 {item.requested || '—'}
               </td>

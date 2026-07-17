@@ -30,7 +30,9 @@ function PersonBox({
     >
       <Avatar name={name} size={34} />
       <div className="min-w-0">
-        <div className="truncate text-sm font-semibold text-slate-800">{name}</div>
+        <div className="truncate text-sm font-semibold text-slate-800">
+          {name}
+        </div>
         <div className="truncate text-xs text-slate-500">{sub}</div>
       </div>
     </Link>
@@ -105,7 +107,11 @@ function OrgStructure() {
                     <span className="absolute -left-4 top-1/2 h-px w-3 bg-slate-200" />
                     <div className="flex items-center justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <PersonBox id={m.id} name={m.name} sub={m.designation} />
+                        <PersonBox
+                          id={m.id}
+                          name={m.name}
+                          sub={m.designation}
+                        />
                       </div>
                       <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-600">
                         {m.reports} reports
