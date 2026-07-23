@@ -116,7 +116,7 @@ function LoginPage() {
             </button>
           </form>
 
-          {SHOW_DEMO_ACCOUNTS ? (
+          {/* {SHOW_DEMO_ACCOUNTS ? (
             <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
               <div className="text-xs font-medium text-slate-500">
                 Demo accounts
@@ -137,7 +137,7 @@ function LoginPage() {
                 ))}
               </div>
             </div>
-          ) : null}
+          ) : null} */}
 
           <div className="mt-4 flex items-center justify-between text-sm text-slate-700">
             <div>New User? </div>

@@ -1,9 +1,21 @@
 # QuorqOS — agent guide
 
-HR portal built on **TanStack Start (React 19) on Cloudflare Workers** with **Neon
-serverless Postgres**. This file is the fast path: read it before exploring so you
-don't re-derive what's already known. Deeper per-feature detail lives in
-`docs/superpowers/specs/` (see [docs/README.md](docs/README.md) for the index).
+HR portal built on **TanStack Start (React 19)**. It ships **two deployment modes**,
+selected at build time by the `DEPLOY_TARGET` env var (see the driver split in
+`src/db.ts` + `src/db-drivers/`):
+
+- **aws** (default, `DEPLOY_TARGET` unset) — Node server (`server.js`/`Dockerfile`) on
+  ECS talking to **RDS** via node-postgres (`pg`). Scripts: `dev`, `build`, `start`.
+- **cloudflare** (`DEPLOY_TARGET=cloudflare`) — a Worker (`wrangler.jsonc`) talking to
+  **Neon** over HTTP. Scripts: `dev:cf`, `build:cf`, `deploy`.
+
+Both drivers expose the same `sql` surface, so nothing under `src/server/**` changes
+between modes. Runbooks: [docs/deploy-aws.md](docs/deploy-aws.md),
+[docs/deploy-cloudflare.md](docs/deploy-cloudflare.md).
+
+This file is the fast path: read it before exploring so you don't re-derive what's
+already known. Deeper per-feature detail lives in `docs/superpowers/specs/` (see
+[docs/README.md](docs/README.md) for the index).
 
 ## Commands
 
@@ -50,8 +62,9 @@ node scripts/seed-people.mjs     # reseed (deterministic, ~142 employees); a.k.a
 
 ```
 db/init.sql            all schema + idempotent (CREATE IF NOT EXISTS / ALTER ADD COLUMN IF NOT EXISTS); 27 tables
-scripts/               apply-schema.mjs, seed-people.mjs (deterministic PRNG, bulk() helper), hash-password.mjs
-src/db.ts              requireDb() — memoized Neon client; throws a descriptive error if DATABASE_URL is unset
+scripts/               apply-schema.mjs, seed-people.mjs (deterministic PRNG, bulk() helper), seed-demo-accounts.mjs, hash-password.mjs, db-url.mjs
+src/db.ts              requireDb() — memoized; picks the pg (aws) or Neon (cloudflare) driver from DEPLOY_TARGET; descriptive error if DATABASE_URL is unset
+src/db-drivers/        pg.ts (node-postgres adapter) + neon.ts (Neon HTTP); both expose the same sql surface
 src/lib/               pure, unit-tested helpers: tiers, guards, time, attendance, profile-fields, postings, mask, pagination, import-export
 src/server/            server functions, one file per domain (auth, session, admin, people, org, profile, profile-requests,
                        time, attendance, holidays, leave, expenses, payroll, hiring, postings, onboarding, metrics, import, health)
@@ -65,11 +78,12 @@ whose route file was deleted — this yields 2 expected `tsc` errors; leave it.)
 
 ## Database workflow
 
-- **Local secrets live in `.dev.vars`** (gitignored), NOT `.env`/`.env.local` —
-  the workerd runtime only sees worker env bindings. Both `AUTH_SECRET` and
-  `DATABASE_URL` must be there; restart `pnpm dev` after editing. In prod they're
-  set via `wrangler secret put` (the deploy script does NOT set them — see
-  `docs/deployment-auth-troubleshooting.md`).
+- **Runtime secrets depend on the deploy mode.** AWS/Node (`pnpm dev`): `AUTH_SECRET`
+  + `DATABASE_URL` in `.env` (Vite merges it into `process.env`); prod via ECS/Secrets
+  Manager. Cloudflare (`pnpm dev:cf`): in `.dev.vars` (gitignored) — workerd only sees
+  Worker bindings, not `.env`; prod via `wrangler secret put`. Either way the deploy
+  step does NOT set them (see `docs/deployment-auth-troubleshooting.md`,
+  `docs/deploy-cloudflare.md`). Restart the dev server after editing.
 - `apply-schema.mjs` reads `DATABASE_URL` from `.env.local` (that file is only for
   the scripts, not the runtime) and naively splits `init.sql` on `;`.
 - After schema/seed changes, apply then reseed, then verify with a short

@@ -11,9 +11,20 @@ why.
   JWT, PBKDF2, the tier model, guards. The auth/tiers/jwt/password sections are
   still accurate; the routing/nav/module/test-count sections are historical and
   superseded by CLAUDE.md and the feature specs below.
+
+### Deployment
+
+The app ships **two deployment modes**, selected at build time by the `DEPLOY_TARGET`
+env var (unset = AWS). They coexist — both toolchains and config files stay in the repo.
+
+- [`deploy-cloudflare.md`](deploy-cloudflare.md) — **Cloudflare Workers + Neon** (the
+  `:cf` scripts): `wrangler.jsonc`, `.dev.vars`, the Neon HTTP driver. Explains how
+  `DEPLOY_TARGET` picks the driver in `src/db.ts`.
+- [`deploy-aws.md`](deploy-aws.md) — **AWS ECS/Fargate + RDS** (the default): a Node
+  server (`server.js`/`Dockerfile`) using node-postgres. End-to-end runbook.
 - [`deployment-auth-troubleshooting.md`](deployment-auth-troubleshooting.md) — why
-  deployed login broke (prod Worker missing `AUTH_SECRET`/`DATABASE_URL`) and the
-  `wrangler secret put` fix.
+  deployed login broke (prod runtime missing `AUTH_SECRET`/`DATABASE_URL`) and the fix
+  (`wrangler secret put` on Cloudflare, Secrets Manager → ECS on AWS).
 - [`preprod-test-plan.md`](preprod-test-plan.md) — whole-app pre-production acceptance
   test plan across all three tiers: tier access matrix, per-module suites, cross-cutting
   auth/RBAC/security suites, and the release gate.

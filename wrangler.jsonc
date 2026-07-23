@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "quorq-hr",
+  "compatibility_date": "2025-09-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  // Selects the Neon HTTP driver at runtime (src/db.ts). AUTH_SECRET and
+  // DATABASE_URL are NOT vars — set them as secrets: `.dev.vars` locally and
+  // `wrangler secret put …` in production. See docs/deploy-cloudflare.md.
+  "vars": {
+    "DEPLOY_TARGET": "cloudflare",
+  },
+  "routes": [
+    {
+      "pattern": "quorq.saitezz-m12.in",
+      "custom_domain": true,
+    },
+  ],
+}
