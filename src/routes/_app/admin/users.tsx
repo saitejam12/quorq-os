@@ -41,6 +41,10 @@ function UsersPage() {
     },
   })
 
+   const activeUsers =
+    usersQuery.data?.filter((user) => user.status !== 'pending' && user.status !== 'rejected') ?? []
+  
+
   const mutationError =
     tierMutation.data && !tierMutation.data.ok ? tierMutation.data.error : ''
 
@@ -77,7 +81,7 @@ function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {(usersQuery.data ?? []).map((user) => {
+              {(activeUsers ?? []).map((user) => {
                 const isSelf = user.id === caller.id
                 const canEdit =
                   !isSelf &&

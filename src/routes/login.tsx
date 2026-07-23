@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { LogIn, Loader2 } from 'lucide-react'
 import BrandPanel from '#/components/BrandPanel'
 import { getCurrentUser, login, getAuthDiagnostics } from '#/server/auth'
+import { DEMO_ACCOUNTS, SHOW_DEMO_ACCOUNTS } from '#/lib/demo'
 
 export const Route = createFileRoute('/login')({
   beforeLoad: async () => {
@@ -11,12 +12,6 @@ export const Route = createFileRoute('/login')({
   },
   component: LoginPage,
 })
-
-const demoAccounts = [
-  { tier: 'basic', email: 'basic@quorq.com', password: 'basic123' },
-  { tier: 'ops', email: 'ops@quorq.com', password: 'ops123' },
-  { tier: 'master', email: 'master@quorq.com', password: 'master123' },
-] as const
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -121,26 +116,28 @@ function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
-            <div className="text-xs font-medium text-slate-500">
-              Demo accounts
+          {SHOW_DEMO_ACCOUNTS ? (
+            <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
+              <div className="text-xs font-medium text-slate-500">
+                Demo accounts
+              </div>
+              <div className="mt-2 flex gap-2">
+                {DEMO_ACCOUNTS.map((account) => (
+                  <button
+                    key={account.tier}
+                    type="button"
+                    onClick={() => {
+                      setEmail(account.email)
+                      setPassword(account.password)
+                    }}
+                    className="flex-1 rounded-md border border-slate-200 py-1.5 text-xs font-medium capitalize text-slate-600 hover:bg-slate-50"
+                  >
+                    {account.tier}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="mt-2 flex gap-2">
-              {demoAccounts.map((account) => (
-                <button
-                  key={account.tier}
-                  type="button"
-                  onClick={() => {
-                    setEmail(account.email)
-                    setPassword(account.password)
-                  }}
-                  className="flex-1 rounded-md border border-slate-200 py-1.5 text-xs font-medium capitalize text-slate-600 hover:bg-slate-50"
-                >
-                  {account.tier}
-                </button>
-              ))}
-            </div>
-          </div>
+          ) : null}
 
           <div className="mt-4 flex items-center justify-between text-sm text-slate-700">
             <div>New User? </div>

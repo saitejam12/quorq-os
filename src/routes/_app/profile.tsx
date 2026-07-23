@@ -21,7 +21,7 @@ import {
   Clock,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { getMyProfile } from '#/server/profile'
+import { getMyProfile, saveMyProfile } from '#/server/profile'
 import type { MyProfile } from '#/server/profile'
 import {
   getMyProfileChangeRequest,
@@ -29,7 +29,9 @@ import {
 } from '#/server/profile-requests'
 import { PROFILE_FIELDS } from '#/lib/profile-fields'
 import type { ProfileField } from '#/lib/profile-fields'
+import { hasTier } from '#/lib/tiers'
 import { Card, CardHeader } from '#/components/ui'
+import ProfileFieldsModal from '#/components/ProfileFieldsModal'
 import { mask } from '#/lib/mask'
 import PayslipCard from '#/components/PayslipCard'
 
@@ -215,9 +217,29 @@ function RequestChangesModal({
   )
 }
 
+// Blank create form for a master with no employee record yet — name/email are
+// pre-filled from their login, with sensible defaults for the required fields.
+function blankProfileForm(user: {
+  name: string
+  email: string
+}): Record<string, string> {
+  const base: Record<string, string> = {}
+  for (const f of PROFILE_FIELDS) base[f.key] = ''
+  base.name = user.name
+  base.email = user.email
+  base.employmentType = 'full-time'
+  base.location = 'Hyderabad'
+  base.dateOfJoining = new Date().toISOString().slice(0, 10)
+  return base
+}
+
 function ProfilePage() {
+  const router = useRouter()
+  const { user } = Route.useRouteContext()
   const { profile: data, request } = Route.useLoaderData()
+  const isMaster = hasTier(user.tier, 'master')
   const [modalOpen, setModalOpen] = useState(false)
+  const [masterModal, setMasterModal] = useState<null | 'create' | 'edit'>(null)
 
   if (!data) {
     return (
@@ -227,7 +249,26 @@ function ProfilePage() {
           <p className="mt-3 text-sm text-slate-500">
             Your account isn&apos;t linked to an employee record yet.
           </p>
+          {isMaster ? (
+            <button
+              onClick={() => setMasterModal('create')}
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              <Pencil size={15} /> Add my details
+            </button>
+          ) : null}
         </Card>
+        {isMaster && masterModal === 'create' ? (
+          <ProfileFieldsModal
+            title="Add your details"
+            description="Create your employee record. These details save directly — no approval needed."
+            initial={blankProfileForm(user)}
+            submitLabel="Save details"
+            onSubmit={(form) => saveMyProfile({ data: { changes: form } })}
+            onClose={() => setMasterModal(null)}
+            onSaved={() => router.invalidate()}
+          />
+        ) : null}
       </div>
     )
   }
@@ -240,7 +281,7 @@ function ProfilePage() {
       <div className="max-w-full">
         <PayslipCard />
       </div>
-      {pending ? (
+      {!isMaster && pending ? (
         <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           <Clock size={16} className="mt-0.5 shrink-0" />
           <span>
@@ -251,7 +292,7 @@ function ProfilePage() {
             . You can submit a new one once it&apos;s decided.
           </span>
         </div>
-      ) : request?.status === 'rejected' ? (
+      ) : !isMaster && request?.status === 'rejected' ? (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           Your last change request was declined
           {request.reviewReason ? `: ${request.reviewReason}` : ''}.
@@ -384,15 +425,18 @@ function ProfilePage() {
       </Card>
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">
-          Your details are read-only. Use “Request changes” to propose edits for
-          approval.
+          {isMaster
+            ? 'You can edit your details directly — changes save immediately.'
+            : 'Your details are read-only. Use “Request changes” to propose edits for approval.'}
         </p>
         <button
-          onClick={() => setModalOpen(true)}
-          disabled={pending}
+          onClick={() =>
+            isMaster ? setMasterModal('edit') : setModalOpen(true)
+          }
+          disabled={!isMaster && pending}
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          <Pencil size={15} /> Request changes
+          <Pencil size={15} /> {isMaster ? 'Edit details' : 'Request changes'}
         </button>
       </div>
 
@@ -400,6 +444,17 @@ function ProfilePage() {
         <RequestChangesModal
           profile={data}
           onClose={() => setModalOpen(false)}
+        />
+      ) : null}
+      {isMaster && masterModal === 'edit' ? (
+        <ProfileFieldsModal
+          title="Edit my details"
+          description="Changes save directly — no approval needed."
+          initial={currentFromProfile(data)}
+          submitLabel="Save changes"
+          onSubmit={(form) => saveMyProfile({ data: { changes: form } })}
+          onClose={() => setMasterModal(null)}
+          onSaved={() => router.invalidate()}
         />
       ) : null}
     </div>

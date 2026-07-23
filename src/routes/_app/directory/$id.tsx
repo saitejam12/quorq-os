@@ -12,9 +12,15 @@ import {
   ShieldCheck,
   Network,
   Loader2,
+  Pencil,
 } from 'lucide-react'
 import { getEmployee, updateEmployeeOrg } from '#/server/people'
+import {
+  getEmployeeEditableProfile,
+  updateEmployeeProfile,
+} from '#/server/profile'
 import { Card, CardHeader, Avatar, Badge } from '#/components/ui'
+import ProfileFieldsModal from '#/components/ProfileFieldsModal'
 import { TIERS } from '#/lib/tiers'
 import type { Tier } from '#/lib/tiers'
 
@@ -175,6 +181,12 @@ function OrgAccessCard({
 }
 
 function EmployeeProfile() {
+  const router = useRouter()
+  const [editInitial, setEditInitial] = useState<Record<string, string> | null>(
+    null,
+  )
+  const [editLoading, setEditLoading] = useState(false)
+  const [editError, setEditError] = useState('')
   const data = Route.useLoaderData()
   if (!data) {
     return (
@@ -192,18 +204,49 @@ function EmployeeProfile() {
     reports,
     kudos,
     canManage,
+    canEditProfile,
     managerOptions,
     linkedUserTier,
   } = data
 
+  async function openEdit() {
+    setEditLoading(true)
+    setEditError('')
+    const res = await getEmployeeEditableProfile({ data: e.id })
+    setEditLoading(false)
+    if (res.ok) setEditInitial(res.data)
+    else setEditError(res.error)
+  }
+
   return (
     <div className="space-y-5 p-6">
-      <Link
-        to="/directory"
-        className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
-      >
-        <ArrowLeft size={15} /> Back to directory
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          to="/directory"
+          className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
+        >
+          <ArrowLeft size={15} /> Back to directory
+        </Link>
+        {canEditProfile ? (
+          <button
+            onClick={openEdit}
+            disabled={editLoading}
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {editLoading ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Pencil size={15} />
+            )}
+            Edit personal details
+          </button>
+        ) : null}
+      </div>
+      {editError ? (
+        <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          {editError}
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <Card className="p-6 text-center">
@@ -331,6 +374,20 @@ function EmployeeProfile() {
           </div>
         </Card>
       </div>
+
+      {editInitial ? (
+        <ProfileFieldsModal
+          title={`Edit ${e.name}’s personal details`}
+          description="Changes save directly to this employee’s record — no approval needed."
+          initial={editInitial}
+          submitLabel="Save changes"
+          onSubmit={(form) =>
+            updateEmployeeProfile({ data: { employeeId: e.id, changes: form } })
+          }
+          onClose={() => setEditInitial(null)}
+          onSaved={() => router.invalidate()}
+        />
+      ) : null}
     </div>
   )
 }

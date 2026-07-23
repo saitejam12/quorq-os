@@ -29,6 +29,7 @@ function FieldError({ errors }: { errors: Array<unknown> }) {
 function SignupPage() {
   const [serverError, setServerError] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [bootstrapped, setBootstrapped] = useState(false)
 
   const form = useForm({
     defaultValues: {
@@ -51,6 +52,7 @@ function SignupPage() {
         setServerError(res.error)
         return
       }
+      setBootstrapped(res.data.bootstrapped)
       setSubmitted(true)
     },
   })
@@ -65,17 +67,18 @@ function SignupPage() {
           <div className="w-full max-w-sm py-8 text-center">
             <MailCheck className="mx-auto text-emerald-500" size={48} />
             <h1 className="mt-4 text-2xl font-bold text-slate-900">
-              Request submitted
+              {bootstrapped ? 'You’re all set' : 'Request submitted'}
             </h1>
             <p className="mt-2 text-sm text-slate-500">
-              A master admin must approve your account. You can sign in once
-              it&apos;s approved.
+              {bootstrapped
+                ? 'As the first account, you’ve been set up as the master admin. Sign in to get started and add your details.'
+                : 'A master admin must approve your account. You can sign in once it’s approved.'}
             </p>
             <a
               href="/login"
               className="mt-6 inline-block text-sm text-blue-500 hover:underline"
             >
-              Back to sign in
+              {bootstrapped ? 'Go to sign in' : 'Back to sign in'}
             </a>
           </div>
         ) : (

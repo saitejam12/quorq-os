@@ -36,7 +36,7 @@ import { requireTier } from '#/lib/guards'
 
 export const Route = createFileRoute('/_app/payroll')({
   staticData: { title: 'Payroll' },
-  beforeLoad: ({ context }) => requireTier(context.user, 'ops'),
+  beforeLoad: ({ context }) => requireTier(context.user, 'master'),
   loader: () => getPayroll(),
   component: Payroll,
 })

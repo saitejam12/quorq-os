@@ -156,6 +156,8 @@ export const getEmployee = createServerFn({ method: 'GET' })
       // people who can be picked as this employee's manager.
       const caller = await getCaller(sql, 'basic')
       const canManage = !!caller && hasTier(caller.tier, 'ops')
+      // Master can edit an employee's personal details directly (in a popup).
+      const canEditProfile = !!caller && hasTier(caller.tier, 'master')
 
       let linkedUserTier: Tier | null = null
       let managerOptions: Array<{
@@ -199,6 +201,7 @@ export const getEmployee = createServerFn({ method: 'GET' })
           message: k.message as string,
         })),
         canManage,
+        canEditProfile,
         linkedUserTier,
         managerOptions,
       }

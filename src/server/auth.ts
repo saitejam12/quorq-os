@@ -14,6 +14,13 @@ import type { Tier } from '#/lib/tiers'
 export const SESSION_COOKIE = 'quorq_session'
 const TOKEN_TTL_SECONDS = 60 * 60 * 24 // 24h — spec'd staleness bound
 
+// A `secure` cookie is silently dropped by browsers over plain http, so on a
+// local `vite dev` (http://localhost) the session cookie would never persist —
+// login "succeeds" but the next request is anonymous, with no error. Gate it on
+// the runtime env: production (https behind the ECS load balancer) keeps secure;
+// dev does not. Cross-site sameSite still requires secure, so `lax` in dev.
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+
 export interface AuthUser {
   id: number
   email: string
@@ -59,7 +66,7 @@ export const signup = createServerFn({ method: 'POST' })
       password: z.string().min(8),
     }),
   )
-  .handler(async ({ data }): Promise<Result<null>> => {
+  .handler(async ({ data }): Promise<Result<{ bootstrapped: boolean }>> => {
     try {
       const sql = requireDb()
       const email = data.email.toLowerCase()
@@ -71,6 +78,21 @@ export const signup = createServerFn({ method: 'POST' })
         }
       }
       const passwordHash = await hashPassword(data.password)
+
+      // Bootstrap: on a fresh database with no users there is no master to
+      // approve anyone, so the very first account is created as an active
+      // master. Every subsequent signup goes through the normal pending flow.
+      const userCount = Number(
+        (await sql`SELECT COUNT(*)::int AS c FROM users`)[0].c,
+      )
+      if (userCount === 0) {
+        await sql`
+          INSERT INTO users (email, name, password_hash, tier, status)
+          VALUES (${email}, ${data.name}, ${passwordHash}, 'master', 'active')
+        `
+        return { ok: true, data: { bootstrapped: true } }
+      }
+
       await sql`
         INSERT INTO users (email, name, password_hash)
         VALUES (${email}, ${data.name}, ${passwordHash})
@@ -85,7 +107,7 @@ export const signup = createServerFn({ method: 'POST' })
         applicantName: data.name,
         applicantEmail: email,
       })
-      return { ok: true, data: null }
+      return { ok: true, data: { bootstrapped: false } }
     } catch (error) {
       console.error('signup failed', error)
       return {
@@ -147,7 +169,7 @@ export const login = createServerFn({ method: 'POST' })
       )
       setCookie(SESSION_COOKIE, token, {
         httpOnly: true,
-        secure: true,
+        secure: IS_PRODUCTION,
         sameSite: 'lax',
         path: '/',
         maxAge: TOKEN_TTL_SECONDS,
