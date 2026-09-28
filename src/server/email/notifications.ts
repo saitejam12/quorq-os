@@ -1,6 +1,6 @@
 import { render } from '@react-email/render'
 import type { ReactElement } from 'react'
-import { sendEmail } from './ses'
+import { sendEmail } from './resend'
 import {
   ProfileChangeApprovedEmail,
   ProfileChangeRejectedEmail,
@@ -13,7 +13,7 @@ import {
 // One function per event: render the template to HTML + plain text and send it.
 // BEST-EFFORT — every helper catches its own errors and returns without throwing.
 // Email is a side effect; it must never fail the authoritative DB action (a user
-// is created / approved / rejected even if SES is down or unconfigured).
+// is created / approved / rejected even if Resend is down or unconfigured).
 
 const APP_URL = () => process.env.APP_URL ?? ''
 
@@ -31,7 +31,7 @@ async function deliver(
     const res = await sendEmail({ to: recipients, subject, html, text })
     if (!res.ok) console.error(`[email] ${label} not sent:`, res.error)
   } catch (error) {
-    // Includes the "SES is not configured" case — log, never propagate.
+    // Includes the "Resend is not configured" case — log, never propagate.
     console.error(`[email] ${label} failed:`, error)
   }
 }

@@ -4,7 +4,7 @@
 **Scope:** Environment-level acceptance testing of the entire QuorqOS HR portal on a
 deployed pre-production Worker, across all three access tiers (`basic`, `ops`, `master`)
 and every module. This validates the running system — real Cloudflare Worker, real Neon
-database, real secrets, real SES email — not units (units run in CI via `vitest`).
+database, real secrets, real Resend email — not units (units run in CI via `vitest`).
 
 The plan's backbone is the **tier access matrix** (who can see/do what). Every module
 suite and cross-cutting suite hangs off it. Priorities: **P0** blocks release, **P1**
@@ -19,14 +19,13 @@ fix before general availability, **P2** confirm when possible.
 - **Isolated database.** A dedicated Neon branch, schema applied (`node scripts/apply-schema.mjs`)
   and seeded (`node scripts/seed-people.mjs`, deterministic ~142 employees). Never point
   pre-prod at the prod DB.
-- **Secrets / vars (pre-prod).** `AUTH_SECRET`, `DATABASE_URL`, `AWS_ACCESS_KEY_ID`,
-  `AWS_SECRET_ACCESS_KEY` via `wrangler secret put --env preprod`; `AWS_REGION`,
-  `SES_FROM_EMAIL`, `APP_URL` (pointing at the pre-prod URL) in `[env.preprod]` `[vars]`.
-- **Email.** Keep SES in the sandbox; use the SES mailbox simulator (`success@`, `bounce@`,
-  `complaint@simulator.amazonses.com`) plus 2–3 verified real inboxes. Full email detail
-  lives in [`superpowers/specs/2026-07-14-email-notifications-design.md`](superpowers/specs/2026-07-14-email-notifications-design.md#pre-production-test-plan)
+- **Secrets / vars (pre-prod).** `AUTH_SECRET`, `DATABASE_URL`, `RESEND_API_KEY`
+  via `wrangler secret put --env preprod`; `RESEND_FROM_EMAIL` and `APP_URL`
+  (pointing at the pre-prod URL) in `[env.preprod]` `[vars]`.
+- **Email.** Use a verified Resend sending domain (or the Resend test address) plus
+  2–3 real inboxes. Full email detail lives in [`superpowers/specs/2026-07-14-email-notifications-design.md`](superpowers/specs/2026-07-14-email-notifications-design.md#pre-production-test-plan)
   (suites A–G); this plan references it as module **M20** rather than duplicating it.
-- **Observability.** `wrangler tail --env preprod` for live Worker logs, the SES sending
+- **Observability.** `wrangler tail --env preprod` for live Worker logs, the Resend
   dashboard, and read-only SQL against the Neon branch for state assertions.
 - **Clients.** Test on desktop Chrome + one WebKit/Firefox, plus a mobile viewport (the
   sidebar collapses to a top bar under `lg`).
@@ -219,7 +218,7 @@ Session result: ____ pass · ____ fail · ____ blocked
 | --- | --- | --- |
 | X4.1 | `Result<T>` shape | Mutations return `{ok:false,error}` for expected failures; only unexpected errors are `console.error`'d |
 | X4.2 | Attendance reconcile failure | `reconcileAttendance` throwing in `_app` `beforeLoad` never blocks app access (caught + logged) |
-| X4.3 | No secret leakage | AWS keys / `AUTH_SECRET` / `DATABASE_URL` values never appear in logs or responses |
+| X4.3 | No secret leakage | `RESEND_API_KEY` / `AUTH_SECRET` / `DATABASE_URL` values never appear in logs or responses |
 | X4.4 | Invalid input to any mutation | Zod validator rejects cleanly; no 500 |
 
 ### X5 — Data integrity (P1)
@@ -325,7 +324,7 @@ blocked** at the RPC layer (ties back to X2.1).
 - Covered by M12 + X4.2: idempotent per day, never blocks app load.
 
 ### M20 — Email notifications  ·  system
-- Full suites A–G in the email spec: SES/SigV4 live, reset e2e, signup fan-out,
+- Full suites A–G in the email spec: Resend transport live, reset e2e, signup fan-out,
   best-effort resilience, deliverability, security, regression. All P0 there are P0 here.
 
 ---
@@ -378,8 +377,8 @@ each writable module; confirm one ⛔ page redirects to `/?denied=1`.
 5. No secret leakage (X4.3/N2), no account enumeration (X1.5/M20 B2).
 6. Automated suite green; smoke checklist passes for all three tiers.
 7. Data isolation confirmed (N5).
-8. **Then**, as the deliberate final step, request SES production access before pointing
-   prod at live email.
+8. **Then**, as the deliberate final step, verify the Resend sending domain (SPF/DKIM/DMARC)
+   before pointing prod at live email.
 
 ### Sign-off matrix
 Record pass/fail per **tier × module** (basic/ops/master × M1–M20) plus each cross-cutting

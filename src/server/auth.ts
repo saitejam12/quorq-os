@@ -24,10 +24,10 @@ export interface AuthUser {
 export type Result<T> = { ok: true; data: T } | { ok: false; error: string }
 
 const GENERIC_ERROR = 'Something went wrong'
-// Shown when a required env var (AUTH_SECRET / DATABASE_URL) is absent — the
-// usual cause of auth failing in a deployment where they were never injected.
+// Shown when a required worker secret (AUTH_SECRET / DATABASE_URL) is absent —
+// the usual cause of auth failing in a deployment where secrets were never set.
 const CONFIG_ERROR =
-  'Authentication is unavailable — the server is missing its AUTH_SECRET / DATABASE_URL environment variables. An administrator must inject them (on AWS: from Secrets Manager into the ECS task).'
+  'Authentication is unavailable — the server is missing its AUTH_SECRET / DATABASE_URL secrets. An administrator must set them with `wrangler secret put`.'
 
 export function getAuthSecret(): string {
   const secret = process.env.AUTH_SECRET

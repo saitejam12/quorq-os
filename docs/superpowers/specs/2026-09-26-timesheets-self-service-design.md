@@ -14,9 +14,9 @@ requests overtime), **submit-for-approval**, an **ops+ review queue**
 (approve/decline), **close-week** finalisation for non-submitters, an **auto
 clock-out after 8h**, and **time-entry history**.
 
-Stack note: this branch uses **node-postgres** via the `SqlClient` adapter in
-`src/db.ts` — same tagged-template `sql` surface as before, plus
-`sql.query(text, params)` and `sql.transaction([...])`. Coding model unchanged.
+Stack note: DB access is the **Neon serverless** client (`@neondatabase/serverless`)
+via `requireDb()` in `src/db.ts` — tagged-template `sql`, plus `sql.query(text, params)`
+and `sql.transaction([...])`. Coding model unchanged.
 
 ## Data model (`db/init.sql`, idempotent; no `;` in comments, no `DO` blocks)
 
@@ -141,7 +141,7 @@ so the review queue and history are populated.
   weekEnd, addDays, isLocked.
 - `vitest run`, `eslint`, `tsc --noEmit` clean (expect the known `/settings`
   sidebar errors only if present on this branch).
-- Live SQL smoke via a root `.mjs` (resolve DATABASE_URL like `db-url.mjs`):
+- Live SQL smoke via a root `.mjs` (read DATABASE_URL from `.env.local`, `neon(...)`):
   submit → appears in review → approve applies status; file entry + editOwnEntry
   respect the lock; close-week finalises a non-submitter. Delete the script after.
 

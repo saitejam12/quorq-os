@@ -27,13 +27,11 @@ describe('email templates', () => {
 })
 
 describe('best-effort contract', () => {
-  it('swallows a missing-SES-config error and resolves without throwing', async () => {
-    // No AWS_* env set -> sendEmail() throws "not configured"; deliver() must
+  it('swallows a missing-Resend-config error and resolves without throwing', async () => {
+    // No RESEND_* env set -> sendEmail() throws "not configured"; deliver() must
     // catch it so the caller (signup/reset/approve) is never affected.
-    vi.stubEnv('AWS_ACCESS_KEY_ID', '')
-    vi.stubEnv('AWS_SECRET_ACCESS_KEY', '')
-    vi.stubEnv('AWS_REGION', '')
-    vi.stubEnv('SES_FROM_EMAIL', '')
+    vi.stubEnv('RESEND_API_KEY', '')
+    vi.stubEnv('RESEND_FROM_EMAIL', '')
     await expect(
       sendPasswordResetEmail({ to: 'a@b.com', name: 'A', token: 't' }),
     ).resolves.toBeUndefined()
