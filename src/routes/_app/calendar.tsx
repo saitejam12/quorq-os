@@ -304,7 +304,7 @@ function ReconcileButton() {
     setBusy(false)
     setMsg(
       res.ok
-        ? `Reconciled ${res.data.daysProcessed} day(s), ${res.data.entriesCreated} absence(s) recorded.`
+        ? `Reconciled ${res.data.daysProcessed} day(s): ${res.data.entriesCreated} absence(s) recorded, ${res.data.reimbursed} auto-leave reimbursed.`
         : res.error,
     )
   }
