@@ -435,3 +435,41 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_reset_tokens_hash ON password_reset_tokens (token_hash);
+
+-- ==========================================================================
+-- Self-service weekly timesheets + overtime requests
+-- ==========================================================================
+
+-- One submission per employee per week (week_start = the Monday, UTC date).
+-- status: submitted (awaiting review), approved, declined (reopens editing),
+-- closed (force-finalised by ops for a non-submitter).
+CREATE TABLE IF NOT EXISTS timesheets (
+    id SERIAL PRIMARY KEY,
+    employee_id INTEGER NOT NULL REFERENCES employees(id),
+    employee_name VARCHAR(120) NOT NULL,
+    department VARCHAR(64) NOT NULL,
+    week_start DATE NOT NULL,
+    hours NUMERIC(6,2) NOT NULL DEFAULT 0,
+    entries INTEGER NOT NULL DEFAULT 0,
+    status VARCHAR(16) NOT NULL DEFAULT 'submitted',
+    review_reason VARCHAR(300),
+    submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    reviewed_at TIMESTAMPTZ,
+    reviewed_by VARCHAR(120),
+    UNIQUE (employee_id, week_start)
+);
+
+-- Employee overtime requests, reviewed by ops.
+CREATE TABLE IF NOT EXISTS overtime_requests (
+    id SERIAL PRIMARY KEY,
+    employee_id INTEGER NOT NULL REFERENCES employees(id),
+    employee_name VARCHAR(120) NOT NULL,
+    department VARCHAR(64) NOT NULL,
+    day DATE NOT NULL,
+    hours NUMERIC(4,1) NOT NULL,
+    reason VARCHAR(300),
+    status VARCHAR(16) NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    reviewed_at TIMESTAMPTZ,
+    reviewed_by VARCHAR(120)
+);

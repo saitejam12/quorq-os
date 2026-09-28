@@ -310,6 +310,8 @@ await sql`DELETE FROM jd_templates`
 await sql`DELETE FROM attendance_records`
 await sql`DELETE FROM leave_requests`
 await sql`DELETE FROM time_entries`
+await sql`DELETE FROM timesheets`
+await sql`DELETE FROM overtime_requests`
 await sql`DELETE FROM holidays`
 await sql`DELETE FROM app_settings`
 await sql`DELETE FROM profile_change_requests`
@@ -912,6 +914,83 @@ await bulk(
   timeRows,
 )
 console.log(`Inserted ${timeRows.length} time entries`)
+
+// ---- weekly timesheets + overtime (a few employees, ~3 weeks of history) --
+const isoAdd = (s, n) =>
+  iso(new Date(new Date(`${s}T00:00:00Z`).getTime() + n * 86400000))
+const mondayOf = (s) => {
+  const d = new Date(`${s}T00:00:00Z`)
+  return isoAdd(s, -((d.getUTCDay() + 6) % 7))
+}
+const tsEmps = allEmployees.slice(0, 5)
+const tsRows = []
+for (let back = 1; back <= 21; back++) {
+  const day = iso(daysAgo(back))
+  const dow = new Date(`${day}T00:00:00Z`).getUTCDay()
+  if (dow === 0 || dow === 6) continue // skip weekends
+  for (const emp of tsEmps) {
+    tsRows.push({
+      employee_id: emp.id,
+      employee_name: emp.name,
+      department: emp.department,
+      day,
+      clock_in: `${day}T09:00:00Z`,
+      clock_out: `${day}T17:00:00Z`,
+      hours_worked: 8,
+      status: 'completed',
+    })
+  }
+}
+await bulk(
+  'time_entries',
+  [
+    'employee_id',
+    'employee_name',
+    'department',
+    'day',
+    'clock_in',
+    'clock_out',
+    'hours_worked',
+    'status',
+  ],
+  tsRows,
+)
+console.log(`Inserted ${tsRows.length} weekly history entries`)
+
+const curMon = mondayOf(iso(daysAgo(0)))
+const prevMon = isoAdd(curMon, -7)
+const prev2Mon = isoAdd(curMon, -14)
+// Submitted (awaiting review) + declined + approved, leaving the current week
+// open so it shows in the "due" banner and the ops "not submitted" list.
+const tsSubmissions = [
+  { emp: tsEmps[0], week: prevMon, status: 'submitted', reason: null },
+  { emp: tsEmps[1], week: prevMon, status: 'submitted', reason: null },
+  {
+    emp: tsEmps[2],
+    week: prevMon,
+    status: 'declined',
+    reason: 'Thursday hours look off — please correct.',
+  },
+  { emp: tsEmps[3], week: prev2Mon, status: 'approved', reason: null },
+  { emp: tsEmps[4], week: prev2Mon, status: 'approved', reason: null },
+]
+for (const s of tsSubmissions) {
+  await sql`insert into timesheets
+    (employee_id, employee_name, department, week_start, hours, entries, status, review_reason, submitted_at)
+    values (${s.emp.id}, ${s.emp.name}, ${s.emp.department}, ${s.week}, 40, 5, ${s.status}, ${s.reason}, ${isoAdd(s.week, 6)})`
+}
+console.log(`Inserted ${tsSubmissions.length} timesheets`)
+
+const overtimeRows = [
+  { emp: tsEmps[0], day: isoAdd(prevMon, 2), hours: 3, reason: 'Release cutover', status: 'pending' },
+  { emp: tsEmps[1], day: isoAdd(prevMon, 4), hours: 2, reason: 'Customer escalation', status: 'approved' },
+]
+for (const o of overtimeRows) {
+  await sql`insert into overtime_requests
+    (employee_id, employee_name, department, day, hours, reason, status)
+    values (${o.emp.id}, ${o.emp.name}, ${o.emp.department}, ${o.day}, ${o.hours}, ${o.reason}, ${o.status})`
+}
+console.log(`Inserted ${overtimeRows.length} overtime requests`)
 
 // ---- expenses ------------------------------------------------------------
 const EXP_CATS = [
