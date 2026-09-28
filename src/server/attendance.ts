@@ -6,6 +6,9 @@ import type { Result } from '#/server/auth'
 
 const RECONCILE_KEY = 'attendance_last_reconciled'
 const MS_PER_DAY = 86_400_000
+// Every employee starts the year with this many days (employees.leave_balance
+// DEFAULT in db/init.sql). Reimbursing auto-leave never pushes a balance above it.
+const STARTING_LEAVE_BALANCE = 15
 
 const isoDate = (ms: number) => new Date(ms).toISOString().slice(0, 10)
 
@@ -50,12 +53,15 @@ interface EmpState {
 // path (marker already at yesterday → early return before any scan).
 export const reconcileAttendance = createServerFn({ method: 'POST' }).handler(
   async (): Promise<
-    Result<{ daysProcessed: number; entriesCreated: number }>
+    Result<{ daysProcessed: number; entriesCreated: number; reimbursed: number }>
   > => {
     try {
       const me = await getSessionUser()
       if (!me)
-        return { ok: true, data: { daysProcessed: 0, entriesCreated: 0 } }
+        return {
+          ok: true,
+          data: { daysProcessed: 0, entriesCreated: 0, reimbursed: 0 },
+        }
 
       const sql = requireDb()
       const yesterday = yesterdayUtc()
@@ -65,10 +71,59 @@ export const reconcileAttendance = createServerFn({ method: 'POST' }).handler(
         // First run in this environment: start the clock at yesterday rather than
         // backfilling the entire seeded history.
         await setSetting(sql, RECONCILE_KEY, yesterday)
-        return { ok: true, data: { daysProcessed: 0, entriesCreated: 0 } }
+        return {
+          ok: true,
+          data: { daysProcessed: 0, entriesCreated: 0, reimbursed: 0 },
+        }
       }
       if (marker >= yesterday) {
-        return { ok: true, data: { daysProcessed: 0, entriesCreated: 0 } }
+        return {
+          ok: true,
+          data: { daysProcessed: 0, entriesCreated: 0, reimbursed: 0 },
+        }
+      }
+
+      // Master-tier employees are exempt from the auto-leave policy.
+      const masterRows = (await sql`
+        select employee_id from users where tier = 'master' and employee_id is not null`) as Array<{
+        employee_id: number
+      }>
+      const masterIds = new Set(masterRows.map((r) => r.employee_id))
+
+      // Reimbursement pass: reverse an auto-leave once the day now has a
+      // completed time entry (the employee filed/edited their timesheet), or the
+      // employee is now master-exempt. Restore the deducted balance, drop the
+      // auto row, and mark the day present.
+      const reimburseRows = (await sql`
+        select le.id, le.employee_id, le.type, le.days, le.start_date::text as day
+        from leave_requests le
+        left join users u on u.employee_id = le.employee_id
+        where le.source = 'auto' and le.status = 'approved'
+          and (
+            u.tier = 'master'
+            or exists (
+              select 1 from time_entries t
+              where t.employee_id = le.employee_id and t.day = le.start_date and t.status = 'completed'
+            )
+          )`) as Array<{
+        id: number
+        employee_id: number
+        type: string
+        days: string
+        day: string
+      }>
+      let reimbursed = 0
+      for (const r of reimburseRows) {
+        const restore = r.type === 'auto-leave' ? Number(r.days) : 0
+        if (restore > 0) {
+          await sql`update employees
+            set leave_balance = least(leave_balance + ${restore}, ${STARTING_LEAVE_BALANCE})
+            where id = ${r.employee_id}`
+        }
+        await sql`delete from leave_requests where id = ${r.id}`
+        await sql`update attendance_records set status = 'present'
+          where employee_id = ${r.employee_id} and day = ${r.day}`
+        reimbursed++
       }
 
       const holidayRows =
@@ -107,6 +162,7 @@ export const reconcileAttendance = createServerFn({ method: 'POST' }).handler(
 
         for (const emp of employees) {
           if (emp.joining > day) continue
+          if (masterIds.has(emp.id)) continue // master exempt from auto-leave
           if (clocked.has(emp.id) || onLeave.has(emp.id)) continue
 
           const cls = classifyAbsence(emp.balance)
@@ -136,7 +192,10 @@ export const reconcileAttendance = createServerFn({ method: 'POST' }).handler(
       }
 
       await setSetting(sql, RECONCILE_KEY, yesterday)
-      return { ok: true, data: { daysProcessed: days.length, entriesCreated } }
+      return {
+        ok: true,
+        data: { daysProcessed: days.length, entriesCreated, reimbursed },
+      }
     } catch (error) {
       console.error('reconcileAttendance failed', error)
       return { ok: false, error: 'Attendance reconciliation failed' }
