@@ -6,6 +6,9 @@ import type { Result } from '#/server/auth'
 
 const RECONCILE_KEY = 'attendance_last_reconciled'
 const MS_PER_DAY = 86_400_000
+// Every employee starts the year with this many days (employees.leave_balance
+// DEFAULT in db/init.sql). Reimbursing auto-leave never pushes a balance above it.
+const STARTING_LEAVE_BALANCE = 15
 
 const isoDate = (ms: number) => new Date(ms).toISOString().slice(0, 10)
 
@@ -113,7 +116,9 @@ export const reconcileAttendance = createServerFn({ method: 'POST' }).handler(
       for (const r of reimburseRows) {
         const restore = r.type === 'auto-leave' ? Number(r.days) : 0
         if (restore > 0) {
-          await sql`update employees set leave_balance = leave_balance + ${restore} where id = ${r.employee_id}`
+          await sql`update employees
+            set leave_balance = least(leave_balance + ${restore}, ${STARTING_LEAVE_BALANCE})
+            where id = ${r.employee_id}`
         }
         await sql`delete from leave_requests where id = ${r.id}`
         await sql`update attendance_records set status = 'present'
